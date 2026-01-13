@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { Menu, X, User, ChevronDown, ArrowUpRight, Search, Sun, Moon, Globe, Plus, Calculator, FileText } from 'lucide-react';
+import { Menu, X, User, ChevronDown, ArrowUpRight, Search, Sun, Moon, Globe, Calculator, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -51,7 +51,7 @@ export function Header() {
   const [showFilters, setShowFilters] = useState(false);
   const [langMenuOpen, setLangMenuOpen] = useState(false);
   const [currentLang, setCurrentLang] = useState('pt');
-  const [plusMenuOpen, setPlusMenuOpen] = useState(false);
+  const [ctaMenuOpen, setCtaMenuOpen] = useState(false);
   
   // Filter states
   const [searchLocation, setSearchLocation] = useState('');
@@ -73,17 +73,17 @@ export function Header() {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
       if (!target.closest('[data-dropdown]')) {
-        setPlusMenuOpen(false);
+        setCtaMenuOpen(false);
         setLangMenuOpen(false);
         setUserMenuOpen(false);
       }
     };
     
-    if (plusMenuOpen || langMenuOpen || userMenuOpen) {
+    if (ctaMenuOpen || langMenuOpen || userMenuOpen) {
       document.addEventListener('click', handleClickOutside);
       return () => document.removeEventListener('click', handleClickOutside);
     }
-  }, [plusMenuOpen, langMenuOpen, userMenuOpen]);
+  }, [ctaMenuOpen, langMenuOpen, userMenuOpen]);
 
 
   const currentLanguage = languages.find(l => l.code === currentLang) || languages[0];
@@ -105,8 +105,6 @@ export function Header() {
     { name: t('about'), href: '/sobre' },
     { name: t('services') || 'Serviços', href: '/servicos' },
     { name: t('properties'), href: '/imoveis' },
-    { name: t('evaluation') || 'Avaliação', href: '/avaliacao-completa' },
-    { name: t('simulator') || 'Simulador', href: '/simulador-credito' },
   ];
 
   const isHomePage = pathname === '/';
@@ -201,37 +199,37 @@ export function Header() {
             <Search className="h-5 w-5" />
           </button>
 
-          {/* Plus Button with Dropdown */}
+          {/* Unified CTA Button - Avaliar Imóvel */}
           <div className="relative" data-dropdown>
             <button
-              onClick={() => setPlusMenuOpen(!plusMenuOpen)}
-              className="p-2.5 rounded-full bg-yellow-500 text-white hover:bg-yellow-600 transition-colors"
-              aria-label="Ações rápidas"
+              onClick={() => setCtaMenuOpen(!ctaMenuOpen)}
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-500 text-white font-medium text-sm hover:bg-yellow-600 transition-colors"
             >
-              <Plus className="h-5 w-5" />
+              Avaliar Imóvel
+              <ChevronDown className={cn("h-4 w-4 transition-transform", ctaMenuOpen && "rotate-180")} />
             </button>
-            {plusMenuOpen && (
-              <div className="absolute right-0 mt-2 w-56 bg-card rounded-xl shadow-lg border border-border py-2 z-[100]">
+            {ctaMenuOpen && (
+              <div className="absolute right-0 mt-2 w-64 bg-card rounded-xl shadow-lg border border-border py-2 z-[100]">
                 <Link
                   href="/simulador-credito"
-                  onClick={() => setPlusMenuOpen(false)}
+                  onClick={() => setCtaMenuOpen(false)}
                   className="flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-secondary transition-colors"
                 >
                   <Calculator className="h-5 w-5 text-yellow-500" />
                   <div>
                     <p className="font-medium">Simulador de Crédito</p>
-                    <p className="text-xs text-muted-foreground">Calcule a sua prestação</p>
+                    <p className="text-xs text-muted-foreground">Calcule a sua prestação mensal</p>
                   </div>
                 </Link>
                 <Link
                   href="/avaliacao-completa"
-                  onClick={() => setPlusMenuOpen(false)}
+                  onClick={() => setCtaMenuOpen(false)}
                   className="flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-secondary transition-colors"
                 >
                   <FileText className="h-5 w-5 text-yellow-500" />
                   <div>
-                    <p className="font-medium">Avaliação de Imóvel</p>
-                    <p className="text-xs text-muted-foreground">Peça uma avaliação gratuita</p>
+                    <p className="font-medium">Avaliação Gratuita</p>
+                    <p className="text-xs text-muted-foreground">Descubra o valor do seu imóvel</p>
                   </div>
                 </Link>
               </div>
@@ -438,24 +436,27 @@ export function Header() {
             </button>
           </div>
           
-          {/* Mobile Quick Actions */}
-          <div className="grid grid-cols-2 gap-3">
-            <Link
-              href="/simulador-credito"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-3 p-4 rounded-xl bg-secondary hover:bg-secondary/80 transition-colors"
-            >
-              <Calculator className="h-5 w-5 text-yellow-500" />
-              <span className="font-medium text-sm">Simulador</span>
-            </Link>
-            <Link
-              href="/avaliacao-completa"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-3 p-4 rounded-xl bg-secondary hover:bg-secondary/80 transition-colors"
-            >
-              <FileText className="h-5 w-5 text-yellow-500" />
-              <span className="font-medium text-sm">Avaliação</span>
-            </Link>
+          {/* Mobile CTA - Avaliar Imóvel */}
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Avaliar Imóvel</p>
+            <div className="grid grid-cols-2 gap-3">
+              <Link
+                href="/simulador-credito"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-3 p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20 hover:bg-yellow-500/20 transition-colors"
+              >
+                <Calculator className="h-5 w-5 text-yellow-600" />
+                <span className="font-medium text-sm">Simulador</span>
+              </Link>
+              <Link
+                href="/avaliacao-completa"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-3 p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20 hover:bg-yellow-500/20 transition-colors"
+              >
+                <FileText className="h-5 w-5 text-yellow-600" />
+                <span className="font-medium text-sm">Avaliação</span>
+              </Link>
+            </div>
           </div>
           
           <hr className="border-border" />
