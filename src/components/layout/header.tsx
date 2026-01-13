@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { Menu, X, User, ChevronDown, ArrowUpRight, Search, Sun, Moon, Globe, Calculator, FileText } from 'lucide-react';
+import { Menu, X, User, ChevronDown, Search, Sun, Moon, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -102,7 +102,6 @@ export function Header() {
 
   const navigation = [
     { name: t('home') || 'Início', href: '/' },
-    { name: t('about'), href: '/sobre' },
     { name: t('services') || 'Serviços', href: '/servicos' },
     { name: t('properties'), href: '/imoveis' },
   ];
@@ -149,15 +148,14 @@ export function Header() {
         </div>
 
         {/* Desktop Actions */}
-        <div className="hidden lg:flex items-center space-x-3 relative z-50">
+        <div className="hidden lg:flex items-center gap-2 relative z-50">
           {/* Language Selector */}
           <div className="relative" data-dropdown>
             <button
               onClick={() => setLangMenuOpen(!langMenuOpen)}
-              className="flex items-center gap-2 px-3 py-2 rounded-full text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+              className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
             >
-              <span className="text-lg">{currentLanguage.flag}</span>
-              <ChevronDown className="h-3.5 w-3.5" />
+              <Globe className="h-4 w-4" />
             </button>
             {langMenuOpen && (
               <div className="absolute right-0 mt-2 w-44 bg-card rounded-xl shadow-lg border border-border py-2 z-[100]">
@@ -181,72 +179,48 @@ export function Header() {
           {/* Dark/Light Mode Toggle */}
           <button
             onClick={toggleTheme}
-            className="p-2.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+            className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
             aria-label="Toggle theme"
           >
             {mounted && theme === 'dark' ? (
-              <Sun className="h-5 w-5" />
+              <Sun className="h-4 w-4" />
             ) : (
-              <Moon className="h-5 w-5" />
+              <Moon className="h-4 w-4" />
             )}
           </button>
 
           {/* Search Button */}
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="p-2.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+            className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
           >
-            <Search className="h-5 w-5" />
+            <Search className="h-4 w-4" />
           </button>
 
-          {/* Unified CTA Button - Avaliar Imóvel */}
-          <div className="relative" data-dropdown>
-            <button
-              onClick={() => setCtaMenuOpen(!ctaMenuOpen)}
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-500 text-white font-medium text-sm hover:bg-yellow-600 transition-colors"
-            >
-              Avaliar Imóvel
-              <ChevronDown className={cn("h-4 w-4 transition-transform", ctaMenuOpen && "rotate-180")} />
-            </button>
-            {ctaMenuOpen && (
-              <div className="absolute right-0 mt-2 w-64 bg-card rounded-xl shadow-lg border border-border py-2 z-[100]">
-                <Link
-                  href="/simulador-credito"
-                  onClick={() => setCtaMenuOpen(false)}
-                  className="flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-secondary transition-colors"
-                >
-                  <Calculator className="h-5 w-5 text-yellow-500" />
-                  <div>
-                    <p className="font-medium">Simulador de Crédito</p>
-                    <p className="text-xs text-muted-foreground">Calcule a sua prestação mensal</p>
-                  </div>
-                </Link>
-                <Link
-                  href="/avaliacao-completa"
-                  onClick={() => setCtaMenuOpen(false)}
-                  className="flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-secondary transition-colors"
-                >
-                  <FileText className="h-5 w-5 text-yellow-500" />
-                  <div>
-                    <p className="font-medium">Avaliação Gratuita</p>
-                    <p className="text-xs text-muted-foreground">Descubra o valor do seu imóvel</p>
-                  </div>
-                </Link>
-              </div>
-            )}
-          </div>
+          {/* Avaliar Button - Simple */}
+          <Link
+            href="/avaliacao-completa"
+            className="px-4 py-2 rounded-full bg-yellow-500 text-white font-medium text-sm hover:bg-yellow-600 transition-colors"
+          >
+            Avaliar
+          </Link>
           
+          {/* Contact Button - Simple */}
+          <Link 
+            href="/contacto"
+            className="px-4 py-2 rounded-full bg-foreground text-background font-medium text-sm hover:opacity-90 transition-all"
+          >
+            Contacto
+          </Link>
+
+          {/* User Menu */}
           {user ? (
             <div className="relative" data-dropdown>
               <button
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="flex items-center space-x-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
               >
-                <div className="w-9 h-9 rounded-full flex items-center justify-center bg-secondary">
-                  <User className="h-4 w-4" />
-                </div>
-                <span>{profile?.first_name || 'Conta'}</span>
-                <ChevronDown className="h-4 w-4" />
+                <User className="h-4 w-4" />
               </button>
               {userMenuOpen && (
                 <div className="absolute right-0 mt-2 w-52 bg-card rounded-xl shadow-lg border border-border py-2 z-50">
@@ -290,26 +264,11 @@ export function Header() {
           ) : (
             <button 
               onClick={() => { window.location.href = '/auth/login'; }}
-              className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
             >
               <User className="h-4 w-4" />
-              Entrar
             </button>
           )}
-          
-          {/* Contact Button - Always visible */}
-          <Link 
-            href="/contacto"
-            className="flex items-center gap-2 rounded-full pl-5 pr-2 py-2 text-sm font-medium bg-foreground text-background hover:opacity-90 transition-all"
-          >
-            <span className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-green-500" />
-              Contacte-nos
-            </span>
-            <span className="w-8 h-8 rounded-full flex items-center justify-center bg-background">
-              <ArrowUpRight className="h-4 w-4 text-foreground" />
-            </span>
-          </Link>
         </div>
 
         {/* Mobile Menu Button */}
@@ -436,27 +395,22 @@ export function Header() {
             </button>
           </div>
           
-          {/* Mobile CTA - Avaliar Imóvel */}
-          <div className="space-y-2">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Avaliar Imóvel</p>
-            <div className="grid grid-cols-2 gap-3">
-              <Link
-                href="/simulador-credito"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-3 p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20 hover:bg-yellow-500/20 transition-colors"
-              >
-                <Calculator className="h-5 w-5 text-yellow-600" />
-                <span className="font-medium text-sm">Simulador</span>
-              </Link>
-              <Link
-                href="/avaliacao-completa"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-3 p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20 hover:bg-yellow-500/20 transition-colors"
-              >
-                <FileText className="h-5 w-5 text-yellow-600" />
-                <span className="font-medium text-sm">Avaliação</span>
-              </Link>
-            </div>
+          {/* Mobile CTA Buttons */}
+          <div className="flex gap-3">
+            <Link
+              href="/avaliacao-completa"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex-1 text-center py-3 rounded-xl bg-yellow-500 text-white font-medium"
+            >
+              Avaliar
+            </Link>
+            <Link
+              href="/contacto"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex-1 text-center py-3 rounded-xl bg-foreground text-background font-medium"
+            >
+              Contacto
+            </Link>
           </div>
           
           <hr className="border-border" />
