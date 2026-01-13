@@ -813,14 +813,18 @@ export default function SimpleNewPropertyPage() {
                           onMouseDown={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            removeZonaEnvolvente(item);
+                            if (isCustom) {
+                              deleteCustomZona(item);
+                            } else {
+                              removeZonaEnvolvente(item);
+                            }
                           }}
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
                           }}
-                          className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center transition-all z-10 cursor-pointer"
-                          title="Desselecionar"
+                          className={`absolute -top-1 -right-1 w-5 h-5 rounded-full text-white flex items-center justify-center transition-all z-10 cursor-pointer ${isCustom ? 'bg-red-600 hover:bg-red-700' : 'bg-red-500 hover:bg-red-600'}`}
+                          title={isCustom ? 'Eliminar opção' : 'Desselecionar'}
                         >
                           <X className="h-3 w-3 pointer-events-none" />
                         </button>
@@ -882,14 +886,18 @@ export default function SimpleNewPropertyPage() {
                           onMouseDown={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            removeEquipamento(item);
+                            if (isCustom) {
+                              deleteCustomEquipamento(item);
+                            } else {
+                              removeEquipamento(item);
+                            }
                           }}
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
                           }}
-                          className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center transition-all z-10 cursor-pointer"
-                          title="Desselecionar"
+                          className={`absolute -top-1 -right-1 w-5 h-5 rounded-full text-white flex items-center justify-center transition-all z-10 cursor-pointer ${isCustom ? 'bg-red-600 hover:bg-red-700' : 'bg-red-500 hover:bg-red-600'}`}
+                          title={isCustom ? 'Eliminar opção' : 'Desselecionar'}
                         >
                           <X className="h-3 w-3 pointer-events-none" />
                         </button>
@@ -951,14 +959,18 @@ export default function SimpleNewPropertyPage() {
                           onMouseDown={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            removeExtra(item);
+                            if (isCustom) {
+                              deleteCustomExtra(item);
+                            } else {
+                              removeExtra(item);
+                            }
                           }}
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
                           }}
-                          className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center transition-all z-10 cursor-pointer"
-                          title="Desselecionar"
+                          className={`absolute -top-1 -right-1 w-5 h-5 rounded-full text-white flex items-center justify-center transition-all z-10 cursor-pointer ${isCustom ? 'bg-red-600 hover:bg-red-700' : 'bg-red-500 hover:bg-red-600'}`}
+                          title={isCustom ? 'Eliminar opção' : 'Desselecionar'}
                         >
                           <X className="h-3 w-3 pointer-events-none" />
                         </button>
