@@ -1,9 +1,10 @@
 'use client';
 
+import { useState, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { Heart, Bed, Bath, Maximize, MapPin } from 'lucide-react';
+import { Heart, Bed, Bath, Maximize, MapPin, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn, formatPrice, formatArea } from '@/lib/utils';
@@ -25,9 +26,34 @@ export function PropertyCard({
   className,
 }: PropertyCardProps) {
   const t = useTranslations('properties');
+  const [isHovered, setIsHovered] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const coverImage = property.property_images?.find((img) => img.is_cover) ||
     property.property_images?.[0];
+  
+  // Check if property has a valid video URL
+  const hasVideo = Boolean(property.video_url && property.video_url.trim() !== '');
+
+  // Handle mouse enter - start video playback
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    if (hasVideo && videoRef.current) {
+      videoRef.current.currentTime = 0;
+      videoRef.current.play().catch(() => {
+        // Silently handle autoplay failures (browser restrictions)
+      });
+    }
+  };
+
+  // Handle mouse leave - pause video and reset
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    if (hasVideo && videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+    }
+  };
 
   const businessTypeLabels: Record<string, string> = {
     sale: 'Venda',
@@ -52,16 +78,38 @@ export function PropertyCard({
         'group bg-white rounded-lg border border-border overflow-hidden card-hover',
         className
       )}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
-      {/* Image */}
+      {/* Image / Video */}
       <div className="relative aspect-[4/3] overflow-hidden">
         <Link href={`/imoveis/${property.slug}`}>
+          {/* Video element - only rendered if property has video */}
+          {hasVideo && (
+            <video
+              ref={videoRef}
+              src={property.video_url!}
+              className={cn(
+                'absolute inset-0 w-full h-full object-cover transition-opacity duration-300',
+                isHovered ? 'opacity-100' : 'opacity-0'
+              )}
+              muted
+              loop
+              playsInline
+              preload="metadata"
+            />
+          )}
+          
+          {/* Cover image - always present as fallback */}
           {coverImage ? (
             <Image
               src={coverImage.url}
               alt={property.title}
               fill
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              className={cn(
+                'object-cover transition-all duration-500 group-hover:scale-105',
+                hasVideo && isHovered ? 'opacity-0' : 'opacity-100'
+              )}
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
           ) : (
@@ -70,6 +118,14 @@ export function PropertyCard({
             </div>
           )}
         </Link>
+
+        {/* Video indicator badge */}
+        {hasVideo && !isHovered && (
+          <div className="absolute bottom-3 right-3 bg-black/70 text-white px-2 py-1 rounded-md flex items-center gap-1 text-xs">
+            <Play className="h-3 w-3 fill-current" />
+            <span>Vídeo</span>
+          </div>
+        )}
 
         {/* Badges */}
         <div className="absolute top-3 left-3 flex flex-wrap gap-2">
