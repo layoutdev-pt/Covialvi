@@ -37,6 +37,7 @@ import {
   Plus,
   X,
   Upload,
+  Trash2,
 } from 'lucide-react';
 
 const propertySchema = z.object({
@@ -845,6 +846,17 @@ export default function SimpleNewPropertyPage() {
                 <Button type="button" variant="outline" onClick={addCustomZona}>
                   <Plus className="h-4 w-4" />
                 </Button>
+                {selectedZonaEnvolvente.length > 0 && (
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => setSelectedZonaEnvolvente([])}
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    title="Limpar seleção"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
               {selectedZonaEnvolvente.length > 0 && (
                 <p className="text-xs text-muted-foreground">
@@ -918,6 +930,17 @@ export default function SimpleNewPropertyPage() {
                 <Button type="button" variant="outline" onClick={addCustomEquipamento}>
                   <Plus className="h-4 w-4" />
                 </Button>
+                {selectedEquipamentos.length > 0 && (
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => setSelectedEquipamentos([])}
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    title="Limpar seleção"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
               {selectedEquipamentos.length > 0 && (
                 <p className="text-xs text-muted-foreground">
@@ -991,6 +1014,17 @@ export default function SimpleNewPropertyPage() {
                 <Button type="button" variant="outline" onClick={addCustomExtra}>
                   <Plus className="h-4 w-4" />
                 </Button>
+                {selectedExtras.length > 0 && (
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => setSelectedExtras([])}
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    title="Limpar seleção"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
               {selectedExtras.length > 0 && (
                 <p className="text-xs text-muted-foreground">
