@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { Menu, X, User, ChevronDown, Search, Sun, Moon, Globe } from 'lucide-react';
+import { Menu, X, User, ChevronDown, Search, Sun, Moon, Globe, Calculator, FileText, Wrench } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -198,13 +198,36 @@ export function Header() {
             <Search className="h-4 w-4" />
           </button>
 
-          {/* Avaliar Button - Simple */}
-          <Link
-            href="/avaliacao-completa"
-            className="px-4 py-2 rounded-full bg-yellow-500 text-white font-medium text-sm hover:bg-yellow-600 transition-colors"
-          >
-            Avaliar
-          </Link>
+          {/* Ferramentas Dropdown */}
+          <div className="relative" data-dropdown>
+            <button
+              onClick={() => setCtaMenuOpen(!ctaMenuOpen)}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-yellow-500 text-white font-medium text-sm hover:bg-yellow-600 transition-colors"
+            >
+              Ferramentas
+              <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", ctaMenuOpen && "rotate-180")} />
+            </button>
+            {ctaMenuOpen && (
+              <div className="absolute right-0 mt-2 w-56 bg-card rounded-xl shadow-lg border border-border py-2 z-[100]">
+                <Link
+                  href="/simulador-credito"
+                  onClick={() => setCtaMenuOpen(false)}
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-secondary transition-colors"
+                >
+                  <Calculator className="h-4 w-4 text-yellow-500" />
+                  <span>Simulador de Crédito</span>
+                </Link>
+                <Link
+                  href="/avaliacao-completa"
+                  onClick={() => setCtaMenuOpen(false)}
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-secondary transition-colors"
+                >
+                  <FileText className="h-4 w-4 text-yellow-500" />
+                  <span>Avaliação de Imóvel</span>
+                </Link>
+              </div>
+            )}
+          </div>
           
           {/* Contact Button - Simple */}
           <Link 
@@ -396,23 +419,37 @@ export function Header() {
             </button>
           </div>
           
-          {/* Mobile CTA Buttons */}
-          <div className="flex gap-3">
-            <Link
-              href="/avaliacao-completa"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex-1 text-center py-3 rounded-xl bg-yellow-500 text-white font-medium"
-            >
-              Avaliar
-            </Link>
-            <Link
-              href="/contacto"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex-1 text-center py-3 rounded-xl bg-foreground text-background font-medium"
-            >
-              Contacto
-            </Link>
+          {/* Mobile Ferramentas */}
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Ferramentas</p>
+            <div className="grid grid-cols-2 gap-3">
+              <Link
+                href="/simulador-credito"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2 p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20"
+              >
+                <Calculator className="h-4 w-4 text-yellow-600" />
+                <span className="font-medium text-sm">Simulador</span>
+              </Link>
+              <Link
+                href="/avaliacao-completa"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2 p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20"
+              >
+                <FileText className="h-4 w-4 text-yellow-600" />
+                <span className="font-medium text-sm">Avaliação</span>
+              </Link>
+            </div>
           </div>
+          
+          {/* Mobile Contact Button */}
+          <Link
+            href="/contacto"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block text-center py-3 rounded-xl bg-foreground text-background font-medium"
+          >
+            Contacto
+          </Link>
           
           <hr className="border-border" />
           
