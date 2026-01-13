@@ -1,11 +1,11 @@
 'use client';
 
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Award, Users, Building2, Target, Phone, Mail, MapPin, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, Award, Users, Building2, Target, Phone, Mail, MapPin, CheckCircle2, Heart, Shield, Handshake } from 'lucide-react';
 import { 
-  FadeIn, 
   FadeInUp, 
   SlideInLeft, 
   SlideInRight, 
@@ -13,9 +13,41 @@ import {
   StaggerItem,
   ScaleIn
 } from '@/components/ui/motion';
-import { motion } from 'framer-motion';
+import { motion, useInView } from 'framer-motion';
+
+// Animated Counter Component
+function AnimatedCounter({ value, suffix = '', duration = 2 }: { value: number; suffix?: string; duration?: number }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    if (isInView) {
+      let start = 0;
+      const end = value;
+      const incrementTime = (duration * 1000) / end;
+      const timer = setInterval(() => {
+        start += 1;
+        setCount(start);
+        if (start >= end) clearInterval(timer);
+      }, Math.max(incrementTime, 10));
+      return () => clearInterval(timer);
+    }
+  }, [isInView, value, duration]);
+
+  return <span ref={ref}>{count}{suffix}</span>;
+}
 
 export function AboutClient() {
+  const [heroExpanded, setHeroExpanded] = useState(false);
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setHeroExpanded(true);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
+
   const values = [
     {
       icon: Award,
@@ -23,27 +55,27 @@ export function AboutClient() {
       description: 'Comprometemo-nos com os mais altos padrões de qualidade em todos os nossos serviços.',
     },
     {
-      icon: Users,
+      icon: Heart,
       title: 'Proximidade',
       description: 'Construímos relações duradouras baseadas na confiança e no respeito mútuo.',
     },
     {
-      icon: Building2,
-      title: 'Experiência',
+      icon: Shield,
+      title: 'Confiança',
       description: 'Décadas de conhecimento do mercado imobiliário português ao seu serviço.',
     },
     {
-      icon: Target,
-      title: 'Resultados',
+      icon: Handshake,
+      title: 'Compromisso',
       description: 'Focamo-nos em encontrar a solução perfeita para cada cliente.',
     },
   ];
 
   const stats = [
-    { value: '25+', label: 'Anos de Experiência' },
-    { value: '500+', label: 'Imóveis Vendidos' },
-    { value: '98%', label: 'Clientes Satisfeitos' },
-    { value: '50+', label: 'Projetos Concluídos' },
+    { value: 25, suffix: '+', label: 'Anos de Experiência' },
+    { value: 500, suffix: '+', label: 'Imóveis Vendidos' },
+    { value: 98, suffix: '%', label: 'Clientes Satisfeitos' },
+    { value: 50, suffix: '+', label: 'Projetos Concluídos' },
   ];
 
   const services = [
@@ -55,53 +87,141 @@ export function AboutClient() {
     'Apoio Jurídico e Financeiro',
   ];
 
+  const team = [
+    {
+      name: 'João Silva',
+      role: 'Diretor Geral',
+      image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=400',
+    },
+    {
+      name: 'Maria Santos',
+      role: 'Consultora Sénior',
+      image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=400',
+    },
+    {
+      name: 'Pedro Costa',
+      role: 'Gestor de Imóveis',
+      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400',
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-background">
-      {/* Hero */}
-      <section className="relative h-[60vh] min-h-[500px] flex items-center">
-        <Image
-          src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=1973"
-          alt="Covialvi Team"
-          fill
-          className="object-cover"
-          priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/40" />
-        
-        <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-8 lg:px-16 w-full">
-          <FadeInDown delay={0.2}>
-            <span className="inline-block px-4 py-2 bg-yellow-500/20 backdrop-blur-sm rounded-full text-sm text-yellow-300 border border-yellow-500/30 mb-6">
-              Sobre Nós
-            </span>
-          </FadeInDown>
-          <FadeInUp delay={0.4}>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
-              A Sua Imobiliária<br />
-              <span className="text-yellow-400">de Confiança</span>
-            </h1>
-          </FadeInUp>
-          <FadeInUp delay={0.6}>
-            <p className="text-xl text-white/80 max-w-2xl">
-              Há mais de 25 anos a ajudar famílias portuguesas a encontrar o lar perfeito. 
-              Somos especialistas em imóveis na região da Beira Interior e em todo o país.
-            </p>
-          </FadeInUp>
-        </div>
+    <main className="bg-background overflow-hidden">
+      {/* Hero Section - Matching Homepage Style */}
+      <section className="pt-[88px] pb-4 px-6 md:px-12 lg:px-20">
+        <motion.div 
+          className="relative max-w-7xl mx-auto rounded-3xl overflow-hidden min-h-[500px] md:min-h-[600px]"
+          initial={{ scale: 0.92, opacity: 0.8 }}
+          animate={{ 
+            scale: heroExpanded ? 1 : 0.92,
+            opacity: heroExpanded ? 1 : 0.8,
+          }}
+          transition={{ duration: 1, ease: [0.4, 0, 0.2, 1] }}
+        >
+          {/* Background Image */}
+          <motion.div
+            className="absolute inset-0"
+            initial={{ scale: 1.1 }}
+            animate={{ scale: heroExpanded ? 1 : 1.1 }}
+            transition={{ duration: 1.2, ease: [0.4, 0, 0.2, 1] }}
+          >
+            <Image
+              src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=1973"
+              alt="Covialvi Team"
+              fill
+              className="object-cover"
+              priority
+            />
+          </motion.div>
+          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent" />
+          
+          {/* Hero Content */}
+          <div className="relative z-10 h-full flex flex-col justify-center p-8 md:p-12 lg:p-16 min-h-[500px] md:min-h-[600px]">
+            <div className="max-w-2xl">
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.3 }}
+              >
+                <span className="inline-block px-4 py-2 bg-yellow-500/20 backdrop-blur-sm rounded-full text-sm text-yellow-300 border border-yellow-500/30 mb-6">
+                  Sobre Nós
+                </span>
+              </motion.div>
+              
+              <motion.h1
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.4 }}
+                className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.1] mb-6 tracking-tight"
+              >
+                A SUA<br />
+                IMOBILIÁRIA<br />
+                <span className="text-yellow-400">DE CONFIANÇA</span>
+              </motion.h1>
+              
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.5 }}
+                className="text-white/70 text-lg md:text-xl max-w-xl mb-10 leading-relaxed"
+              >
+                Há mais de 25 anos a ajudar famílias portuguesas a encontrar o lar perfeito. 
+                Somos especialistas em imóveis na região da Beira Interior e em todo o país.
+              </motion.p>
+              
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.6 }}
+                className="flex flex-wrap gap-4"
+              >
+                <Link href="/imoveis">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="group flex items-center gap-2 bg-yellow-500 text-white rounded-full pl-6 pr-2 py-3 font-medium hover:bg-yellow-600 transition-all shadow-lg shadow-yellow-500/25"
+                  >
+                    <span>Ver Imóveis</span>
+                    <span className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center group-hover:bg-white/30 transition-colors">
+                      <ArrowRight className="h-4 w-4" />
+                    </span>
+                  </motion.button>
+                </Link>
+                <Link href="/contacto">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white rounded-full px-6 py-3 font-medium hover:bg-white/20 transition-all border border-white/20"
+                  >
+                    <Phone className="h-4 w-4" />
+                    <span>Contactar</span>
+                  </motion.button>
+                </Link>
+              </motion.div>
+            </div>
+            
+            {/* Stats Row */}
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.8 }}
+              className="mt-auto pt-12"
+            >
+              <div className="flex flex-wrap gap-8 md:gap-16">
+                {stats.map((stat, index) => (
+                  <div key={stat.label} className="group">
+                    <p className="text-4xl md:text-5xl font-bold text-white mb-1">
+                      <AnimatedCounter value={stat.value} suffix={stat.suffix} />
+                    </p>
+                    <p className="text-white/50 text-sm">{stat.label}</p>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        </motion.div>
       </section>
 
-      {/* Stats Bar */}
-      <section className="bg-yellow-500 py-12">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-16">
-          <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-8" staggerDelay={0.1}>
-            {stats.map((stat) => (
-              <StaggerItem key={stat.label} className="text-center">
-                <p className="text-4xl md:text-5xl font-bold text-white mb-2">{stat.value}</p>
-                <p className="text-yellow-100">{stat.label}</p>
-              </StaggerItem>
-            ))}
-          </StaggerContainer>
-        </div>
-      </section>
 
       {/* Story */}
       <section className="py-20 px-4 md:px-8 lg:px-16">
@@ -369,19 +489,6 @@ export function AboutClient() {
           </ScaleIn>
         </div>
       </section>
-    </div>
-  );
-}
-
-function FadeInDown({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay, ease: [0.25, 0.4, 0.25, 1] }}
-      className={className}
-    >
-      {children}
-    </motion.div>
+    </main>
   );
 }
