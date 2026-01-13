@@ -236,42 +236,44 @@ export function HomeClient({ properties, stats, heroProperty }: HomeClientProps)
               transition={{ duration: 0.8, delay: 0.6 }}
               className="w-full max-w-3xl"
             >
-              <div className="bg-white/95 backdrop-blur-sm rounded-full p-2 shadow-2xl flex flex-wrap md:flex-nowrap items-center gap-2">
-                <div className="flex-1 min-w-[140px]">
+              <div className="bg-white/95 backdrop-blur-sm rounded-2xl md:rounded-full p-2 shadow-2xl flex flex-col md:flex-row items-stretch md:items-center gap-2">
+                <div className="flex-1">
                   <input
                     type="text"
                     placeholder="Localização..."
                     value={searchLocation}
                     onChange={(e) => setSearchLocation(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                    className="w-full px-5 py-3 bg-transparent text-gray-900 placeholder:text-gray-400 focus:outline-none text-sm"
+                    className="w-full px-4 py-3 bg-transparent text-gray-900 placeholder:text-gray-400 focus:outline-none text-sm"
                   />
                 </div>
                 <div className="hidden md:block w-px h-8 bg-gray-200" />
-                <Select value={searchNature} onValueChange={setSearchNature}>
-                  <SelectTrigger className="border-0 bg-transparent shadow-none focus:ring-0 min-w-[130px] text-sm text-gray-900 [&>svg]:text-gray-400">
-                    <SelectValue placeholder="Tipo de Imóvel" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white border border-gray-200 shadow-xl rounded-xl">
-                    <SelectItem value="all" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Todos os Tipos</SelectItem>
-                    <SelectItem value="apartment" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Apartamento</SelectItem>
-                    <SelectItem value="house" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Moradia</SelectItem>
-                    <SelectItem value="land" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Terreno</SelectItem>
-                    <SelectItem value="commercial" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Comercial</SelectItem>
-                    <SelectItem value="warehouse" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Armazém</SelectItem>
-                  </SelectContent>
-                </Select>
-                <div className="hidden md:block w-px h-8 bg-gray-200" />
-                <Select value={searchBusinessType} onValueChange={setSearchBusinessType}>
-                  <SelectTrigger className="border-0 bg-transparent shadow-none focus:ring-0 min-w-[100px] text-sm text-gray-900 [&>svg]:text-gray-400">
-                    <SelectValue placeholder="Negócio" />
-                  </SelectTrigger>
+                <div className="flex gap-2">
+                  <Select value={searchNature} onValueChange={setSearchNature}>
+                    <SelectTrigger className="border-0 bg-transparent shadow-none focus:ring-0 flex-1 md:min-w-[130px] text-sm text-gray-900 [&>svg]:text-gray-400">
+                      <SelectValue placeholder="Tipo" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border border-gray-200 shadow-xl rounded-xl">
+                      <SelectItem value="all" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Todos</SelectItem>
+                      <SelectItem value="apartment" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Apartamento</SelectItem>
+                      <SelectItem value="house" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Moradia</SelectItem>
+                      <SelectItem value="land" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Terreno</SelectItem>
+                      <SelectItem value="commercial" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Comercial</SelectItem>
+                      <SelectItem value="warehouse" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Armazém</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <div className="hidden md:block w-px h-8 bg-gray-200" />
+                  <Select value={searchBusinessType} onValueChange={setSearchBusinessType}>
+                    <SelectTrigger className="border-0 bg-transparent shadow-none focus:ring-0 flex-1 md:min-w-[100px] text-sm text-gray-900 [&>svg]:text-gray-400">
+                      <SelectValue placeholder="Negócio" />
+                    </SelectTrigger>
                   <SelectContent className="bg-white border border-gray-200 shadow-xl rounded-xl">
                     <SelectItem value="all" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Todos</SelectItem>
                     <SelectItem value="sale" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Comprar</SelectItem>
                     <SelectItem value="rent" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Arrendar</SelectItem>
                   </SelectContent>
                 </Select>
+                </div>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
