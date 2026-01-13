@@ -250,6 +250,11 @@ export default function SimpleNewPropertyPage() {
   const [newZonaInput, setNewZonaInput] = useState('');
   const [newEquipamentoInput, setNewEquipamentoInput] = useState('');
   const [newExtraInput, setNewExtraInput] = useState('');
+  
+  // Deleted default options (to hide them from the list)
+  const [deletedZonaEnvolvente, setDeletedZonaEnvolvente] = useState<string[]>([]);
+  const [deletedEquipamentos, setDeletedEquipamentos] = useState<string[]>([]);
+  const [deletedExtras, setDeletedExtras] = useState<string[]>([]);
 
   const {
     register,
@@ -398,26 +403,63 @@ export default function SimpleNewPropertyPage() {
     }
   };
 
-  // Delete custom options handlers
-  const deleteCustomZona = (item: string) => {
-    setCustomZonaEnvolvente(prev => prev.filter(i => i !== item));
+  // Delete single pill permanently (custom or default)
+  const deleteZonaPill = (item: string) => {
+    if (customZonaEnvolvente.includes(item)) {
+      setCustomZonaEnvolvente(prev => prev.filter(i => i !== item));
+    } else {
+      setDeletedZonaEnvolvente(prev => [...prev, item]);
+    }
     setSelectedZonaEnvolvente(prev => prev.filter(i => i !== item));
   };
 
-  const deleteCustomEquipamento = (item: string) => {
-    setCustomEquipamentos(prev => prev.filter(i => i !== item));
+  const deleteEquipamentoPill = (item: string) => {
+    if (customEquipamentos.includes(item)) {
+      setCustomEquipamentos(prev => prev.filter(i => i !== item));
+    } else {
+      setDeletedEquipamentos(prev => [...prev, item]);
+    }
     setSelectedEquipamentos(prev => prev.filter(i => i !== item));
   };
 
-  const deleteCustomExtra = (item: string) => {
-    setCustomExtras(prev => prev.filter(i => i !== item));
+  const deleteExtraPill = (item: string) => {
+    if (customExtras.includes(item)) {
+      setCustomExtras(prev => prev.filter(i => i !== item));
+    } else {
+      setDeletedExtras(prev => [...prev, item]);
+    }
     setSelectedExtras(prev => prev.filter(i => i !== item));
   };
 
-  // Combined options (default + custom)
-  const allZonaEnvolventeOptions = [...zonaEnvolventeOptions, ...customZonaEnvolvente];
-  const allEquipamentosOptions = [...equipamentosOptions, ...customEquipamentos];
-  const allExtrasOptions = [...extrasOptions, ...customExtras];
+  // Delete all selected pills permanently
+  const deleteAllSelectedZona = () => {
+    // Add selected default options to deleted list
+    const defaultsToDelete = selectedZonaEnvolvente.filter(item => zonaEnvolventeOptions.includes(item));
+    setDeletedZonaEnvolvente(prev => [...prev, ...defaultsToDelete]);
+    // Remove selected custom options
+    setCustomZonaEnvolvente(prev => prev.filter(item => !selectedZonaEnvolvente.includes(item)));
+    // Clear selection
+    setSelectedZonaEnvolvente([]);
+  };
+
+  const deleteAllSelectedEquipamentos = () => {
+    const defaultsToDelete = selectedEquipamentos.filter(item => equipamentosOptions.includes(item));
+    setDeletedEquipamentos(prev => [...prev, ...defaultsToDelete]);
+    setCustomEquipamentos(prev => prev.filter(item => !selectedEquipamentos.includes(item)));
+    setSelectedEquipamentos([]);
+  };
+
+  const deleteAllSelectedExtras = () => {
+    const defaultsToDelete = selectedExtras.filter(item => extrasOptions.includes(item));
+    setDeletedExtras(prev => [...prev, ...defaultsToDelete]);
+    setCustomExtras(prev => prev.filter(item => !selectedExtras.includes(item)));
+    setSelectedExtras([]);
+  };
+
+  // Combined options (default + custom, excluding deleted)
+  const allZonaEnvolventeOptions = [...zonaEnvolventeOptions.filter(o => !deletedZonaEnvolvente.includes(o)), ...customZonaEnvolvente];
+  const allEquipamentosOptions = [...equipamentosOptions.filter(o => !deletedEquipamentos.includes(o)), ...customEquipamentos];
+  const allExtrasOptions = [...extrasOptions.filter(o => !deletedExtras.includes(o)), ...customExtras];
 
   const onSubmit = async (data: PropertyFormData) => {
     setIsLoading(true);
@@ -814,18 +856,14 @@ export default function SimpleNewPropertyPage() {
                           onMouseDown={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            if (isCustom) {
-                              deleteCustomZona(item);
-                            } else {
-                              removeZonaEnvolvente(item);
-                            }
+                            deleteZonaPill(item);
                           }}
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
                           }}
-                          className={`absolute -top-1 -right-1 w-5 h-5 rounded-full text-white flex items-center justify-center transition-all z-10 cursor-pointer ${isCustom ? 'bg-red-600 hover:bg-red-700' : 'bg-red-500 hover:bg-red-600'}`}
-                          title={isCustom ? 'Eliminar opção' : 'Desselecionar'}
+                          className="absolute -top-1 -right-1 w-5 h-5 rounded-full text-white flex items-center justify-center transition-all z-10 cursor-pointer bg-red-600 hover:bg-red-700"
+                          title="Eliminar opção"
                         >
                           <X className="h-3 w-3 pointer-events-none" />
                         </button>
@@ -850,9 +888,9 @@ export default function SimpleNewPropertyPage() {
                   <Button 
                     type="button" 
                     variant="outline" 
-                    onClick={() => setSelectedZonaEnvolvente([])}
+                    onClick={deleteAllSelectedZona}
                     className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                    title="Limpar seleção"
+                    title="Eliminar selecionados"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -898,18 +936,14 @@ export default function SimpleNewPropertyPage() {
                           onMouseDown={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            if (isCustom) {
-                              deleteCustomEquipamento(item);
-                            } else {
-                              removeEquipamento(item);
-                            }
+                            deleteEquipamentoPill(item);
                           }}
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
                           }}
-                          className={`absolute -top-1 -right-1 w-5 h-5 rounded-full text-white flex items-center justify-center transition-all z-10 cursor-pointer ${isCustom ? 'bg-red-600 hover:bg-red-700' : 'bg-red-500 hover:bg-red-600'}`}
-                          title={isCustom ? 'Eliminar opção' : 'Desselecionar'}
+                          className="absolute -top-1 -right-1 w-5 h-5 rounded-full text-white flex items-center justify-center transition-all z-10 cursor-pointer bg-red-600 hover:bg-red-700"
+                          title="Eliminar opção"
                         >
                           <X className="h-3 w-3 pointer-events-none" />
                         </button>
@@ -934,9 +968,9 @@ export default function SimpleNewPropertyPage() {
                   <Button 
                     type="button" 
                     variant="outline" 
-                    onClick={() => setSelectedEquipamentos([])}
+                    onClick={deleteAllSelectedEquipamentos}
                     className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                    title="Limpar seleção"
+                    title="Eliminar selecionados"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -982,18 +1016,14 @@ export default function SimpleNewPropertyPage() {
                           onMouseDown={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            if (isCustom) {
-                              deleteCustomExtra(item);
-                            } else {
-                              removeExtra(item);
-                            }
+                            deleteExtraPill(item);
                           }}
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
                           }}
-                          className={`absolute -top-1 -right-1 w-5 h-5 rounded-full text-white flex items-center justify-center transition-all z-10 cursor-pointer ${isCustom ? 'bg-red-600 hover:bg-red-700' : 'bg-red-500 hover:bg-red-600'}`}
-                          title={isCustom ? 'Eliminar opção' : 'Desselecionar'}
+                          className="absolute -top-1 -right-1 w-5 h-5 rounded-full text-white flex items-center justify-center transition-all z-10 cursor-pointer bg-red-600 hover:bg-red-700"
+                          title="Eliminar opção"
                         >
                           <X className="h-3 w-3 pointer-events-none" />
                         </button>
@@ -1018,9 +1048,9 @@ export default function SimpleNewPropertyPage() {
                   <Button 
                     type="button" 
                     variant="outline" 
-                    onClick={() => setSelectedExtras([])}
+                    onClick={deleteAllSelectedExtras}
                     className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                    title="Limpar seleção"
+                    title="Eliminar selecionados"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
