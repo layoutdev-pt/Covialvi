@@ -39,7 +39,6 @@ import {
   StaggerItem
 } from '@/components/ui/motion';
 import { motion, useScroll, useTransform, useInView, useSpring } from 'framer-motion';
-import { SellPropertyWizard } from '@/components/sell-property-wizard';
 
 interface HomeClientProps {
   properties: any[];
@@ -521,9 +520,7 @@ export function HomeClient({ properties, stats, heroProperty }: HomeClientProps)
         </div>
       </section>
 
-      {/* Sell Property Wizard - Lead Capture */}
-      <SellPropertyWizard />
-
+      
       {/* About Section - Who We Are */}
       <section className="py-28 px-6 md:px-12 lg:px-20 bg-background relative overflow-hidden">
         <div className="max-w-7xl mx-auto">
