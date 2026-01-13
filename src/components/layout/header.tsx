@@ -102,6 +102,7 @@ export function Header() {
 
   const navigation = [
     { name: t('home') || 'Início', href: '/' },
+    { name: t('about') || 'Sobre Nós', href: '/sobre' },
     { name: t('services') || 'Serviços', href: '/servicos' },
     { name: t('properties'), href: '/imoveis' },
   ];
