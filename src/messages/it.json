@@ -1,0 +1,115 @@
+{
+  "common": {
+    "loading": "Caricamento...",
+    "error": "Si è verificato un errore",
+    "success": "Operazione completata con successo",
+    "save": "Salva",
+    "cancel": "Annulla",
+    "delete": "Elimina",
+    "edit": "Modifica",
+    "view": "Visualizza",
+    "search": "Cerca",
+    "filter": "Filtra",
+    "clear": "Cancella",
+    "apply": "Applica",
+    "close": "Chiudi",
+    "back": "Indietro",
+    "next": "Avanti",
+    "previous": "Precedente",
+    "submit": "Invia",
+    "confirm": "Conferma",
+    "yes": "Sì",
+    "no": "No",
+    "all": "Tutti",
+    "none": "Nessuno",
+    "more": "Altro",
+    "less": "Meno",
+    "showMore": "Mostra di più",
+    "showLess": "Mostra meno",
+    "noResults": "Nessun risultato",
+    "required": "Obbligatorio"
+  },
+  "nav": {
+    "home": "Home",
+    "properties": "Immobili",
+    "about": "Chi Siamo",
+    "services": "Servizi",
+    "evaluation": "Valutazione",
+    "simulator": "Simulatore",
+    "contact": "Contatti",
+    "blog": "Notizie",
+    "consultants": "Consulenti",
+    "login": "Accedi",
+    "register": "Registrati",
+    "logout": "Esci",
+    "account": "Il Mio Account",
+    "favorites": "Preferiti",
+    "admin": "Amministrazione"
+  },
+  "hero": {
+    "title": "Inizia qui la tua nuova vita",
+    "subtitle": "Dal sogno alla realtà, chiavi in mano. Un'esperienza senza preoccupazioni, per goderti semplicemente.",
+    "searchPlaceholder": "Cerca per posizione, riferimento o tipo di immobile...",
+    "cta": "Cerca Immobili",
+    "ctaSecondary": "Vuoi costruire il tuo immobile?"
+  },
+  "stats": {
+    "projectsCompleted": "Progetti completati",
+    "happyClients": "Clienti soddisfatti",
+    "projectValue": "Valore dei progetti",
+    "propertiesAvailable": "Immobili disponibili"
+  },
+  "properties": {
+    "title": "Immobili",
+    "featured": "Immobili in Evidenza",
+    "latest": "Ultimi Immobili",
+    "viewAll": "Vedi Tutti gli Immobili",
+    "viewProperty": "Vedi Immobile",
+    "noProperties": "Nessun immobile trovato con i criteri selezionati.",
+    "similarProperties": "Immobili Simili"
+  },
+  "auth": {
+    "login": {
+      "title": "Accedi al tuo account",
+      "subtitle": "Bentornato! Inserisci i tuoi dati per accedere.",
+      "email": "Indirizzo email",
+      "password": "Password",
+      "submit": "Accedi"
+    },
+    "register": {
+      "title": "Crea account",
+      "subtitle": "Crea il tuo account per salvare i preferiti e prenotare visite.",
+      "submit": "Crea Account"
+    }
+  },
+  "contact": {
+    "title": "Contattaci",
+    "subtitle": "Siamo qui per aiutarti. Mettiti in contatto con noi.",
+    "form": {
+      "title": "Inviaci un Messaggio",
+      "firstName": "Nome",
+      "lastName": "Cognome",
+      "name": "Nome completo",
+      "email": "Email",
+      "phone": "Telefono",
+      "subject": "Oggetto",
+      "message": "Messaggio",
+      "property": "Immobile di interesse",
+      "submit": "Invia Messaggio",
+      "success": "Messaggio inviato con successo. Ti risponderemo presto.",
+      "error": "Impossibile inviare il messaggio. Riprova."
+    },
+    "info": {
+      "title": "Informazioni di Contatto",
+      "address": "Indirizzo",
+      "phone": "Telefono",
+      "email": "Email",
+      "hours": "Orari di Apertura",
+      "schedule": "Orari di Apertura"
+    }
+  },
+  "footer": {
+    "description": "Covialvi è un'agenzia immobiliare di riferimento in Portogallo, dedicata a trovare l'immobile perfetto per te.",
+    "copyright": "© {year} Covialvi. Tutti i diritti riservati."
+  }
+}

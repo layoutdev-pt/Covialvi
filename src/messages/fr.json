@@ -1,0 +1,115 @@
+{
+  "common": {
+    "loading": "Chargement...",
+    "error": "Une erreur s'est produite",
+    "success": "Opération réalisée avec succès",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "view": "Voir",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "clear": "Effacer",
+    "apply": "Appliquer",
+    "close": "Fermer",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "submit": "Soumettre",
+    "confirm": "Confirmer",
+    "yes": "Oui",
+    "no": "Non",
+    "all": "Tous",
+    "none": "Aucun",
+    "more": "Plus",
+    "less": "Moins",
+    "showMore": "Voir plus",
+    "showLess": "Voir moins",
+    "noResults": "Aucun résultat",
+    "required": "Obligatoire"
+  },
+  "nav": {
+    "home": "Accueil",
+    "properties": "Biens",
+    "about": "À Propos",
+    "services": "Services",
+    "evaluation": "Évaluation",
+    "simulator": "Simulateur",
+    "contact": "Contact",
+    "blog": "Actualités",
+    "consultants": "Consultants",
+    "login": "Connexion",
+    "register": "S'inscrire",
+    "logout": "Déconnexion",
+    "account": "Mon Compte",
+    "favorites": "Favoris",
+    "admin": "Administration"
+  },
+  "hero": {
+    "title": "Commencez ici votre nouvelle vie",
+    "subtitle": "Du rêve à la réalité, clé en main. Une expérience sans soucis, pour que vous puissiez simplement profiter.",
+    "searchPlaceholder": "Rechercher par emplacement, référence ou type de bien...",
+    "cta": "Rechercher des Biens",
+    "ctaSecondary": "Vous voulez construire votre bien?"
+  },
+  "stats": {
+    "projectsCompleted": "Projets réalisés",
+    "happyClients": "Clients satisfaits",
+    "projectValue": "Valeur des projets",
+    "propertiesAvailable": "Biens disponibles"
+  },
+  "properties": {
+    "title": "Biens",
+    "featured": "Biens en Vedette",
+    "latest": "Derniers Biens",
+    "viewAll": "Voir Tous les Biens",
+    "viewProperty": "Voir le Bien",
+    "noProperties": "Aucun bien trouvé avec les critères sélectionnés.",
+    "similarProperties": "Biens Similaires"
+  },
+  "auth": {
+    "login": {
+      "title": "Connectez-vous à votre compte",
+      "subtitle": "Bienvenue! Entrez vos informations pour accéder.",
+      "email": "Adresse e-mail",
+      "password": "Mot de passe",
+      "submit": "Se Connecter"
+    },
+    "register": {
+      "title": "Créer un compte",
+      "subtitle": "Créez votre compte pour sauvegarder vos favoris et planifier des visites.",
+      "submit": "Créer un Compte"
+    }
+  },
+  "contact": {
+    "title": "Contactez-nous",
+    "subtitle": "Nous sommes là pour vous aider. Contactez-nous.",
+    "form": {
+      "title": "Envoyez-nous un Message",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "name": "Nom complet",
+      "email": "E-mail",
+      "phone": "Téléphone",
+      "subject": "Sujet",
+      "message": "Message",
+      "property": "Bien d'intérêt",
+      "submit": "Envoyer le Message",
+      "success": "Message envoyé avec succès. Nous vous répondrons bientôt.",
+      "error": "Impossible d'envoyer le message. Veuillez réessayer."
+    },
+    "info": {
+      "title": "Informations de Contact",
+      "address": "Adresse",
+      "phone": "Téléphone",
+      "email": "E-mail",
+      "hours": "Heures d'Ouverture",
+      "schedule": "Heures d'Ouverture"
+    }
+  },
+  "footer": {
+    "description": "Covialvi est une agence immobilière de référence au Portugal, dédiée à trouver le bien parfait pour vous.",
+    "copyright": "© {year} Covialvi. Tous droits réservés."
+  }
+}

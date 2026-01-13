@@ -1,0 +1,115 @@
+{
+  "common": {
+    "loading": "Laden...",
+    "error": "Ein Fehler ist aufgetreten",
+    "success": "Vorgang erfolgreich abgeschlossen",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "view": "Ansehen",
+    "search": "Suchen",
+    "filter": "Filtern",
+    "clear": "Löschen",
+    "apply": "Anwenden",
+    "close": "Schließen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "previous": "Zurück",
+    "submit": "Absenden",
+    "confirm": "Bestätigen",
+    "yes": "Ja",
+    "no": "Nein",
+    "all": "Alle",
+    "none": "Keine",
+    "more": "Mehr",
+    "less": "Weniger",
+    "showMore": "Mehr anzeigen",
+    "showLess": "Weniger anzeigen",
+    "noResults": "Keine Ergebnisse",
+    "required": "Erforderlich"
+  },
+  "nav": {
+    "home": "Startseite",
+    "properties": "Immobilien",
+    "about": "Über Uns",
+    "services": "Dienstleistungen",
+    "evaluation": "Bewertung",
+    "simulator": "Simulator",
+    "contact": "Kontakt",
+    "blog": "Neuigkeiten",
+    "consultants": "Berater",
+    "login": "Anmelden",
+    "register": "Registrieren",
+    "logout": "Abmelden",
+    "account": "Mein Konto",
+    "favorites": "Favoriten",
+    "admin": "Verwaltung"
+  },
+  "hero": {
+    "title": "Beginnen Sie hier Ihr neues Leben",
+    "subtitle": "Vom Traum zur Realität, schlüsselfertig. Ein sorgenfreies Erlebnis, damit Sie einfach genießen können.",
+    "searchPlaceholder": "Suche nach Standort, Referenz oder Immobilientyp...",
+    "cta": "Immobilien suchen",
+    "ctaSecondary": "Möchten Sie Ihre Immobilie bauen?"
+  },
+  "stats": {
+    "projectsCompleted": "Abgeschlossene Projekte",
+    "happyClients": "Zufriedene Kunden",
+    "projectValue": "Projektwert",
+    "propertiesAvailable": "Verfügbare Immobilien"
+  },
+  "properties": {
+    "title": "Immobilien",
+    "featured": "Ausgewählte Immobilien",
+    "latest": "Neueste Immobilien",
+    "viewAll": "Alle Immobilien ansehen",
+    "viewProperty": "Immobilie ansehen",
+    "noProperties": "Keine Immobilien mit den ausgewählten Kriterien gefunden.",
+    "similarProperties": "Ähnliche Immobilien"
+  },
+  "auth": {
+    "login": {
+      "title": "In Ihr Konto einloggen",
+      "subtitle": "Willkommen zurück! Geben Sie Ihre Daten ein, um fortzufahren.",
+      "email": "E-Mail-Adresse",
+      "password": "Passwort",
+      "submit": "Anmelden"
+    },
+    "register": {
+      "title": "Konto erstellen",
+      "subtitle": "Erstellen Sie Ihr Konto, um Favoriten zu speichern und Besichtigungen zu planen.",
+      "submit": "Konto erstellen"
+    }
+  },
+  "contact": {
+    "title": "Kontaktieren Sie uns",
+    "subtitle": "Wir sind hier, um zu helfen. Nehmen Sie Kontakt mit uns auf.",
+    "form": {
+      "title": "Senden Sie uns eine Nachricht",
+      "firstName": "Vorname",
+      "lastName": "Nachname",
+      "name": "Vollständiger Name",
+      "email": "E-Mail",
+      "phone": "Telefon",
+      "subject": "Betreff",
+      "message": "Nachricht",
+      "property": "Interessante Immobilie",
+      "submit": "Nachricht senden",
+      "success": "Nachricht erfolgreich gesendet. Wir werden uns bald bei Ihnen melden.",
+      "error": "Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut."
+    },
+    "info": {
+      "title": "Kontaktinformationen",
+      "address": "Adresse",
+      "phone": "Telefon",
+      "email": "E-Mail",
+      "hours": "Öffnungszeiten",
+      "schedule": "Öffnungszeiten"
+    }
+  },
+  "footer": {
+    "description": "Covialvi ist eine führende Immobilienagentur in Portugal, die sich der Suche nach der perfekten Immobilie für Sie widmet.",
+    "copyright": "© {year} Covialvi. Alle Rechte vorbehalten."
+  }
+}

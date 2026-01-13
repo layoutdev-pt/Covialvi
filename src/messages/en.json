@@ -1,0 +1,479 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Operation completed successfully",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "search": "Search",
+    "filter": "Filter",
+    "clear": "Clear",
+    "apply": "Apply",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No",
+    "all": "All",
+    "none": "None",
+    "more": "More",
+    "less": "Less",
+    "showMore": "Show more",
+    "showLess": "Show less",
+    "noResults": "No results",
+    "required": "Required"
+  },
+  "nav": {
+    "home": "Home",
+    "properties": "Properties",
+    "about": "About Us",
+    "services": "Services",
+    "evaluation": "Evaluation",
+    "simulator": "Simulator",
+    "contact": "Contact",
+    "blog": "News",
+    "consultants": "Consultants",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "account": "My Account",
+    "favorites": "Favorites",
+    "admin": "Admin"
+  },
+  "hero": {
+    "title": "Start your new life here",
+    "subtitle": "From dream to reality, key in hand. A worry-free experience, so you can simply enjoy.",
+    "searchPlaceholder": "Search by location, reference or property type...",
+    "cta": "Search Properties",
+    "ctaSecondary": "Want to build your property?"
+  },
+  "stats": {
+    "projectsCompleted": "Projects completed",
+    "happyClients": "Happy clients",
+    "projectValue": "Project value",
+    "propertiesAvailable": "Properties available"
+  },
+  "services": {
+    "title": "Complete Real Estate Solutions",
+    "subtitle": "Our offering embraces all your goals: from the exclusivity of Premium Properties and the profitability of Safe Investment, to the comfort of finding Your New Home.",
+    "premium": {
+      "title": "Premium Properties",
+      "description": "Elevate your lifestyle to another level. Properties with superb design and top finishes, located in the most coveted locations, for those who demand the best."
+    },
+    "investment": {
+      "title": "Safe Investment",
+      "description": "Profitably invest your capital intelligently. We select properties with high appreciation potential and guaranteed return, located in strategic areas."
+    },
+    "home": {
+      "title": "Your New Home",
+      "description": "Find the perfect refuge for your family to grow. Cozy, functional homes ready to live in, where every space was designed for your comfort."
+    }
+  },
+  "properties": {
+    "title": "Properties",
+    "featured": "Featured Properties",
+    "latest": "Latest Properties",
+    "viewAll": "View All Properties",
+    "viewProperty": "View Property",
+    "filters": {
+      "title": "Filters",
+      "district": "District",
+      "municipality": "Municipality",
+      "businessType": "Business Type",
+      "bedrooms": "Bedrooms",
+      "nature": "Nature",
+      "priceRange": "Price Range",
+      "minPrice": "Min Price",
+      "maxPrice": "Max Price",
+      "area": "Area",
+      "minArea": "Min Area",
+      "maxArea": "Max Area"
+    },
+    "businessTypes": {
+      "sale": "Sale",
+      "rent": "Rent",
+      "transfer": "Transfer"
+    },
+    "natures": {
+      "apartment": "Apartment",
+      "house": "House",
+      "land": "Land",
+      "commercial": "Commercial",
+      "warehouse": "Warehouse",
+      "office": "Office",
+      "garage": "Garage",
+      "shop": "Shop"
+    },
+    "details": {
+      "reference": "Reference",
+      "price": "Price",
+      "priceOnRequest": "Price on Request",
+      "area": "Gross Area",
+      "usefulArea": "Useful Area",
+      "bedrooms": "Bedrooms",
+      "bathrooms": "Bathrooms",
+      "floors": "Floors",
+      "energyCertificate": "Energy Certificate",
+      "constructionStatus": "Construction Status",
+      "typology": "Typology",
+      "description": "Description",
+      "location": "Location",
+      "equipment": "Equipment",
+      "extras": "Extras",
+      "surroundingArea": "Surrounding Area",
+      "floorPlans": "Floor Plans",
+      "brochure": "Brochure",
+      "video": "Video",
+      "gallery": "Gallery",
+      "map": "Map"
+    },
+    "constructionStatus": {
+      "new": "New",
+      "used": "Used",
+      "underConstruction": "Under Construction",
+      "toRecover": "To Recover",
+      "renovated": "Renovated"
+    },
+    "actions": {
+      "addFavorite": "Add to Favorites",
+      "removeFavorite": "Remove from Favorites",
+      "requestInfo": "Request Info",
+      "scheduleVisit": "Schedule Visit",
+      "compare": "Compare",
+      "share": "Share",
+      "print": "Print",
+      "downloadBrochure": "Download Brochure"
+    },
+    "sort": {
+      "label": "Sort by",
+      "newest": "Newest",
+      "oldest": "Oldest",
+      "priceAsc": "Price: Low to High",
+      "priceDesc": "Price: High to Low",
+      "areaAsc": "Area: Low to High",
+      "areaDesc": "Area: High to Low"
+    },
+    "view": {
+      "grid": "Grid",
+      "list": "List"
+    },
+    "noProperties": "No properties found with the selected criteria.",
+    "similarProperties": "Similar Properties"
+  },
+  "auth": {
+    "login": {
+      "title": "Sign in to your account",
+      "subtitle": "Welcome back! Enter your details to access.",
+      "email": "Email address",
+      "password": "Password",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot password?",
+      "submit": "Sign In",
+      "noAccount": "Don't have an account?",
+      "register": "Register"
+    },
+    "register": {
+      "title": "Create account",
+      "subtitle": "Create your account to save favorites and schedule visits.",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email address",
+      "phone": "Phone",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "acceptTerms": "I have read and accept the",
+      "termsLink": "Terms and Conditions",
+      "privacyLink": "Privacy Policy",
+      "submit": "Create Account",
+      "hasAccount": "Already have an account?",
+      "login": "Sign In"
+    },
+    "forgotPassword": {
+      "title": "Recover password",
+      "subtitle": "Enter your email and we'll send instructions to reset your password.",
+      "email": "Email address",
+      "submit": "Send Instructions",
+      "backToLogin": "Back to login"
+    },
+    "resetPassword": {
+      "title": "Reset password",
+      "subtitle": "Enter your new password.",
+      "password": "New password",
+      "confirmPassword": "Confirm new password",
+      "submit": "Reset Password"
+    },
+    "verifyEmail": {
+      "title": "Verify email",
+      "subtitle": "We sent a verification email to {email}. Please check your inbox.",
+      "resend": "Resend email",
+      "resent": "Email resent successfully"
+    },
+    "errors": {
+      "invalidCredentials": "Invalid email or password.",
+      "emailInUse": "This email is already registered.",
+      "weakPassword": "Password must be at least 8 characters.",
+      "passwordMismatch": "Passwords do not match.",
+      "invalidEmail": "Please enter a valid email.",
+      "requiredField": "This field is required.",
+      "generic": "An error occurred. Please try again."
+    }
+  },
+  "account": {
+    "title": "My Account",
+    "profile": {
+      "title": "Profile",
+      "subtitle": "Manage your personal data",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "phone": "Phone",
+      "save": "Save Changes"
+    },
+    "security": {
+      "title": "Security",
+      "subtitle": "Manage password and sessions",
+      "changePassword": "Change Password",
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm new password",
+      "sessions": "Active Sessions",
+      "currentSession": "Current session",
+      "revokeSession": "End session",
+      "revokeAll": "End all other sessions"
+    },
+    "favorites": {
+      "title": "Favorites",
+      "subtitle": "Your saved properties",
+      "empty": "You don't have any favorite properties yet.",
+      "browse": "Browse Properties"
+    },
+    "visits": {
+      "title": "Scheduled Visits",
+      "subtitle": "Your property visits",
+      "empty": "You don't have any scheduled visits.",
+      "upcoming": "Upcoming Visits",
+      "past": "Past Visits",
+      "cancel": "Cancel Visit",
+      "reschedule": "Reschedule"
+    },
+    "privacy": {
+      "title": "Privacy",
+      "subtitle": "Manage your data and consents",
+      "exportData": "Export My Data",
+      "exportDescription": "Download a copy of all your personal data.",
+      "deleteAccount": "Delete Account",
+      "deleteDescription": "Permanently delete your account and all associated data.",
+      "deleteWarning": "This action is irreversible. All your data will be deleted.",
+      "consents": "Consents",
+      "marketingEmails": "Marketing emails",
+      "marketingDescription": "Receive news about properties and promotions.",
+      "propertyAlerts": "Property alerts",
+      "alertsDescription": "Receive notifications about new properties matching your searches."
+    }
+  },
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "We're here to help. Get in touch with us.",
+    "form": {
+      "title": "Send us a Message",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "name": "Full name",
+      "email": "Email",
+      "phone": "Phone",
+      "subject": "Subject",
+      "message": "Message",
+      "property": "Property of interest",
+      "submit": "Send Message",
+      "success": "Message sent successfully. We'll get back to you soon.",
+      "error": "Could not send message. Please try again."
+    },
+    "info": {
+      "title": "Contact Information",
+      "address": "Address",
+      "phone": "Phone",
+      "email": "Email",
+      "hours": "Opening Hours",
+      "schedule": "Opening Hours"
+    }
+  },
+  "visit": {
+    "title": "Schedule Visit",
+    "subtitle": "Choose a date and time to visit this property.",
+    "property": "Property",
+    "selectDate": "Select Date",
+    "selectTime": "Select Time",
+    "message": "Message (optional)",
+    "messagePlaceholder": "Any additional information you'd like to share...",
+    "submit": "Confirm Booking",
+    "success": "Visit scheduled successfully. You'll receive a confirmation email.",
+    "error": "Could not schedule visit. Please try again.",
+    "loginRequired": "Please sign in to schedule a visit."
+  },
+  "testimonials": {
+    "title": "What Our Clients Say",
+    "subtitle": "Our clients' success stories reflect our commitment to excellence."
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Find answers to the most common questions."
+  },
+  "footer": {
+    "description": "Covialvi is a leading real estate agency in Portugal, dedicated to finding the perfect property for you.",
+    "quickLinks": "Quick Links",
+    "services": "Services",
+    "contact": "Contact",
+    "legal": "Legal",
+    "terms": "Terms and Conditions",
+    "privacy": "Privacy Policy",
+    "cookies": "Cookie Policy",
+    "copyright": "© {year} Covialvi. All rights reserved.",
+    "newsletter": {
+      "title": "Newsletter",
+      "subtitle": "Subscribe to receive the latest news.",
+      "placeholder": "Your email",
+      "submit": "Subscribe",
+      "success": "Subscription successful.",
+      "error": "Could not process subscription."
+    }
+  },
+  "admin": {
+    "dashboard": {
+      "title": "Dashboard",
+      "welcome": "Welcome, {name}",
+      "kpis": {
+        "totalProperties": "Total Properties",
+        "activeListings": "Active Listings",
+        "newLeads": "New Leads (7 days)",
+        "scheduledVisits": "Scheduled Visits",
+        "conversionRate": "Conversion Rate"
+      },
+      "recentActivity": "Recent Activity",
+      "quickActions": {
+        "title": "Quick Actions",
+        "addProperty": "Add Property",
+        "assignLead": "Assign Lead",
+        "exportData": "Export Data"
+      }
+    },
+    "properties": {
+      "title": "Property Management",
+      "add": "Add Property",
+      "edit": "Edit Property",
+      "delete": "Delete Property",
+      "preview": "Preview",
+      "publish": "Publish",
+      "unpublish": "Unpublish",
+      "duplicate": "Duplicate",
+      "bulkActions": "Bulk Actions",
+      "status": {
+        "draft": "Draft",
+        "published": "Published",
+        "archived": "Archived"
+      }
+    },
+    "leads": {
+      "title": "Lead Management",
+      "add": "Add Lead",
+      "assign": "Assign",
+      "status": {
+        "new": "New",
+        "contacted": "Contacted",
+        "visitScheduled": "Visit Scheduled",
+        "negotiation": "Negotiation",
+        "closed": "Closed",
+        "lost": "Lost"
+      },
+      "pipeline": "Pipeline",
+      "notes": "Notes",
+      "addNote": "Add Note",
+      "history": "History",
+      "tags": "Tags"
+    },
+    "visits": {
+      "title": "Visit Management",
+      "calendar": "Calendar",
+      "confirm": "Confirm",
+      "reschedule": "Reschedule",
+      "cancel": "Cancel",
+      "complete": "Mark as Complete",
+      "addNotes": "Add Notes"
+    },
+    "users": {
+      "title": "User Management",
+      "add": "Add User",
+      "edit": "Edit User",
+      "deactivate": "Deactivate",
+      "reactivate": "Reactivate",
+      "exportData": "Export Data",
+      "roles": {
+        "user": "User",
+        "admin": "Admin",
+        "superAdmin": "Super Admin"
+      }
+    },
+    "audit": {
+      "title": "Audit Logs",
+      "export": "Export Logs",
+      "action": "Action",
+      "user": "User",
+      "timestamp": "Timestamp",
+      "details": "Details"
+    },
+    "settings": {
+      "title": "Settings",
+      "general": "General",
+      "notifications": "Notifications",
+      "integrations": "Integrations"
+    }
+  },
+  "mortgage": {
+    "title": "Mortgage Calculator",
+    "subtitle": "Calculate your estimated monthly payment.",
+    "propertyValue": "Property Value",
+    "downPayment": "Down Payment",
+    "loanAmount": "Loan Amount",
+    "interestRate": "Annual Interest Rate",
+    "loanTerm": "Loan Term (years)",
+    "monthlyPayment": "Estimated Monthly Payment",
+    "totalInterest": "Total Interest",
+    "totalPayment": "Total Payment",
+    "disclaimer": "This simulation is for informational purposes only and does not constitute a credit proposal."
+  },
+  "comparison": {
+    "title": "Compare Properties",
+    "add": "Add to Comparison",
+    "remove": "Remove from Comparison",
+    "clear": "Clear Comparison",
+    "empty": "Add properties to compare.",
+    "maxReached": "Maximum of {max} properties for comparison."
+  },
+  "cookies": {
+    "title": "We use cookies",
+    "description": "This site uses cookies to improve your experience. By continuing to browse, you agree to our use of cookies.",
+    "accept": "Accept All",
+    "reject": "Reject Non-Essential",
+    "customize": "Customize",
+    "necessary": "Necessary Cookies",
+    "analytics": "Analytics Cookies",
+    "marketing": "Marketing Cookies"
+  },
+  "errors": {
+    "404": {
+      "title": "Page not found",
+      "description": "The page you're looking for doesn't exist or has been moved.",
+      "backHome": "Back to Home"
+    },
+    "500": {
+      "title": "Internal error",
+      "description": "An unexpected error occurred. Please try again later.",
+      "retry": "Try Again"
+    }
+  }
+}

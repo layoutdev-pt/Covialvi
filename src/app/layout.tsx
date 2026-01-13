@@ -1,0 +1,107 @@
+import type { Metadata } from 'next';
+import { Poppins } from 'next/font/google';
+import { NextIntlClientProvider } from 'next-intl';
+import { getLocale, getMessages } from 'next-intl/server';
+import { Toaster } from '@/components/ui/sonner';
+import { AuthProvider } from '@/components/providers/auth-provider';
+import { QueryProvider } from '@/components/providers/query-provider';
+import { ThemeProvider } from '@/components/providers/theme-provider';
+import './globals.css';
+
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700', '800'],
+  variable: '--font-poppins',
+  display: 'swap',
+});
+
+export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
+  title: {
+    default: 'Covialvi - Imobiliária de Confiança em Portugal',
+    template: '%s | Covialvi',
+  },
+  description:
+    'A Covialvi é uma imobiliária de referência em Portugal, especializada em apartamentos, moradias e imóveis comerciais. Encontre o seu imóvel ideal connosco.',
+  keywords: [
+    'imobiliária',
+    'imóveis',
+    'apartamentos',
+    'moradias',
+    'Portugal',
+    'Covilhã',
+    'comprar casa',
+    'vender casa',
+    'arrendar',
+  ],
+  authors: [{ name: 'Covialvi' }],
+  creator: 'Covialvi',
+  openGraph: {
+    type: 'website',
+    locale: 'pt_PT',
+    url: '/',
+    siteName: 'Covialvi',
+    title: 'Covialvi - Imobiliária de Confiança em Portugal',
+    description:
+      'A Covialvi é uma imobiliária de referência em Portugal. Encontre apartamentos, moradias e imóveis comerciais.',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Covialvi - Imobiliária',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Covialvi - Imobiliária de Confiança em Portugal',
+    description: 'Encontre o seu imóvel ideal em Portugal com a Covialvi.',
+    images: ['/og-image.jpg'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    google: 'your-google-verification-code',
+  },
+};
+
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
+  return (
+    <html lang={locale} suppressHydrationWarning>
+      <body className={`${poppins.variable} font-sans`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <NextIntlClientProvider messages={messages}>
+            <QueryProvider>
+              <AuthProvider>
+                {children}
+                <Toaster position="top-right" richColors />
+              </AuthProvider>
+            </QueryProvider>
+          </NextIntlClientProvider>
+        </ThemeProvider>
+      </body>
+    </html>
+  );
+}

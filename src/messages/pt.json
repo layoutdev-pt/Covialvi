@@ -1,0 +1,479 @@
+{
+  "common": {
+    "loading": "A carregar...",
+    "error": "Ocorreu um erro",
+    "success": "Operação realizada com sucesso",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "view": "Ver",
+    "search": "Pesquisar",
+    "filter": "Filtrar",
+    "clear": "Limpar",
+    "apply": "Aplicar",
+    "close": "Fechar",
+    "back": "Voltar",
+    "next": "Seguinte",
+    "previous": "Anterior",
+    "submit": "Submeter",
+    "confirm": "Confirmar",
+    "yes": "Sim",
+    "no": "Não",
+    "all": "Todos",
+    "none": "Nenhum",
+    "more": "Mais",
+    "less": "Menos",
+    "showMore": "Ver mais",
+    "showLess": "Ver menos",
+    "noResults": "Sem resultados",
+    "required": "Obrigatório"
+  },
+  "nav": {
+    "home": "Início",
+    "properties": "Imóveis",
+    "about": "Sobre Nós",
+    "services": "Serviços",
+    "evaluation": "Avaliação",
+    "simulator": "Simulador",
+    "contact": "Contacto",
+    "blog": "Notícias",
+    "consultants": "Consultores",
+    "login": "Entrar",
+    "register": "Registar",
+    "logout": "Sair",
+    "account": "A Minha Conta",
+    "favorites": "Favoritos",
+    "admin": "Administração"
+  },
+  "hero": {
+    "title": "Comece aqui a sua nova vida",
+    "subtitle": "Do sonho à realidade, chave na mão. Uma experiência sem preocupações, para que possa simplesmente desfrutar.",
+    "searchPlaceholder": "Pesquisar por localização, referência ou tipo de imóvel...",
+    "cta": "Pesquisar Imóveis",
+    "ctaSecondary": "Quer construir o seu imóvel?"
+  },
+  "stats": {
+    "projectsCompleted": "Projetos concluídos",
+    "happyClients": "Clientes satisfeitos",
+    "projectValue": "Valor em projetos",
+    "propertiesAvailable": "Imóveis disponíveis"
+  },
+  "services": {
+    "title": "Soluções Imobiliárias Completas",
+    "subtitle": "A nossa oferta abraça todos os seus objetivos: desde a exclusividade dos Imóveis Premium e a rentabilidade do Investimento Seguro, até ao conforto de encontrar O Seu Novo Lar.",
+    "premium": {
+      "title": "Imóveis Premium",
+      "description": "Eleve o seu estilo de vida a outro nível. Imóveis com um design soberbo e acabamentos de topo, situados nas localizações mais cobiçadas, para quem exige o melhor."
+    },
+    "investment": {
+      "title": "Investimento Seguro",
+      "description": "Rentabilize o seu capital de forma inteligente. Selecionamos imóveis com elevado potencial de valorização e retorno garantido, situados em zonas estratégicas."
+    },
+    "home": {
+      "title": "O Seu Novo Lar",
+      "description": "Encontre o refúgio perfeito para a sua família crescer. Casas acolhedoras, funcionais e prontas a habitar, onde cada espaço foi concebido para o seu conforto."
+    }
+  },
+  "properties": {
+    "title": "Imóveis",
+    "featured": "Imóveis em Destaque",
+    "latest": "Últimos Imóveis",
+    "viewAll": "Ver Todos os Imóveis",
+    "viewProperty": "Ver Imóvel",
+    "filters": {
+      "title": "Filtros",
+      "district": "Distrito",
+      "municipality": "Concelho",
+      "businessType": "Tipo de Negócio",
+      "bedrooms": "Quartos",
+      "nature": "Natureza",
+      "priceRange": "Intervalo de Preço",
+      "minPrice": "Preço Mínimo",
+      "maxPrice": "Preço Máximo",
+      "area": "Área",
+      "minArea": "Área Mínima",
+      "maxArea": "Área Máxima"
+    },
+    "businessTypes": {
+      "sale": "Venda",
+      "rent": "Arrendamento",
+      "transfer": "Trespasse"
+    },
+    "natures": {
+      "apartment": "Apartamento",
+      "house": "Moradia",
+      "land": "Terreno",
+      "commercial": "Comercial",
+      "warehouse": "Armazém",
+      "office": "Escritório",
+      "garage": "Garagem",
+      "shop": "Loja"
+    },
+    "details": {
+      "reference": "Referência",
+      "price": "Preço",
+      "priceOnRequest": "Sob Consulta",
+      "area": "Área Bruta",
+      "usefulArea": "Área Útil",
+      "bedrooms": "Quartos",
+      "bathrooms": "Casas de Banho",
+      "floors": "Pisos",
+      "energyCertificate": "Certificado Energético",
+      "constructionStatus": "Estado de Construção",
+      "typology": "Tipologia",
+      "description": "Descrição",
+      "location": "Localização",
+      "equipment": "Equipamentos",
+      "extras": "Extras",
+      "surroundingArea": "Zona Envolvente",
+      "floorPlans": "Plantas",
+      "brochure": "Brochura",
+      "video": "Vídeo",
+      "gallery": "Galeria",
+      "map": "Mapa"
+    },
+    "constructionStatus": {
+      "new": "Novo",
+      "used": "Usado",
+      "underConstruction": "Em Construção",
+      "toRecover": "Para Recuperar",
+      "renovated": "Renovado"
+    },
+    "actions": {
+      "addFavorite": "Adicionar aos Favoritos",
+      "removeFavorite": "Remover dos Favoritos",
+      "requestInfo": "Pedir Informação",
+      "scheduleVisit": "Agendar Visita",
+      "compare": "Comparar",
+      "share": "Partilhar",
+      "print": "Imprimir",
+      "downloadBrochure": "Descarregar Brochura"
+    },
+    "sort": {
+      "label": "Ordenar por",
+      "newest": "Mais Recentes",
+      "oldest": "Mais Antigos",
+      "priceAsc": "Preço: Menor para Maior",
+      "priceDesc": "Preço: Maior para Menor",
+      "areaAsc": "Área: Menor para Maior",
+      "areaDesc": "Área: Maior para Menor"
+    },
+    "view": {
+      "grid": "Grelha",
+      "list": "Lista"
+    },
+    "noProperties": "Não foram encontrados imóveis com os critérios selecionados.",
+    "similarProperties": "Imóveis Semelhantes"
+  },
+  "auth": {
+    "login": {
+      "title": "Entrar na sua conta",
+      "subtitle": "Bem-vindo de volta! Introduza os seus dados para aceder.",
+      "email": "Endereço de e-mail",
+      "password": "Palavra-passe",
+      "rememberMe": "Lembrar-me",
+      "forgotPassword": "Esqueceu a palavra-passe?",
+      "submit": "Entrar",
+      "noAccount": "Ainda não tem conta?",
+      "register": "Registar-se"
+    },
+    "register": {
+      "title": "Criar conta",
+      "subtitle": "Crie a sua conta para guardar favoritos e agendar visitas.",
+      "firstName": "Nome",
+      "lastName": "Apelido",
+      "email": "Endereço de e-mail",
+      "phone": "Telefone",
+      "password": "Palavra-passe",
+      "confirmPassword": "Confirmar palavra-passe",
+      "acceptTerms": "Li e aceito os",
+      "termsLink": "Termos e Condições",
+      "privacyLink": "Política de Privacidade",
+      "submit": "Criar Conta",
+      "hasAccount": "Já tem conta?",
+      "login": "Entrar"
+    },
+    "forgotPassword": {
+      "title": "Recuperar palavra-passe",
+      "subtitle": "Introduza o seu e-mail e enviaremos instruções para redefinir a sua palavra-passe.",
+      "email": "Endereço de e-mail",
+      "submit": "Enviar Instruções",
+      "backToLogin": "Voltar ao login"
+    },
+    "resetPassword": {
+      "title": "Redefinir palavra-passe",
+      "subtitle": "Introduza a sua nova palavra-passe.",
+      "password": "Nova palavra-passe",
+      "confirmPassword": "Confirmar nova palavra-passe",
+      "submit": "Redefinir Palavra-passe"
+    },
+    "verifyEmail": {
+      "title": "Verificar e-mail",
+      "subtitle": "Enviámos um e-mail de verificação para {email}. Por favor, verifique a sua caixa de entrada.",
+      "resend": "Reenviar e-mail",
+      "resent": "E-mail reenviado com sucesso"
+    },
+    "errors": {
+      "invalidCredentials": "E-mail ou palavra-passe incorretos.",
+      "emailInUse": "Este e-mail já está registado.",
+      "weakPassword": "A palavra-passe deve ter pelo menos 8 caracteres.",
+      "passwordMismatch": "As palavras-passe não coincidem.",
+      "invalidEmail": "Por favor, introduza um e-mail válido.",
+      "requiredField": "Este campo é obrigatório.",
+      "generic": "Ocorreu um erro. Por favor, tente novamente."
+    }
+  },
+  "account": {
+    "title": "A Minha Conta",
+    "profile": {
+      "title": "Perfil",
+      "subtitle": "Gerir os seus dados pessoais",
+      "firstName": "Nome",
+      "lastName": "Apelido",
+      "email": "E-mail",
+      "phone": "Telefone",
+      "save": "Guardar Alterações"
+    },
+    "security": {
+      "title": "Segurança",
+      "subtitle": "Gerir palavra-passe e sessões",
+      "changePassword": "Alterar Palavra-passe",
+      "currentPassword": "Palavra-passe atual",
+      "newPassword": "Nova palavra-passe",
+      "confirmPassword": "Confirmar nova palavra-passe",
+      "sessions": "Sessões Ativas",
+      "currentSession": "Sessão atual",
+      "revokeSession": "Terminar sessão",
+      "revokeAll": "Terminar todas as outras sessões"
+    },
+    "favorites": {
+      "title": "Favoritos",
+      "subtitle": "Os seus imóveis guardados",
+      "empty": "Ainda não tem imóveis favoritos.",
+      "browse": "Explorar Imóveis"
+    },
+    "visits": {
+      "title": "Visitas Agendadas",
+      "subtitle": "As suas visitas a imóveis",
+      "empty": "Não tem visitas agendadas.",
+      "upcoming": "Próximas Visitas",
+      "past": "Visitas Anteriores",
+      "cancel": "Cancelar Visita",
+      "reschedule": "Reagendar"
+    },
+    "privacy": {
+      "title": "Privacidade",
+      "subtitle": "Gerir os seus dados e consentimentos",
+      "exportData": "Exportar os Meus Dados",
+      "exportDescription": "Descarregue uma cópia de todos os seus dados pessoais.",
+      "deleteAccount": "Eliminar Conta",
+      "deleteDescription": "Eliminar permanentemente a sua conta e todos os dados associados.",
+      "deleteWarning": "Esta ação é irreversível. Todos os seus dados serão eliminados.",
+      "consents": "Consentimentos",
+      "marketingEmails": "E-mails de marketing",
+      "marketingDescription": "Receber novidades sobre imóveis e promoções.",
+      "propertyAlerts": "Alertas de imóveis",
+      "alertsDescription": "Receber notificações sobre novos imóveis que correspondam às suas pesquisas."
+    }
+  },
+  "contact": {
+    "title": "Contacte-nos",
+    "subtitle": "Estamos aqui para ajudar. Entre em contacto connosco.",
+    "form": {
+      "title": "Envie-nos uma Mensagem",
+      "firstName": "Nome",
+      "lastName": "Apelido",
+      "name": "Nome completo",
+      "email": "E-mail",
+      "phone": "Telefone",
+      "subject": "Assunto",
+      "message": "Mensagem",
+      "property": "Imóvel de interesse",
+      "submit": "Enviar Mensagem",
+      "success": "Mensagem enviada com sucesso. Entraremos em contacto brevemente.",
+      "error": "Não foi possível enviar a mensagem. Por favor, tente novamente."
+    },
+    "info": {
+      "title": "Informações de Contacto",
+      "address": "Morada",
+      "phone": "Telefone",
+      "email": "E-mail",
+      "hours": "Horário de Funcionamento",
+      "schedule": "Horário de Funcionamento"
+    }
+  },
+  "visit": {
+    "title": "Agendar Visita",
+    "subtitle": "Escolha uma data e hora para visitar este imóvel.",
+    "property": "Imóvel",
+    "selectDate": "Selecionar Data",
+    "selectTime": "Selecionar Hora",
+    "message": "Mensagem (opcional)",
+    "messagePlaceholder": "Alguma informação adicional que queira partilhar...",
+    "submit": "Confirmar Agendamento",
+    "success": "Visita agendada com sucesso. Receberá um e-mail de confirmação.",
+    "error": "Não foi possível agendar a visita. Por favor, tente novamente.",
+    "loginRequired": "Por favor, entre na sua conta para agendar uma visita."
+  },
+  "testimonials": {
+    "title": "O Que Dizem os Nossos Clientes",
+    "subtitle": "Histórias de sucesso dos nossos clientes refletem o nosso compromisso com a excelência."
+  },
+  "faq": {
+    "title": "Perguntas Frequentes",
+    "subtitle": "Encontre respostas às questões mais comuns."
+  },
+  "footer": {
+    "description": "A Covialvi é uma imobiliária de referência em Portugal, dedicada a encontrar o imóvel perfeito para si.",
+    "quickLinks": "Ligações Rápidas",
+    "services": "Serviços",
+    "contact": "Contacto",
+    "legal": "Legal",
+    "terms": "Termos e Condições",
+    "privacy": "Política de Privacidade",
+    "cookies": "Política de Cookies",
+    "copyright": "© {year} Covialvi. Todos os direitos reservados.",
+    "newsletter": {
+      "title": "Newsletter",
+      "subtitle": "Subscreva para receber as últimas novidades.",
+      "placeholder": "O seu e-mail",
+      "submit": "Subscrever",
+      "success": "Subscrição realizada com sucesso.",
+      "error": "Não foi possível processar a subscrição."
+    }
+  },
+  "admin": {
+    "dashboard": {
+      "title": "Painel de Controlo",
+      "welcome": "Bem-vindo, {name}",
+      "kpis": {
+        "totalProperties": "Total de Imóveis",
+        "activeListings": "Imóveis Ativos",
+        "newLeads": "Novos Contactos (7 dias)",
+        "scheduledVisits": "Visitas Agendadas",
+        "conversionRate": "Taxa de Conversão"
+      },
+      "recentActivity": "Atividade Recente",
+      "quickActions": {
+        "title": "Ações Rápidas",
+        "addProperty": "Adicionar Imóvel",
+        "assignLead": "Atribuir Contacto",
+        "exportData": "Exportar Dados"
+      }
+    },
+    "properties": {
+      "title": "Gestão de Imóveis",
+      "add": "Adicionar Imóvel",
+      "edit": "Editar Imóvel",
+      "delete": "Eliminar Imóvel",
+      "preview": "Pré-visualizar",
+      "publish": "Publicar",
+      "unpublish": "Despublicar",
+      "duplicate": "Duplicar",
+      "bulkActions": "Ações em Massa",
+      "status": {
+        "draft": "Rascunho",
+        "published": "Publicado",
+        "archived": "Arquivado"
+      }
+    },
+    "leads": {
+      "title": "Gestão de Contactos",
+      "add": "Adicionar Contacto",
+      "assign": "Atribuir",
+      "status": {
+        "new": "Novo",
+        "contacted": "Contactado",
+        "visitScheduled": "Visita Agendada",
+        "negotiation": "Negociação",
+        "closed": "Fechado",
+        "lost": "Perdido"
+      },
+      "pipeline": "Pipeline",
+      "notes": "Notas",
+      "addNote": "Adicionar Nota",
+      "history": "Histórico",
+      "tags": "Etiquetas"
+    },
+    "visits": {
+      "title": "Gestão de Visitas",
+      "calendar": "Calendário",
+      "confirm": "Confirmar",
+      "reschedule": "Reagendar",
+      "cancel": "Cancelar",
+      "complete": "Marcar como Concluída",
+      "addNotes": "Adicionar Notas"
+    },
+    "users": {
+      "title": "Gestão de Utilizadores",
+      "add": "Adicionar Utilizador",
+      "edit": "Editar Utilizador",
+      "deactivate": "Desativar",
+      "reactivate": "Reativar",
+      "exportData": "Exportar Dados",
+      "roles": {
+        "user": "Utilizador",
+        "admin": "Administrador",
+        "superAdmin": "Super Administrador"
+      }
+    },
+    "audit": {
+      "title": "Registos de Auditoria",
+      "export": "Exportar Registos",
+      "action": "Ação",
+      "user": "Utilizador",
+      "timestamp": "Data/Hora",
+      "details": "Detalhes"
+    },
+    "settings": {
+      "title": "Definições",
+      "general": "Geral",
+      "notifications": "Notificações",
+      "integrations": "Integrações"
+    }
+  },
+  "mortgage": {
+    "title": "Simulador de Crédito Habitação",
+    "subtitle": "Calcule a sua prestação mensal estimada.",
+    "propertyValue": "Valor do Imóvel",
+    "downPayment": "Entrada",
+    "loanAmount": "Montante do Empréstimo",
+    "interestRate": "Taxa de Juro Anual",
+    "loanTerm": "Prazo (anos)",
+    "monthlyPayment": "Prestação Mensal Estimada",
+    "totalInterest": "Total de Juros",
+    "totalPayment": "Total a Pagar",
+    "disclaimer": "Esta simulação é meramente indicativa e não constitui uma proposta de crédito."
+  },
+  "comparison": {
+    "title": "Comparar Imóveis",
+    "add": "Adicionar à Comparação",
+    "remove": "Remover da Comparação",
+    "clear": "Limpar Comparação",
+    "empty": "Adicione imóveis para comparar.",
+    "maxReached": "Máximo de {max} imóveis para comparação."
+  },
+  "cookies": {
+    "title": "Utilizamos cookies",
+    "description": "Este site utiliza cookies para melhorar a sua experiência. Ao continuar a navegar, concorda com a nossa utilização de cookies.",
+    "accept": "Aceitar Todos",
+    "reject": "Rejeitar Não Essenciais",
+    "customize": "Personalizar",
+    "necessary": "Cookies Necessários",
+    "analytics": "Cookies de Análise",
+    "marketing": "Cookies de Marketing"
+  },
+  "errors": {
+    "404": {
+      "title": "Página não encontrada",
+      "description": "A página que procura não existe ou foi movida.",
+      "backHome": "Voltar ao Início"
+    },
+    "500": {
+      "title": "Erro interno",
+      "description": "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.",
+      "retry": "Tentar Novamente"
+    }
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "error": "Ha ocurrido un error",
+    "success": "Operación realizada con éxito",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "view": "Ver",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "clear": "Limpiar",
+    "apply": "Aplicar",
+    "close": "Cerrar",
+    "back": "Volver",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "submit": "Enviar",
+    "confirm": "Confirmar",
+    "yes": "Sí",
+    "no": "No",
+    "all": "Todos",
+    "none": "Ninguno",
+    "more": "Más",
+    "less": "Menos",
+    "showMore": "Ver más",
+    "showLess": "Ver menos",
+    "noResults": "Sin resultados",
+    "required": "Obligatorio"
+  },
+  "nav": {
+    "home": "Inicio",
+    "properties": "Inmuebles",
+    "about": "Sobre Nosotros",
+    "services": "Servicios",
+    "evaluation": "Evaluación",
+    "simulator": "Simulador",
+    "contact": "Contacto",
+    "blog": "Noticias",
+    "consultants": "Consultores",
+    "login": "Entrar",
+    "register": "Registrarse",
+    "logout": "Salir",
+    "account": "Mi Cuenta",
+    "favorites": "Favoritos",
+    "admin": "Administración"
+  },
+  "hero": {
+    "title": "Comienza aquí tu nueva vida",
+    "subtitle": "Del sueño a la realidad, llave en mano. Una experiencia sin preocupaciones, para que puedas simplemente disfrutar.",
+    "searchPlaceholder": "Buscar por ubicación, referencia o tipo de inmueble...",
+    "cta": "Buscar Inmuebles",
+    "ctaSecondary": "¿Quieres construir tu inmueble?"
+  },
+  "stats": {
+    "projectsCompleted": "Proyectos completados",
+    "happyClients": "Clientes satisfechos",
+    "projectValue": "Valor en proyectos",
+    "propertiesAvailable": "Inmuebles disponibles"
+  },
+  "properties": {
+    "title": "Inmuebles",
+    "featured": "Inmuebles Destacados",
+    "latest": "Últimos Inmuebles",
+    "viewAll": "Ver Todos los Inmuebles",
+    "viewProperty": "Ver Inmueble",
+    "noProperties": "No se encontraron inmuebles con los criterios seleccionados.",
+    "similarProperties": "Inmuebles Similares"
+  },
+  "auth": {
+    "login": {
+      "title": "Accede a tu cuenta",
+      "subtitle": "¡Bienvenido de nuevo! Introduce tus datos para acceder.",
+      "email": "Correo electrónico",
+      "password": "Contraseña",
+      "submit": "Entrar"
+    },
+    "register": {
+      "title": "Crear cuenta",
+      "subtitle": "Crea tu cuenta para guardar favoritos y agendar visitas.",
+      "submit": "Crear Cuenta"
+    }
+  },
+  "contact": {
+    "title": "Contáctenos",
+    "subtitle": "Estamos aquí para ayudar. Póngase en contacto con nosotros.",
+    "form": {
+      "title": "Envíenos un Mensaje",
+      "firstName": "Nombre",
+      "lastName": "Apellido",
+      "name": "Nombre completo",
+      "email": "Correo electrónico",
+      "phone": "Teléfono",
+      "subject": "Asunto",
+      "message": "Mensaje",
+      "property": "Inmueble de interés",
+      "submit": "Enviar Mensaje",
+      "success": "Mensaje enviado con éxito. Nos pondremos en contacto pronto.",
+      "error": "No se pudo enviar el mensaje. Por favor, inténtelo de nuevo."
+    },
+    "info": {
+      "title": "Información de Contacto",
+      "address": "Dirección",
+      "phone": "Teléfono",
+      "email": "Correo electrónico",
+      "hours": "Horario de Atención",
+      "schedule": "Horario de Atención"
+    }
+  },
+  "footer": {
+    "description": "Covialvi es una inmobiliaria de referencia en Portugal, dedicada a encontrar el inmueble perfecto para ti.",
+    "copyright": "© {year} Covialvi. Todos los derechos reservados."
+  }
+}
