@@ -7,12 +7,11 @@ export function cn(...inputs: ClassValue[]) {
 
 export function formatPrice(price: number | null, currency = 'EUR'): string {
   if (price === null) return 'Sob Consulta';
-  return new Intl.NumberFormat('pt-PT', {
-    style: 'currency',
-    currency,
+  const formatted = new Intl.NumberFormat('pt-PT', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(price);
+  return `${formatted}\u00A0€`;
 }
 
 export function formatArea(area: number | null): string {

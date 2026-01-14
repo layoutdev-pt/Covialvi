@@ -92,10 +92,11 @@ export async function generateMetadata({ params }: PageProps) {
 
 const formatPrice = (price: number | null) => {
   if (price === null) return 'Sob Consulta';
-  return new Intl.NumberFormat('pt-PT', {
+  const formatted = new Intl.NumberFormat('pt-PT', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(price) + ' €';
+  }).format(price);
+  return `${formatted}\u00A0€`;
 };
 
 // JSON-LD Structured Data for Real Estate
