@@ -8,7 +8,8 @@ A Covialvi é uma plataforma imobiliária de produção que inclui:
 
 - **Site Público**: Página inicial, listagem de imóveis, páginas de detalhe com SEO otimizado
 - **Área de Utilizador**: Autenticação, favoritos, agendamento de visitas, gestão de perfil
-- **Backoffice Admin**: Dashboard com KPIs, gestão de imóveis, CRM completo, gestão de visitas
+- **Backoffice Admin**: Dashboard com KPIs, gestão de imóveis, CRM com pipeline Kanban, gestão de visitas
+- **Integrações**: Google Calendar para sincronização de visitas
 
 ## 🚀 Tecnologias
 
@@ -163,6 +164,8 @@ npm run db:generate  # Gerar tipos da BD
 | `audit_logs` | Logs de auditoria |
 | `user_sessions` | Sessões de utilizador |
 | `saved_searches` | Pesquisas guardadas |
+| `notifications` | Notificações in-app |
+| `google_tokens` | Tokens OAuth Google Calendar |
 
 ### Row Level Security (RLS)
 
@@ -289,6 +292,35 @@ npm run test
 npm run test:e2e
 ```
 
+## 📅 Google Calendar Integration
+
+A plataforma integra com Google Calendar para sincronização automática de visitas.
+
+### Funcionalidades
+
+- **OAuth 2.0**: Autenticação segura com Google
+- **Sincronização automática**: Visitas criadas aparecem no calendário
+- **Atualização em tempo real**: Alterações refletidas no Google Calendar
+- **Cancelamento**: Eventos removidos quando visitas são canceladas
+
+### Configuração
+
+1. Adicione as variáveis de ambiente:
+```env
+GOOGLE_CLIENT_ID=seu-client-id
+GOOGLE_CLIENT_SECRET=seu-client-secret
+GOOGLE_API_KEY=sua-api-key
+```
+
+2. Configure o redirect URI no Google Cloud Console:
+```
+{NEXT_PUBLIC_APP_URL}/api/auth/google/callback
+```
+
+3. Ative a Google Calendar API no Google Cloud Console
+
+4. Conecte o calendário em Admin > Definições > Google Calendar
+
 ## 📈 Performance
 
 Objetivos Lighthouse:
@@ -304,6 +336,15 @@ Objetivos Lighthouse:
 - Image optimization (AVIF/WebP)
 - Lazy loading
 - ISR para páginas de imóveis
+- Skeleton loading states para UX melhorada
+
+## ♿ Acessibilidade
+
+- ARIA labels em elementos interativos
+- Focus rings visíveis para navegação por teclado
+- Anúncio de erros em formulários (role="alert")
+- Contraste de cores WCAG AA
+- Labels descritivos para screen readers
 
 ## 🤝 Contribuição
 
