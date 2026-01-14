@@ -48,7 +48,11 @@ export function PropertyGallery({ images, videoUrl, title, businessType }: Prope
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+    <div 
+      className="grid grid-cols-1 lg:grid-cols-12 gap-4"
+      role="region"
+      aria-label={`Galeria de imagens: ${title}`}
+    >
       {/* Vertical Thumbnail Carousel */}
       <div className="lg:col-span-1 order-2 lg:order-1">
         <div className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0">
@@ -57,9 +61,10 @@ export function PropertyGallery({ images, videoUrl, title, businessType }: Prope
             <button
               onClick={() => scrollThumbnails('up')}
               disabled={thumbnailStart === 0}
-              className="hidden lg:flex w-full h-8 items-center justify-center bg-secondary rounded-lg hover:bg-secondary/80 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              aria-label="Ver imagens anteriores"
+              className="hidden lg:flex w-full h-8 items-center justify-center bg-secondary rounded-lg hover:bg-secondary/80 disabled:opacity-30 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-500"
             >
-              <ChevronUp className="h-4 w-4 text-muted-foreground" />
+              <ChevronUp className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
             </button>
           )}
           
@@ -73,7 +78,9 @@ export function PropertyGallery({ images, videoUrl, title, businessType }: Prope
                   onClick={() => handleThumbnailClick(actualIndex)}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className={`relative w-16 h-16 lg:w-full lg:h-20 rounded-xl overflow-hidden flex-shrink-0 border-2 transition-all ${
+                  aria-label={`Ver imagem ${actualIndex + 1} de ${sortedImages.length}`}
+                  aria-current={selectedIndex === actualIndex && !showVideo ? 'true' : undefined}
+                  className={`relative w-16 h-16 lg:w-full lg:h-20 rounded-xl overflow-hidden flex-shrink-0 border-2 transition-all focus:outline-none focus:ring-2 focus:ring-yellow-500 ${
                     selectedIndex === actualIndex && !showVideo
                       ? 'border-yellow-500 ring-2 ring-yellow-500/20'
                       : 'border-transparent hover:border-yellow-500/50'
@@ -96,9 +103,10 @@ export function PropertyGallery({ images, videoUrl, title, businessType }: Prope
             <button
               onClick={() => scrollThumbnails('down')}
               disabled={thumbnailStart + visibleThumbnails >= sortedImages.length}
-              className="hidden lg:flex w-full h-8 items-center justify-center bg-secondary rounded-lg hover:bg-secondary/80 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              aria-label="Ver mais imagens"
+              className="hidden lg:flex w-full h-8 items-center justify-center bg-secondary rounded-lg hover:bg-secondary/80 disabled:opacity-30 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-500"
             >
-              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              <ChevronDown className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
             </button>
           )}
           
@@ -108,7 +116,9 @@ export function PropertyGallery({ images, videoUrl, title, businessType }: Prope
               onClick={() => setShowVideo(true)}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className={`relative w-16 h-16 lg:w-full lg:h-20 rounded-xl overflow-hidden flex-shrink-0 border-2 transition-all bg-gray-900 ${
+              aria-label="Ver vídeo do imóvel"
+              aria-current={showVideo ? 'true' : undefined}
+              className={`relative w-16 h-16 lg:w-full lg:h-20 rounded-xl overflow-hidden flex-shrink-0 border-2 transition-all bg-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-500 ${
                 showVideo
                   ? 'border-yellow-500 ring-2 ring-yellow-500/20'
                   : 'border-transparent hover:border-yellow-500/50'

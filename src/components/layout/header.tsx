@@ -112,8 +112,8 @@ export function Header() {
           {/* Dark/Light Mode Toggle */}
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-            aria-label="Toggle theme"
+            className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-500"
+            aria-label={mounted && theme === 'dark' ? 'Mudar para modo claro' : 'Mudar para modo escuro'}
           >
             {mounted && theme === 'dark' ? (
               <Sun className="h-4 w-4" />
@@ -125,9 +125,11 @@ export function Header() {
           {/* Search Button */}
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+            aria-label="Pesquisar imóveis"
+            aria-expanded={showFilters}
+            className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-500"
           >
-            <Search className="h-4 w-4" />
+            <Search className="h-4 w-4" aria-hidden="true" />
           </button>
 
           {/* Unified CTA Button */}
@@ -151,9 +153,12 @@ export function Header() {
             <div className="relative" data-dropdown>
               <button
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+                aria-label="Menu do utilizador"
+                aria-expanded={userMenuOpen}
+                aria-haspopup="true"
+                className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-500"
               >
-                <User className="h-4 w-4" />
+                <User className="h-4 w-4" aria-hidden="true" />
               </button>
               {userMenuOpen && (
                 <div className="absolute right-0 mt-2 w-52 bg-card rounded-xl shadow-lg border border-border py-2 z-50">
@@ -206,9 +211,10 @@ export function Header() {
 
         {/* Mobile Menu Button */}
         <button
-          className="lg:hidden p-2 text-foreground"
+          className="lg:hidden p-2 text-foreground focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded-lg"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label="Menu"
+          aria-label={mobileMenuOpen ? 'Fechar menu' : 'Abrir menu'}
+          aria-expanded={mobileMenuOpen}
         >
           {mobileMenuOpen ? (
             <X className="h-6 w-6" />
