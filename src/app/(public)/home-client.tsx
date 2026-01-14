@@ -196,7 +196,7 @@ export function HomeClient({ properties, stats, heroProperty }: HomeClientProps)
           >
             <Image
               src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2075"
-              alt="Luxury modern home"
+              alt="Moradia moderna de luxo"
               fill
               className="object-cover"
               priority
@@ -213,9 +213,9 @@ export function HomeClient({ properties, stats, heroProperty }: HomeClientProps)
                 transition={{ duration: 0.8, delay: 0.2 }}
               >
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.1] mb-6 tracking-tight">
-                  FIND YOUR<br />
-                  PERFECT HOME<br />
-                  TODAY
+                  ENCONTRE A SUA<br />
+                  CASA IDEAL<br />
+                  HOJE
                 </h1>
               </motion.div>
             

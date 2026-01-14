@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Heart, Calendar, Loader2 } from 'lucide-react';
 import { useAuth } from '@/components/providers/auth-provider';
@@ -24,34 +24,34 @@ export function PropertyActions({
   const [isCheckingFavorite, setIsCheckingFavorite] = useState(true);
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
   
-  const supabase = createClient();
+  // Use ref to keep stable supabase client reference
+  const supabaseRef = useRef(createClient());
+  const supabase = supabaseRef.current;
+  
+  // Track if check has already run to prevent infinite loops
+  const hasCheckedRef = useRef(false);
 
   // Check if property is already favorited on mount
   useEffect(() => {
+    // Prevent running multiple times
+    if (hasCheckedRef.current) return;
+    if (authLoading) return;
+    
     const checkFavorite = async () => {
       if (!user) {
         setIsCheckingFavorite(false);
         return;
       }
       
+      hasCheckedRef.current = true;
+      
       try {
-        // Get fresh auth user to ensure correct context
-        const { data: { user: authUser } } = await supabase.auth.getUser();
-        console.log('[Favorites] Checking for user:', authUser?.id);
-        
-        if (!authUser) {
-          setIsCheckingFavorite(false);
-          return;
-        }
-        
         const { data, error } = await supabase
           .from('favorites')
           .select('id')
-          .eq('user_id', authUser.id)
+          .eq('user_id', user.id)
           .eq('property_id', propertyId)
           .maybeSingle();
-        
-        console.log('[Favorites] Check result:', { data, error });
         
         if (!error && data) {
           setIsFavorited(true);
@@ -64,7 +64,7 @@ export function PropertyActions({
     };
     
     checkFavorite();
-  }, [user, propertyId]);
+  }, [user, propertyId, authLoading, supabase]);
   const [showVisitModal, setShowVisitModal] = useState(false);
   const [isSchedulingVisit, setIsSchedulingVisit] = useState(false);
   const [visitDate, setVisitDate] = useState('');
@@ -84,34 +84,22 @@ export function PropertyActions({
 
     setIsTogglingFavorite(true);
     try {
-      // Verify auth state before operation
-      const { data: { user: authUser } } = await supabase.auth.getUser();
-      console.log('[Favorites] Auth user:', authUser?.id, 'Context user:', user.id);
-      
-      if (!authUser) {
-        throw new Error('Sessão expirada. Por favor, inicie sessão novamente.');
-      }
-      
       if (isFavorited) {
         const { error } = await supabase
           .from('favorites')
           .delete()
-          .eq('user_id', authUser.id)
+          .eq('user_id', user.id)
           .eq('property_id', propertyId);
         if (error) {
-          console.error('[Favorites] Delete error:', error);
           throw error;
         }
         setIsFavorited(false);
         toast.success('Removido dos favoritos');
       } else {
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('favorites')
-          .insert({ user_id: authUser.id, property_id: propertyId })
-          .select();
-        console.log('[Favorites] Insert result:', { data, error });
+          .insert({ user_id: user.id, property_id: propertyId });
         if (error) {
-          console.error('[Favorites] Insert error:', error);
           throw error;
         }
         setIsFavorited(true);

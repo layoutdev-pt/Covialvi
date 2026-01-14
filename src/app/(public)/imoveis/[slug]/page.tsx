@@ -5,7 +5,6 @@ import { createClient } from '@/lib/supabase/server';
 import { MapPin, ChevronDown, Building2, FileDown } from 'lucide-react';
 import { PropertyActions } from './property-actions';
 import { PropertyGallery } from './property-gallery';
-import { WhatsAppButton } from '@/components/ui/whatsapp-button';
 
 export const dynamic = 'force-dynamic';
 
@@ -416,13 +415,8 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                 </button>
               </form>
               
-              {/* WhatsApp & PDF Buttons */}
+              {/* PDF Button */}
               <div className="mt-6 pt-6 border-t border-border space-y-3">
-                <WhatsAppButton 
-                  propertyTitle={property.title}
-                  propertyRef={property.reference}
-                  variant="full"
-                />
                 <a
                   href={`/api/properties/${property.id}/pdf`}
                   target="_blank"
@@ -438,13 +432,6 @@ export default async function PropertyDetailPage({ params }: PageProps) {
         </div>
       </section>
       
-      {/* Floating WhatsApp Button */}
-      <WhatsAppButton 
-        propertyTitle={property.title}
-        propertyRef={property.reference}
-        variant="floating"
-      />
-
       {/* Similar Properties */}
       {similarProperties.length > 0 && (
         <section className="bg-secondary/50 py-16">

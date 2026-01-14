@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { Menu, X, User, ChevronDown, Search, Sun, Moon } from 'lucide-react';
+import { Menu, X, User, ChevronDown, Search, Sun, Moon, Calculator, ClipboardList } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -29,6 +29,7 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [ferramentasOpen, setFerramentasOpen] = useState(false);
   
   // Filter states
   const [searchLocation, setSearchLocation] = useState('');
@@ -46,14 +47,15 @@ export function Header() {
       const target = event.target as HTMLElement;
       if (!target.closest('[data-dropdown]')) {
         setUserMenuOpen(false);
+        setFerramentasOpen(false);
       }
     };
     
-    if (userMenuOpen) {
+    if (userMenuOpen || ferramentasOpen) {
       document.addEventListener('click', handleClickOutside);
       return () => document.removeEventListener('click', handleClickOutside);
     }
-  }, [userMenuOpen]);
+  }, [userMenuOpen, ferramentasOpen]);
 
   const toggleTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
@@ -132,13 +134,42 @@ export function Header() {
             <Search className="h-4 w-4" aria-hidden="true" />
           </button>
 
-          {/* Unified CTA Button */}
-          <Link
-            href="/servicos"
-            className="px-4 py-2 rounded-full bg-yellow-500 text-white font-medium text-sm hover:bg-yellow-600 transition-colors"
-          >
-            Serviços
-          </Link>
+          {/* Ferramentas Dropdown */}
+          <div className="relative" data-dropdown>
+            <button
+              onClick={() => setFerramentasOpen(!ferramentasOpen)}
+              className="flex items-center gap-1 px-4 py-2 rounded-full bg-yellow-500 text-white font-medium text-sm hover:bg-yellow-600 transition-colors"
+            >
+              Ferramentas
+              <ChevronDown className={`h-4 w-4 transition-transform ${ferramentasOpen ? 'rotate-180' : ''}`} />
+            </button>
+            {ferramentasOpen && (
+              <div className="absolute right-0 mt-2 w-56 bg-card rounded-xl shadow-lg border border-border py-2 z-50">
+                <Link
+                  href="/simulador-credito"
+                  className="flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-secondary"
+                  onClick={() => setFerramentasOpen(false)}
+                >
+                  <Calculator className="h-4 w-4 text-yellow-500" />
+                  <div>
+                    <div className="font-medium">Simulador de Crédito</div>
+                    <div className="text-xs text-muted-foreground">Calcule a sua prestação</div>
+                  </div>
+                </Link>
+                <Link
+                  href="/avaliacao-completa"
+                  className="flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-secondary"
+                  onClick={() => setFerramentasOpen(false)}
+                >
+                  <ClipboardList className="h-4 w-4 text-yellow-500" />
+                  <div>
+                    <div className="font-medium">Avaliação de Imóvel</div>
+                    <div className="text-xs text-muted-foreground">Questionário completo</div>
+                  </div>
+                </Link>
+              </div>
+            )}
+          </div>
           
           {/* Contact Button - Simple */}
           <Link 
@@ -317,14 +348,32 @@ export function Header() {
             </button>
           </div>
           
-          {/* Mobile Serviços CTA */}
-          <Link
-            href="/servicos"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block text-center py-3 rounded-xl bg-yellow-500 text-white font-medium"
-          >
-            Serviços
-          </Link>
+          {/* Mobile Ferramentas */}
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-muted-foreground">Ferramentas</p>
+            <Link
+              href="/simulador-credito"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-3 py-3 px-4 rounded-xl bg-yellow-500/10 text-foreground"
+            >
+              <Calculator className="h-5 w-5 text-yellow-500" />
+              <div>
+                <div className="font-medium">Simulador de Crédito</div>
+                <div className="text-xs text-muted-foreground">Calcule a sua prestação</div>
+              </div>
+            </Link>
+            <Link
+              href="/avaliacao-completa"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-3 py-3 px-4 rounded-xl bg-yellow-500/10 text-foreground"
+            >
+              <ClipboardList className="h-5 w-5 text-yellow-500" />
+              <div>
+                <div className="font-medium">Avaliação de Imóvel</div>
+                <div className="text-xs text-muted-foreground">Questionário completo</div>
+              </div>
+            </Link>
+          </div>
           
           {/* Mobile Contact Button */}
           <Link

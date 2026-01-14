@@ -1,3 +1,4 @@
+import { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/server';
@@ -5,6 +6,31 @@ import { MapPin, Building2, Bed, Maximize } from 'lucide-react';
 import { PriceFilter } from './price-filter';
 
 export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+  title: 'Imóveis à Venda e para Arrendar em Portugal | Covialvi',
+  description: 'Explore a nossa seleção de imóveis em Portugal. Apartamentos, moradias, terrenos e espaços comerciais para comprar ou arrendar. Filtros avançados para encontrar o imóvel ideal.',
+  keywords: [
+    'imóveis Portugal',
+    'apartamentos à venda',
+    'moradias para comprar',
+    'arrendar casa',
+    'terrenos construção',
+    'imóveis comerciais',
+    'Covilhã imóveis',
+  ],
+  openGraph: {
+    title: 'Imóveis à Venda e para Arrendar | Covialvi',
+    description: 'Explore a nossa seleção de imóveis em Portugal. Apartamentos, moradias, terrenos e espaços comerciais.',
+    type: 'website',
+    locale: 'pt_PT',
+    url: 'https://covialvi.com/imoveis',
+    siteName: 'Covialvi',
+  },
+  alternates: {
+    canonical: 'https://covialvi.com/imoveis',
+  },
+};
 
 interface SearchParams {
   q?: string;

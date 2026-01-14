@@ -1,7 +1,48 @@
+import { Metadata } from 'next';
 import { createClient } from '@/lib/supabase/server';
 import { HomeClient } from './home-client';
 
 export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+  title: 'Covialvi | Imobiliária de Confiança em Portugal - Comprar, Vender e Arrendar Imóveis',
+  description: 'A Covialvi é a sua imobiliária de referência em Portugal. Encontre apartamentos, moradias, terrenos e imóveis comerciais para comprar, vender ou arrendar. Serviço personalizado e de confiança na Covilhã e região.',
+  keywords: [
+    'imobiliária Portugal',
+    'comprar casa Portugal',
+    'vender imóvel',
+    'arrendar apartamento',
+    'moradias Covilhã',
+    'apartamentos Portugal',
+    'imóveis comerciais',
+    'terrenos para construção',
+    'avaliação imóveis',
+    'mediação imobiliária',
+  ],
+  openGraph: {
+    title: 'Covialvi | Imobiliária de Confiança em Portugal',
+    description: 'Encontre o seu imóvel ideal em Portugal. Apartamentos, moradias e imóveis comerciais para comprar, vender ou arrendar.',
+    type: 'website',
+    locale: 'pt_PT',
+    url: 'https://covialvi.com',
+    siteName: 'Covialvi',
+    images: [{
+      url: '/og-image.jpg',
+      width: 1200,
+      height: 630,
+      alt: 'Covialvi - Imobiliária de Confiança em Portugal',
+    }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Covialvi | Imobiliária de Confiança em Portugal',
+    description: 'Encontre o seu imóvel ideal em Portugal com a Covialvi.',
+    images: ['/og-image.jpg'],
+  },
+  alternates: {
+    canonical: 'https://covialvi.com',
+  },
+};
 
 async function getFeaturedProperties(): Promise<any[]> {
   const supabase = createClient();

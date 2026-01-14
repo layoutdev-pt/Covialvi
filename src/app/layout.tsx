@@ -6,6 +6,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { AuthProvider } from '@/components/providers/auth-provider';
 import { QueryProvider } from '@/components/providers/query-provider';
 import { ThemeProvider } from '@/components/providers/theme-provider';
+import { StructuredData, organizationSchema, websiteSchema } from '@/components/seo/structured-data';
 import './globals.css';
 
 const poppins = Poppins({
@@ -85,6 +86,9 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} suppressHydrationWarning>
+      <head>
+        <StructuredData data={[organizationSchema, websiteSchema]} />
+      </head>
       <body className={`${poppins.variable} font-sans`}>
         <ThemeProvider
           attribute="class"
