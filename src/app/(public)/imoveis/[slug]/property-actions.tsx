@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Heart, Calendar, Loader2 } from 'lucide-react';
 import { useAuth } from '@/components/providers/auth-provider';
@@ -11,26 +11,54 @@ interface PropertyActionsProps {
   propertyId: string;
   propertyTitle: string;
   propertyReference: string;
-  isFavorited?: boolean;
 }
 
 export function PropertyActions({ 
   propertyId, 
   propertyTitle, 
   propertyReference,
-  isFavorited: initialFavorited = false 
 }: PropertyActionsProps) {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
-  const [isFavorited, setIsFavorited] = useState(initialFavorited);
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [isCheckingFavorite, setIsCheckingFavorite] = useState(true);
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
+  
+  const supabase = createClient();
+
+  // Check if property is already favorited on mount
+  useEffect(() => {
+    const checkFavorite = async () => {
+      if (!user) {
+        setIsCheckingFavorite(false);
+        return;
+      }
+      
+      try {
+        const { data, error } = await supabase
+          .from('favorites')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('property_id', propertyId)
+          .maybeSingle();
+        
+        if (!error && data) {
+          setIsFavorited(true);
+        }
+      } catch (err) {
+        console.error('Error checking favorite:', err);
+      } finally {
+        setIsCheckingFavorite(false);
+      }
+    };
+    
+    checkFavorite();
+  }, [user, propertyId]);
   const [showVisitModal, setShowVisitModal] = useState(false);
   const [isSchedulingVisit, setIsSchedulingVisit] = useState(false);
   const [visitDate, setVisitDate] = useState('');
   const [visitTime, setVisitTime] = useState('');
   const [visitMessage, setVisitMessage] = useState('');
-
-  const supabase = createClient();
 
   const handleFavoriteClick = async () => {
     if (!user) {
@@ -46,22 +74,25 @@ export function PropertyActions({
     setIsTogglingFavorite(true);
     try {
       if (isFavorited) {
-        await supabase
+        const { error } = await supabase
           .from('favorites')
           .delete()
           .eq('user_id', user.id)
           .eq('property_id', propertyId);
+        if (error) throw error;
         setIsFavorited(false);
         toast.success('Removido dos favoritos');
       } else {
-        await supabase
+        const { error } = await supabase
           .from('favorites')
           .insert({ user_id: user.id, property_id: propertyId });
+        if (error) throw error;
         setIsFavorited(true);
         toast.success('Adicionado aos favoritos');
       }
-    } catch (error) {
-      toast.error('Ocorreu um erro. Tente novamente.');
+    } catch (error: any) {
+      console.error('Favorites error:', error);
+      toast.error(error?.message || 'Ocorreu um erro. Tente novamente.');
     } finally {
       setIsTogglingFavorite(false);
     }
@@ -123,14 +154,14 @@ export function PropertyActions({
       <div className="flex gap-3 mb-6">
         <button
           onClick={handleFavoriteClick}
-          disabled={isTogglingFavorite || authLoading}
+          disabled={isTogglingFavorite || authLoading || isCheckingFavorite}
           className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border transition-all ${
             isFavorited
               ? 'bg-yellow-50 border-yellow-200 text-yellow-600'
               : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300'
           } disabled:opacity-50`}
         >
-          {isTogglingFavorite ? (
+          {isTogglingFavorite || isCheckingFavorite ? (
             <Loader2 className="h-5 w-5 animate-spin" />
           ) : (
             <Heart className={`h-5 w-5 ${isFavorited ? 'fill-current' : ''}`} />
