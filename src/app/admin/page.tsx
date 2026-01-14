@@ -36,6 +36,7 @@ async function getStats() {
     { count: visitsLastWeek },
     { count: propertiesThisMonth },
     { count: propertiesLastMonth },
+    { count: pendingLeads },
   ] = await Promise.all([
     supabase.from('properties').select('*', { count: 'exact', head: true }),
     supabase.from('properties').select('*', { count: 'exact', head: true }).eq('status', 'published'),
@@ -59,6 +60,8 @@ async function getStats() {
     supabase.from('properties').select('*', { count: 'exact', head: true })
       .gte('created_at', sixtyDaysAgo.toISOString())
       .lt('created_at', thirtyDaysAgo.toISOString()),
+    // Leads with status 'new' (pending action)
+    supabase.from('leads').select('*', { count: 'exact', head: true }).eq('status', 'new'),
   ]);
 
   // Calculate percentage changes
@@ -84,6 +87,7 @@ async function getStats() {
     activeProperties: activeProperties || 0,
     newLeads: newLeadsThisWeek || 0,
     scheduledVisits: scheduledVisits || 0,
+    pendingLeads: pendingLeads || 0,
     changes: {
       properties: propertiesChange,
       active: { value: activePercentage, type: 'neutral' as const },
@@ -150,6 +154,31 @@ export default async function AdminDashboard() {
 
   return (
     <div className="space-y-8">
+      {/* New Leads Alert Banner */}
+      {stats.pendingLeads > 0 && (
+        <Link 
+          href="/admin/crm"
+          className="block bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-4 shadow-lg hover:shadow-xl transition-shadow"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                <Users className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <p className="text-white font-semibold">
+                  {stats.pendingLeads} lead{stats.pendingLeads > 1 ? 's' : ''} pendente{stats.pendingLeads > 1 ? 's' : ''}
+                </p>
+                <p className="text-white/80 text-sm">Clique para ver o pipeline de leads</p>
+              </div>
+            </div>
+            <div className="text-white/80">
+              <ArrowUpRight className="h-5 w-5" />
+            </div>
+          </div>
+        </Link>
+      )}
+
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>

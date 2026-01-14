@@ -1,17 +1,12 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import {
-  Search,
-  Filter,
-  Download,
   Phone,
   Mail,
   Building2,
   User,
-  MoreHorizontal,
-  Check,
-  X,
-  ChevronRight,
+  Clock,
+  MapPin,
 } from 'lucide-react';
 import { getRelativeTime } from '@/lib/utils';
 
@@ -31,201 +26,133 @@ async function getLeads() {
   return data || [];
 }
 
-const statusLabels: Record<string, string> = {
-  new: 'Novo',
-  contacted: 'Contactado',
-  visit_scheduled: 'Visita Agendada',
-  negotiation: 'Negociação',
-  closed: 'Fechado',
-  lost: 'Perdido',
-};
+const pipelineStages = [
+  { key: 'new', label: 'Novo', color: 'bg-blue-500', bgColor: 'bg-blue-50 dark:bg-blue-950/30' },
+  { key: 'contacted', label: 'Contactado', color: 'bg-yellow-500', bgColor: 'bg-yellow-50 dark:bg-yellow-950/30' },
+  { key: 'visit_scheduled', label: 'Visita Agendada', color: 'bg-purple-500', bgColor: 'bg-purple-50 dark:bg-purple-950/30' },
+  { key: 'negotiation', label: 'Negociação', color: 'bg-orange-500', bgColor: 'bg-orange-50 dark:bg-orange-950/30' },
+  { key: 'closed', label: 'Fechado', color: 'bg-green-500', bgColor: 'bg-green-50 dark:bg-green-950/30' },
+];
 
-const statusColors: Record<string, string> = {
-  new: 'bg-blue-100 text-blue-700',
-  contacted: 'bg-yellow-100 text-yellow-700',
-  visit_scheduled: 'bg-purple-100 text-purple-700',
-  negotiation: 'bg-orange-100 text-orange-700',
-  closed: 'bg-green-100 text-green-700',
-  lost: 'bg-yellow-100 text-yellow-700',
+const sourceLabels: Record<string, string> = {
+  homepage_sell_wizard: 'Wizard Venda',
+  contact_form: 'Formulário Contacto',
+  property_inquiry: 'Pedido Imóvel',
+  phone: 'Telefone',
+  email: 'Email',
+  referral: 'Referência',
+  other: 'Outro',
 };
 
 export default async function CRMPage() {
   const leads = await getLeads();
 
-  const leadsByStatus = {
+  const leadsByStatus: Record<string, any[]> = {
     new: leads.filter((l: any) => l.status === 'new'),
     contacted: leads.filter((l: any) => l.status === 'contacted'),
     visit_scheduled: leads.filter((l: any) => l.status === 'visit_scheduled'),
     negotiation: leads.filter((l: any) => l.status === 'negotiation'),
     closed: leads.filter((l: any) => l.status === 'closed'),
-    lost: leads.filter((l: any) => l.status === 'lost'),
   };
 
-  // Get first lead for detail view
-  const selectedLead = leads[0];
+  const newLeadsCount = leadsByStatus.new.length;
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Tenancy Applications</h1>
+          <h1 className="text-2xl font-bold text-foreground">Pipeline de Leads</h1>
           <p className="text-muted-foreground mt-1">
             {leads.length} leads no total
+            {newLeadsCount > 0 && (
+              <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
+                {newLeadsCount} novo{newLeadsCount > 1 ? 's' : ''}
+              </span>
+            )}
           </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-4 py-2.5 bg-card border border-border rounded-xl text-sm text-muted-foreground hover:bg-secondary transition-colors">
-            <Download className="h-4 w-4" />
-            Export
-          </button>
-          <span className="text-sm text-muted-foreground">All tenants</span>
         </div>
       </div>
 
-      {/* Main Grid - Table + Detail */}
-      <div className="grid lg:grid-cols-5 gap-6">
-        {/* Table */}
-        <div className="lg:col-span-3 bg-card rounded-2xl shadow-sm overflow-hidden border border-border">
-          {/* Search */}
-          <div className="p-4 border-b border-border">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Search tenant by name..."
-                className="w-full pl-12 pr-4 py-2.5 bg-secondary border-0 rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-yellow-500"
-              />
+      {/* Pipeline Kanban View */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        {pipelineStages.map((stage) => (
+          <div key={stage.key} className={`rounded-2xl ${stage.bgColor} p-4`}>
+            {/* Stage Header */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className={`w-3 h-3 rounded-full ${stage.color}`} />
+                <h3 className="font-semibold text-foreground text-sm">{stage.label}</h3>
+              </div>
+              <span className="text-xs font-medium text-muted-foreground bg-background px-2 py-1 rounded-full">
+                {leadsByStatus[stage.key]?.length || 0}
+              </span>
             </div>
-          </div>
 
-          {/* Table */}
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="text-left text-xs text-muted-foreground border-b border-border">
-                  <th className="px-4 py-3 font-medium">Applied</th>
-                  <th className="px-4 py-3 font-medium">Tenant</th>
-                  <th className="px-4 py-3 font-medium">Total Income</th>
-                  <th className="px-4 py-3 font-medium">Income to Rent</th>
-                  <th className="px-4 py-3 font-medium"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {leads.length > 0 ? (
-                  leads.map((lead: any) => (
-                    <tr key={lead.id} className="border-b border-border/50 hover:bg-secondary cursor-pointer transition-colors">
-                      <td className="px-4 py-4">
-                        <span className="text-sm text-muted-foreground">
-                          {getRelativeTime(lead.created_at)}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center text-white text-xs font-medium">
-                            {lead.first_name?.charAt(0) || 'U'}
-                          </div>
-                          <span className="text-sm font-medium text-foreground">
-                            {lead.first_name} {lead.last_name}
-                          </span>
+            {/* Lead Cards */}
+            <div className="space-y-3">
+              {leadsByStatus[stage.key]?.length > 0 ? (
+                leadsByStatus[stage.key].map((lead: any) => (
+                  <div
+                    key={lead.id}
+                    className="bg-card rounded-xl p-4 border border-border shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                  >
+                    {/* Lead Name */}
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center text-white text-xs font-medium flex-shrink-0">
+                        {lead.first_name?.charAt(0) || 'L'}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-medium text-foreground text-sm truncate">
+                          {lead.first_name || 'Lead'} {lead.last_name || ''}
+                        </p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {sourceLabels[lead.source] || lead.source || 'Desconhecido'}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Lead Info */}
+                    {lead.message && (
+                      <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
+                        {lead.message}
+                      </p>
+                    )}
+
+                    {/* Contact Info */}
+                    <div className="space-y-1">
+                      {lead.phone && (
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <Phone className="h-3 w-3" />
+                          <span className="truncate">{lead.phone}</span>
                         </div>
-                      </td>
-                      <td className="px-4 py-4">
-                        <span className="text-sm text-muted-foreground">€5,000/mo</span>
-                      </td>
-                      <td className="px-4 py-4">
-                        <span className="text-sm text-muted-foreground">2.5x</span>
-                      </td>
-                      <td className="px-4 py-4">
-                        <button className="p-1 hover:bg-secondary rounded">
-                          <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={5} className="px-4 py-12 text-center">
-                      <User className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
-                      <p className="text-muted-foreground">Ainda não existem contactos.</p>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
+                      )}
+                      {lead.email && !lead.email.includes('@temp.covialvi.com') && (
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <Mail className="h-3 w-3" />
+                          <span className="truncate">{lead.email}</span>
+                        </div>
+                      )}
+                    </div>
 
-        {/* Detail Panel */}
-        <div className="lg:col-span-2 bg-card rounded-2xl shadow-sm p-6 border border-border">
-          {selectedLead ? (
-            <>
-              <div className="text-center mb-6">
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center text-white text-2xl font-semibold mx-auto mb-4">
-                  {selectedLead.first_name?.charAt(0) || 'U'}
-                </div>
-                <h3 className="text-xl font-bold text-foreground">
-                  {selectedLead.first_name} {selectedLead.last_name}
-                </h3>
-                <p className="text-sm text-muted-foreground">Tenant</p>
-              </div>
-
-              <div className="space-y-4 mb-6">
-                <div className="flex items-center justify-between py-3 border-b border-border">
-                  <span className="text-sm text-muted-foreground">Applied</span>
-                  <span className="text-sm font-medium text-foreground">{getRelativeTime(selectedLead.created_at)}</span>
-                </div>
-                <div className="flex items-center justify-between py-3 border-b border-border">
-                  <span className="text-sm text-muted-foreground">Occupants</span>
-                  <span className="text-sm font-medium text-foreground">1 person</span>
-                </div>
-                <div className="flex items-center justify-between py-3 border-b border-border">
-                  <span className="text-sm text-muted-foreground">Status</span>
-                  <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${statusColors[selectedLead.status] || 'bg-gray-100 text-gray-700'}`}>
-                    {statusLabels[selectedLead.status] || selectedLead.status}
-                  </span>
-                </div>
-              </div>
-
-              {/* Contact Info */}
-              <div className="space-y-3 mb-6">
-                <div className="flex items-center gap-3 p-3 bg-secondary rounded-xl">
-                  <Mail className="h-5 w-5 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">{selectedLead.email}</span>
-                </div>
-                {selectedLead.phone && (
-                  <div className="flex items-center gap-3 p-3 bg-secondary rounded-xl">
-                    <Phone className="h-5 w-5 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">{selectedLead.phone}</span>
+                    {/* Timestamp */}
+                    <div className="flex items-center gap-1 mt-3 pt-2 border-t border-border">
+                      <Clock className="h-3 w-3 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">
+                        {getRelativeTime(lead.created_at)}
+                      </span>
+                    </div>
                   </div>
-                )}
-                {selectedLead.properties && (
-                  <div className="flex items-center gap-3 p-3 bg-secondary rounded-xl">
-                    <Building2 className="h-5 w-5 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">Ref: {selectedLead.properties.reference}</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Actions */}
-              <div className="flex gap-3">
-                <button className="flex-1 flex items-center justify-center gap-2 bg-green-500 text-white font-medium py-3 rounded-xl hover:bg-green-600 transition-colors">
-                  <Check className="h-4 w-4" />
-                  Accept
-                </button>
-                <button className="flex-1 flex items-center justify-center gap-2 bg-yellow-500 text-white font-medium py-3 rounded-xl hover:bg-yellow-600 transition-colors">
-                  <X className="h-4 w-4" />
-                  Reject
-                </button>
-              </div>
-            </>
-          ) : (
-            <div className="text-center py-12">
-              <User className="h-16 w-16 text-muted-foreground/30 mx-auto mb-4" />
-              <p className="text-muted-foreground">Selecione um contacto para ver detalhes</p>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <User className="h-8 w-8 mx-auto text-muted-foreground/30 mb-2" />
+                  <p className="text-xs text-muted-foreground">Sem leads</p>
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </div>
+        ))}
       </div>
     </div>
   );

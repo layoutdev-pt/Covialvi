@@ -495,6 +495,41 @@ export interface Database {
           updated_at?: string;
         };
       };
+      notifications: {
+        Row: {
+          id: string;
+          user_id: string;
+          type: string;
+          title: string;
+          message: string | null;
+          link: string | null;
+          read: boolean;
+          metadata: Json | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          type?: string;
+          title: string;
+          message?: string | null;
+          link?: string | null;
+          read?: boolean;
+          metadata?: Json | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          type?: string;
+          title?: string;
+          message?: string | null;
+          link?: string | null;
+          read?: boolean;
+          metadata?: Json | null;
+          created_at?: string;
+        };
+      };
     };
     Views: {
       [_ in never]: never;
