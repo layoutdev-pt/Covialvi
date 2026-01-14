@@ -2,7 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { MapPin, ChevronDown, Building2, FileDown } from 'lucide-react';
+import { MapPin, ChevronDown, Building2, FileDown, FileText, LayoutGrid } from 'lucide-react';
 import { PropertyActions } from './property-actions';
 import { PropertyGallery } from './property-gallery';
 
@@ -415,17 +415,32 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                 </button>
               </form>
               
-              {/* PDF Button */}
+              {/* Download Buttons */}
               <div className="mt-6 pt-6 border-t border-border space-y-3">
+                {/* Brochure PDF Button */}
                 <a
                   href={`/api/properties/${property.id}/pdf`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-center gap-3 w-full px-6 py-4 bg-secondary hover:bg-secondary/80 text-foreground rounded-xl font-medium transition-colors"
                 >
-                  <FileDown className="h-5 w-5" />
-                  Descarregar Ficha PDF
+                  <FileText className="h-5 w-5" />
+                  Descarregar Brochura
                 </a>
+                
+                {/* Floor Plan Button - only show if floor plans exist */}
+                {property.property_floor_plans && property.property_floor_plans.length > 0 && (
+                  <a
+                    href={property.property_floor_plans[0].url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    download
+                    className="flex items-center justify-center gap-3 w-full px-6 py-4 bg-yellow-500/10 hover:bg-yellow-500/20 text-foreground rounded-xl font-medium transition-colors border border-yellow-500/30"
+                  >
+                    <LayoutGrid className="h-5 w-5 text-yellow-600" />
+                    Descarregar Planta
+                  </a>
+                )}
               </div>
             </div>
           </div>
