@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Plus,
@@ -79,8 +79,36 @@ export function PropertiesClient({ properties: initialProperties }: PropertiesCl
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [businessTypeFilter, setBusinessTypeFilter] = useState<string>('');
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
+  const menuButtonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
 
   const selectedProperty = properties.find((p) => p.id === selectedPropertyId);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (openMenuId && !menuButtonRefs.current[openMenuId]?.contains(event.target as Node)) {
+        setOpenMenuId(null);
+        setMenuPosition(null);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [openMenuId]);
+
+  const handleMenuToggle = (propertyId: string, buttonElement: HTMLButtonElement) => {
+    if (openMenuId === propertyId) {
+      setOpenMenuId(null);
+      setMenuPosition(null);
+    } else {
+      const rect = buttonElement.getBoundingClientRect();
+      setMenuPosition({
+        top: rect.bottom + 4,
+        left: rect.right - 192, // 192px = w-48
+      });
+      setOpenMenuId(propertyId);
+    }
+  };
 
   const filteredProperties = properties.filter((property) => {
     const matchesSearch = property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -225,7 +253,7 @@ export function PropertiesClient({ properties: initialProperties }: PropertiesCl
       {/* Properties List with Detail Panel */}
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Properties List */}
-        <div className="bg-card rounded-2xl shadow-sm overflow-hidden border border-border">
+        <div className="bg-card rounded-2xl shadow-sm border border-border">
           <div className="p-4 border-b border-border">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-foreground">
@@ -289,16 +317,20 @@ export function PropertiesClient({ properties: initialProperties }: PropertiesCl
                       {/* Actions Dropdown */}
                       <div className="relative">
                         <button 
+                          ref={(el) => { menuButtonRefs.current[property.id] = el; }}
                           onClick={(e) => {
                             e.stopPropagation();
-                            setOpenMenuId(openMenuId === property.id ? null : property.id);
+                            handleMenuToggle(property.id, e.currentTarget);
                           }}
                           className="p-2 hover:bg-secondary rounded-lg transition-colors"
                         >
                           <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
                         </button>
-                        {openMenuId === property.id && (
-                          <div className="absolute right-0 top-full mt-1 w-48 bg-card border border-border rounded-xl shadow-lg py-1 z-50">
+                        {openMenuId === property.id && menuPosition && (
+                          <div 
+                            className="fixed w-48 bg-card border border-border rounded-xl shadow-lg py-1 z-[9999]"
+                            style={{ top: menuPosition.top, left: menuPosition.left }}
+                          >
                             <Link 
                               href={`/admin/imoveis/${property.id}`}
                               onClick={() => setOpenMenuId(null)}
