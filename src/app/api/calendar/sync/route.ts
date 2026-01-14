@@ -1,21 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-
-async function refreshAccessToken(refreshToken: string): Promise<string | null> {
-  const response = await fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      client_id: process.env.GOOGLE_CLIENT_ID!,
-      client_secret: process.env.GOOGLE_CLIENT_SECRET!,
-      refresh_token: refreshToken,
-      grant_type: 'refresh_token',
-    }),
-  });
-
-  const data = await response.json();
-  return data.access_token || null;
-}
+import { createServiceClient } from '@/lib/supabase/server';
+import { createVisitCalendarEvent, hasGoogleCalendarConnected } from '@/lib/google-calendar';
 
 export async function POST() {
   const supabase = createClient();
@@ -25,37 +11,15 @@ export async function POST() {
     return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
   }
 
-  // Get Google Calendar tokens
-  const { data: tokens } = await supabase
-    .from('google_calendar_tokens')
-    .select('*')
-    .eq('user_id', user.id)
-    .single();
-
-  if (!tokens) {
+  // Check if Google Calendar is connected
+  const isConnected = await hasGoogleCalendarConnected(user.id);
+  if (!isConnected) {
     return NextResponse.json({ error: 'Google Calendar not connected' }, { status: 400 });
   }
 
-  // Check if token needs refresh
-  let accessToken = tokens.access_token;
-  if (new Date(tokens.expires_at) < new Date()) {
-    accessToken = await refreshAccessToken(tokens.refresh_token);
-    if (!accessToken) {
-      return NextResponse.json({ error: 'Failed to refresh token' }, { status: 401 });
-    }
-    
-    // Update token in database
-    await supabase
-      .from('google_calendar_tokens')
-      .update({
-        access_token: accessToken,
-        expires_at: new Date(Date.now() + 3600 * 1000).toISOString(),
-      })
-      .eq('user_id', user.id);
-  }
-
-  // Get upcoming visits that haven't been synced
-  const { data: visits } = await supabase
+  // Get upcoming visits that haven't been synced (use service client for full access)
+  const serviceClient = createServiceClient();
+  const { data: visits } = await serviceClient
     .from('visits')
     .select(`
       *,
@@ -74,48 +38,28 @@ export async function POST() {
 
   for (const visit of visits) {
     try {
-      const startTime = new Date(visit.scheduled_at);
-      const endTime = new Date(startTime.getTime() + 60 * 60 * 1000); // 1 hour duration
+      const eventId = await createVisitCalendarEvent(user.id, {
+        id: visit.id,
+        scheduled_at: visit.scheduled_at,
+        property: visit.properties ? {
+          title: visit.properties.title,
+          reference: visit.properties.reference,
+          address: `${visit.properties.address || ''}, ${visit.properties.municipality || ''}`,
+        } : undefined,
+        user: visit.profiles ? {
+          first_name: visit.profiles.first_name,
+          last_name: visit.profiles.last_name,
+          email: visit.profiles.email,
+          phone: visit.profiles.phone,
+        } : undefined,
+        notes: visit.notes,
+      });
 
-      const event = {
-        summary: `Visita: ${visit.properties?.reference || 'Imóvel'}`,
-        description: `Cliente: ${visit.profiles?.first_name || ''} ${visit.profiles?.last_name || ''}\nEmail: ${visit.profiles?.email || ''}\nTelefone: ${visit.profiles?.phone || ''}\n\nImóvel: ${visit.properties?.title || ''}\nMorada: ${visit.properties?.address || ''}, ${visit.properties?.municipality || ''}`,
-        start: {
-          dateTime: startTime.toISOString(),
-          timeZone: 'Europe/Lisbon',
-        },
-        end: {
-          dateTime: endTime.toISOString(),
-          timeZone: 'Europe/Lisbon',
-        },
-        reminders: {
-          useDefault: false,
-          overrides: [
-            { method: 'popup', minutes: 30 },
-            { method: 'email', minutes: 60 },
-          ],
-        },
-      };
-
-      const response = await fetch(
-        'https://www.googleapis.com/calendar/v3/calendars/primary/events',
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(event),
-        }
-      );
-
-      if (response.ok) {
-        const createdEvent = await response.json();
-        
+      if (eventId) {
         // Update visit with Google event ID
-        await supabase
+        await serviceClient
           .from('visits')
-          .update({ google_event_id: createdEvent.id })
+          .update({ google_event_id: eventId })
           .eq('id', visit.id);
         
         syncedCount++;

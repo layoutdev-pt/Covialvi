@@ -116,24 +116,10 @@ export default function AdminSettingsPage() {
     setIsLoading(false);
   };
 
-  const handleGoogleConnect = async () => {
+  const handleGoogleConnect = () => {
     setIsSyncing(true);
-    try {
-      const response = await fetch('/api/auth/google');
-      const data = await response.json();
-      
-      if (data.error) {
-        toast.error('Google OAuth não está configurado. Configure GOOGLE_CLIENT_ID e GOOGLE_CLIENT_SECRET.');
-        setIsSyncing(false);
-        return;
-      }
-      
-      // Redirect to Google OAuth
-      window.location.href = data.url;
-    } catch (error) {
-      toast.error('Erro ao iniciar autenticação Google.');
-      setIsSyncing(false);
-    }
+    // Redirect to Google OAuth login route
+    window.location.href = '/api/auth/google/login';
   };
 
   const handleGoogleDisconnect = async () => {

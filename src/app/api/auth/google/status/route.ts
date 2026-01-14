@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { hasGoogleCalendarConnected } from '@/lib/google-calendar';
 
 export async function GET() {
   const supabase = createClient();
@@ -9,20 +10,7 @@ export async function GET() {
     return NextResponse.json({ connected: false });
   }
 
-  const { data: tokens } = await supabase
-    .from('google_calendar_tokens')
-    .select('google_email, google_name, google_picture, expires_at')
-    .eq('user_id', user.id)
-    .single();
+  const connected = await hasGoogleCalendarConnected(user.id);
 
-  if (!tokens) {
-    return NextResponse.json({ connected: false });
-  }
-
-  return NextResponse.json({
-    connected: true,
-    email: tokens.google_email,
-    name: tokens.google_name,
-    picture: tokens.google_picture,
-  });
+  return NextResponse.json({ connected });
 }

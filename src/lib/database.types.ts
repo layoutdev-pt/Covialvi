@@ -530,6 +530,41 @@ export interface Database {
           created_at?: string;
         };
       };
+      google_tokens: {
+        Row: {
+          id: string;
+          user_id: string;
+          access_token: string;
+          refresh_token: string | null;
+          scope: string | null;
+          token_type: string;
+          expires_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          access_token: string;
+          refresh_token?: string | null;
+          scope?: string | null;
+          token_type?: string;
+          expires_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          access_token?: string;
+          refresh_token?: string | null;
+          scope?: string | null;
+          token_type?: string;
+          expires_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
     };
     Views: {
       [_ in never]: never;
