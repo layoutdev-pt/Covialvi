@@ -342,7 +342,7 @@ export default function NewPropertyPage() {
                 </div>
               </div>
 
-              <div className="grid gap-4 md:grid-cols-3">
+              <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label>Tipo de Negócio *</Label>
                   <Select
@@ -370,6 +370,25 @@ export default function NewPropertyPage() {
                     </SelectTrigger>
                     <SelectContent>
                       {Object.entries(natureLabels).map(([value, label]) => (
+                        <SelectItem key={value} value={value}>{label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Estado do Imóvel</Label>
+                  <Select
+                    defaultValue="used"
+                    onValueChange={(value) => setValue('construction_status', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(constructionStatusLabels).map(([value, label]) => (
                         <SelectItem key={value} value={value}>{label}</SelectItem>
                       ))}
                     </SelectContent>
