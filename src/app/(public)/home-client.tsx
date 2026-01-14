@@ -20,7 +20,8 @@ import {
   Leaf,
   Palmtree,
   ChevronRight,
-  Search
+  Search,
+  Play
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -735,36 +736,82 @@ function PropertyCard({
   formatPrice: (price: number | null) => string;
   businessTypeLabels: Record<string, string>;
 }) {
+  const [isHovered, setIsHovered] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  
   const coverImage = property.property_images?.find((img: any) => img.is_cover) ||
     property.property_images?.[0];
+  
+  const hasVideo = property.video_url;
+  
+  // Extract YouTube video ID if it's a YouTube URL
+  const getYouTubeEmbedUrl = (url: string) => {
+    if (!url) return null;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    if (match && match[2].length === 11) {
+      return `https://www.youtube.com/embed/${match[2]}?autoplay=1&mute=1&loop=1&playlist=${match[2]}&controls=0&showinfo=0`;
+    }
+    return url;
+  };
+  
+  const videoEmbedUrl = hasVideo ? getYouTubeEmbedUrl(property.video_url) : null;
 
   return (
     <motion.article 
       whileHover={{ y: -12 }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       className="group bg-card rounded-3xl overflow-hidden border border-border hover:border-yellow-500/30 hover:shadow-2xl transition-all duration-500"
     >
       <div className="relative aspect-[4/3] overflow-hidden">
         <Link href={`/imoveis/${property.slug}`}>
-          {coverImage ? (
-            <Image
-              src={coverImage.url}
-              alt={property.title}
-              fill
-              className="object-cover transition-transform duration-700 group-hover:scale-110"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            />
-          ) : (
-            <div className="w-full h-full bg-secondary flex items-center justify-center">
-              <Building2 className="h-12 w-12 text-muted-foreground/30" />
+          {/* Image - shown when not hovered or no video */}
+          <div className={`absolute inset-0 transition-opacity duration-500 ${isHovered && hasVideo ? 'opacity-0' : 'opacity-100'}`}>
+            {coverImage ? (
+              <Image
+                src={coverImage.url}
+                alt={property.title}
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-110"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              />
+            ) : (
+              <div className="w-full h-full bg-secondary flex items-center justify-center">
+                <Building2 className="h-12 w-12 text-muted-foreground/30" />
+              </div>
+            )}
+          </div>
+          
+          {/* Video - shown on hover if property has video */}
+          {hasVideo && isHovered && (
+            <div className="absolute inset-0 z-10">
+              <iframe
+                src={videoEmbedUrl || ''}
+                className="w-full h-full object-cover"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                style={{ border: 'none', pointerEvents: 'none' }}
+              />
             </div>
           )}
         </Link>
         
+        {/* Video indicator badge */}
+        {hasVideo && !isHovered && (
+          <div className="absolute top-4 left-4 z-20">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-black/70 backdrop-blur-sm px-3 py-1.5 text-xs font-medium text-white shadow-lg">
+              <Play className="h-3 w-3 fill-white" />
+              Vídeo
+            </span>
+          </div>
+        )}
+        
         {/* Gradient Overlay on Hover */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-20 pointer-events-none" />
         
         {/* Badge */}
-        <div className="absolute top-4 right-4">
+        <div className="absolute top-4 right-4 z-20">
           <span className="inline-flex items-center rounded-full bg-white/95 backdrop-blur-sm px-4 py-1.5 text-sm font-medium text-gray-900 shadow-lg">
             {businessTypeLabels[property.business_type] || 'Venda'}
           </span>
@@ -774,13 +821,13 @@ function PropertyCard({
         <motion.button
           whileHover={{ scale: 1.2 }}
           whileTap={{ scale: 0.9 }}
-          className="absolute top-4 left-4 w-10 h-10 rounded-full bg-white/95 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-lg hover:bg-yellow-500 hover:text-white"
+          className="absolute top-14 left-4 w-10 h-10 rounded-full bg-white/95 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-lg hover:bg-yellow-500 hover:text-white z-20"
         >
           <Heart className="h-5 w-5" />
         </motion.button>
         
         {/* Quick View on Hover */}
-        <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
+        <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0 z-20">
           <Link href={`/imoveis/${property.slug}`}>
             <motion.button
               whileHover={{ scale: 1.02 }}
