@@ -35,18 +35,29 @@ export function PropertyActions({
       }
       
       try {
+        // Get fresh auth user to ensure correct context
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        console.log('[Favorites] Checking for user:', authUser?.id);
+        
+        if (!authUser) {
+          setIsCheckingFavorite(false);
+          return;
+        }
+        
         const { data, error } = await supabase
           .from('favorites')
           .select('id')
-          .eq('user_id', user.id)
+          .eq('user_id', authUser.id)
           .eq('property_id', propertyId)
           .maybeSingle();
+        
+        console.log('[Favorites] Check result:', { data, error });
         
         if (!error && data) {
           setIsFavorited(true);
         }
       } catch (err) {
-        console.error('Error checking favorite:', err);
+        console.error('[Favorites] Check error:', err);
       } finally {
         setIsCheckingFavorite(false);
       }
@@ -73,25 +84,41 @@ export function PropertyActions({
 
     setIsTogglingFavorite(true);
     try {
+      // Verify auth state before operation
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      console.log('[Favorites] Auth user:', authUser?.id, 'Context user:', user.id);
+      
+      if (!authUser) {
+        throw new Error('Sessão expirada. Por favor, inicie sessão novamente.');
+      }
+      
       if (isFavorited) {
         const { error } = await supabase
           .from('favorites')
           .delete()
-          .eq('user_id', user.id)
+          .eq('user_id', authUser.id)
           .eq('property_id', propertyId);
-        if (error) throw error;
+        if (error) {
+          console.error('[Favorites] Delete error:', error);
+          throw error;
+        }
         setIsFavorited(false);
         toast.success('Removido dos favoritos');
       } else {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('favorites')
-          .insert({ user_id: user.id, property_id: propertyId });
-        if (error) throw error;
+          .insert({ user_id: authUser.id, property_id: propertyId })
+          .select();
+        console.log('[Favorites] Insert result:', { data, error });
+        if (error) {
+          console.error('[Favorites] Insert error:', error);
+          throw error;
+        }
         setIsFavorited(true);
         toast.success('Adicionado aos favoritos');
       }
     } catch (error: any) {
-      console.error('Favorites error:', error);
+      console.error('[Favorites] Operation error:', error);
       toast.error(error?.message || 'Ocorreu um erro. Tente novamente.');
     } finally {
       setIsTogglingFavorite(false);
