@@ -475,5 +475,88 @@
       "description": "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.",
       "retry": "Tentar Novamente"
     }
+  },
+  "sellWizard": {
+    "title": "Quer vender o seu imóvel?",
+    "subtitle": "Receba uma avaliação gratuita em minutos",
+    "steps": {
+      "propertyType": {
+        "title": "Tipo de Imóvel",
+        "question": "O imóvel que pretende vender é de que tipo?"
+      },
+      "location": {
+        "title": "Localização",
+        "question": "Onde se localiza o imóvel?",
+        "district": "Distrito",
+        "municipality": "Concelho",
+        "selectDistrict": "Selecione o distrito",
+        "selectMunicipality": "Selecione o concelho"
+      },
+      "sellingStage": {
+        "title": "Fase de Venda",
+        "question": "Em que fase se encontra o processo de venda?"
+      },
+      "estimatedValue": {
+        "title": "Valor Estimado",
+        "question": "Qual o valor estimado do imóvel?"
+      },
+      "contactTiming": {
+        "title": "Preferência de Contacto",
+        "question": "Quando gostaria de ser contactado?"
+      },
+      "leadCapture": {
+        "title": "Contacto",
+        "question": "Receba uma avaliação gratuita e personalizada",
+        "phone": "Telefone",
+        "phonePlaceholder": "912 345 678",
+        "name": "Nome (opcional)",
+        "namePlaceholder": "O seu nome",
+        "email": "Email (opcional)",
+        "emailPlaceholder": "exemplo@email.com"
+      },
+      "success": {
+        "title": "Pedido Recebido!",
+        "message": "Obrigado pelo seu interesse. A nossa equipa entrará em contacto consigo brevemente para agendar uma avaliação gratuita do seu imóvel.",
+        "newRequest": "Novo Pedido"
+      }
+    },
+    "propertyTypes": {
+      "apartment": "Apartamento",
+      "house": "Moradia",
+      "land": "Terreno",
+      "other": "Outro"
+    },
+    "sellingStages": {
+      "exploring": "Estou a explorar opções",
+      "decided": "Já decidi vender",
+      "urgent": "Preciso vender rapidamente",
+      "curious": "Apenas curioso sobre o valor"
+    },
+    "estimatedValues": {
+      "under100k": "Menos de 100.000€",
+      "100k-200k": "100.000€ - 200.000€",
+      "200k-350k": "200.000€ - 350.000€",
+      "350k-500k": "350.000€ - 500.000€",
+      "over500k": "Mais de 500.000€",
+      "unknown": "Não sei"
+    },
+    "contactTimings": {
+      "morning": "Manhã (9h-12h)",
+      "afternoon": "Tarde (14h-18h)",
+      "evening": "Fim do dia (18h-20h)",
+      "anytime": "Qualquer altura"
+    },
+    "buttons": {
+      "next": "Continuar",
+      "back": "Voltar",
+      "submit": "Enviar Pedido",
+      "close": "Fechar"
+    },
+    "errors": {
+      "required": "Este campo é obrigatório",
+      "invalidPhone": "Por favor, introduza um número de telefone válido",
+      "invalidEmail": "Por favor, introduza um endereço de email válido",
+      "submitError": "Erro ao enviar o pedido. Por favor, tente novamente."
+    }
   }
 }

@@ -475,5 +475,88 @@
       "description": "An unexpected error occurred. Please try again later.",
       "retry": "Try Again"
     }
+  },
+  "sellWizard": {
+    "title": "Want to sell your property?",
+    "subtitle": "Get a free valuation in minutes",
+    "steps": {
+      "propertyType": {
+        "title": "Property Type",
+        "question": "What type of property do you want to sell?"
+      },
+      "location": {
+        "title": "Location",
+        "question": "Where is the property located?",
+        "district": "District",
+        "municipality": "Municipality",
+        "selectDistrict": "Select district",
+        "selectMunicipality": "Select municipality"
+      },
+      "sellingStage": {
+        "title": "Selling Stage",
+        "question": "What stage are you at in the selling process?"
+      },
+      "estimatedValue": {
+        "title": "Estimated Value",
+        "question": "What is the estimated value of the property?"
+      },
+      "contactTiming": {
+        "title": "Contact Preference",
+        "question": "When would you like to be contacted?"
+      },
+      "leadCapture": {
+        "title": "Contact",
+        "question": "Receive a free personalized valuation",
+        "phone": "Phone",
+        "phonePlaceholder": "912 345 678",
+        "name": "Name (optional)",
+        "namePlaceholder": "Your name",
+        "email": "Email (optional)",
+        "emailPlaceholder": "example@email.com"
+      },
+      "success": {
+        "title": "Request Received!",
+        "message": "Thank you for your interest. Our team will contact you shortly to schedule a free valuation of your property.",
+        "newRequest": "New Request"
+      }
+    },
+    "propertyTypes": {
+      "apartment": "Apartment",
+      "house": "House",
+      "land": "Land",
+      "other": "Other"
+    },
+    "sellingStages": {
+      "exploring": "I'm exploring options",
+      "decided": "I've decided to sell",
+      "urgent": "I need to sell quickly",
+      "curious": "Just curious about the value"
+    },
+    "estimatedValues": {
+      "under100k": "Less than €100,000",
+      "100k-200k": "€100,000 - €200,000",
+      "200k-350k": "€200,000 - €350,000",
+      "350k-500k": "€350,000 - €500,000",
+      "over500k": "More than €500,000",
+      "unknown": "I don't know"
+    },
+    "contactTimings": {
+      "morning": "Morning (9am-12pm)",
+      "afternoon": "Afternoon (2pm-6pm)",
+      "evening": "Evening (6pm-8pm)",
+      "anytime": "Anytime"
+    },
+    "buttons": {
+      "next": "Continue",
+      "back": "Back",
+      "submit": "Submit Request",
+      "close": "Close"
+    },
+    "errors": {
+      "required": "This field is required",
+      "invalidPhone": "Please enter a valid phone number",
+      "invalidEmail": "Please enter a valid email address",
+      "submitError": "Error submitting request. Please try again."
+    }
   }
 }
