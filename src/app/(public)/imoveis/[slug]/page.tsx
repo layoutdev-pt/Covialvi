@@ -312,6 +312,39 @@ export default async function PropertyDetailPage({ params }: PageProps) {
               </div>
             </div>
 
+            {/* Documentos */}
+            {(property.property_floor_plans?.length > 0 || property.brochure_url) && (
+              <div className="pt-8 border-t border-border">
+                <h2 className="text-xl font-bold text-foreground mb-4">Documentos</h2>
+                <div className="flex flex-wrap gap-3">
+                  {property.property_floor_plans?.length > 0 && (
+                    <a
+                      href={property.property_floor_plans[0].url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      download
+                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-background hover:bg-secondary transition-colors text-sm font-medium text-foreground"
+                    >
+                      <FileDown className="h-4 w-4" />
+                      Planta (PDF)
+                    </a>
+                  )}
+                  {property.brochure_url && (
+                    <a
+                      href={property.brochure_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      download
+                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-background hover:bg-secondary transition-colors text-sm font-medium text-foreground"
+                    >
+                      <FileDown className="h-4 w-4" />
+                      Brochura (PDF)
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Zona Envolvente */}
             <div className="pt-8 border-t border-border">
               <h2 className="text-xl font-bold text-foreground mb-4">Zona Envolvente</h2>
