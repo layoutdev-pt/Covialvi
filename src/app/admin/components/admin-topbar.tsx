@@ -327,7 +327,6 @@ export function AdminTopbar({ profile }: AdminTopbarProps) {
         {/* View Site */}
         <Link
           href="/"
-          target="_blank"
           className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground p-3 hover:bg-secondary rounded-xl transition-colors"
         >
           <ExternalLink className="h-4 w-4" />
