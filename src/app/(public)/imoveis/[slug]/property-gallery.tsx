@@ -31,7 +31,7 @@ export function PropertyGallery({ images, videoUrl, title, businessType }: Prope
   const [thumbnailStart, setThumbnailStart] = useState(0);
   
   const visibleThumbnails = 4;
-  const sortedImages = [...images].sort((a, b) => a.order - b.order);
+  const sortedImages = [...images].sort((a, b) => b.order - a.order);
   const selectedImage = sortedImages[selectedIndex];
 
   const scrollThumbnails = (direction: 'up' | 'down') => {
