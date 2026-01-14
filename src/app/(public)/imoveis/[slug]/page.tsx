@@ -253,7 +253,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
               <DetailRow label={businessTypeLabels[property.business_type] || 'Venda'} value={property.price ? formatPrice(property.price) : 'NaN'} />
               <DetailRow label="Distrito" value={property.district || '-'} />
               <DetailRow label="cidade" value={property.municipality || '-'} />
-              <DetailRow label="Estado" value={constructionStatusLabels[property.construction_status] || '-'} />
+              <DetailRow label="Estado do imóvel" value={constructionStatusLabels[property.construction_status] || '-'} />
               <DetailRow label="Natureza" value={natureLabels[property.nature] || '-'} />
               <DetailRow label="Área bruta" value={property.gross_area ? `Área Bruta ${property.gross_area}` : '-'} />
               <DetailRow label="Tipologia" value={property.typology || '-'} />
