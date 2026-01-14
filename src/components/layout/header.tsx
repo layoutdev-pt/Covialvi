@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { Menu, X, User, ChevronDown, Search, Sun, Moon, Globe, Calculator, FileText, Wrench } from 'lucide-react';
+import { Menu, X, User, ChevronDown, Search, Sun, Moon, Calculator, FileText, Wrench } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -18,26 +18,6 @@ import { useAuth } from '@/components/providers/auth-provider';
 import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
 
-// Language options with flags
-const languages = [
-  { code: 'pt', name: 'Português', flag: '🇵🇹' },
-  { code: 'en', name: 'English', flag: '🇬🇧' },
-  { code: 'fr', name: 'Français', flag: '🇫🇷' },
-  { code: 'es', name: 'Español', flag: '🇪🇸' },
-  { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
-  { code: 'it', name: 'Italiano', flag: '🇮🇹' },
-];
-
-// Helper to get/set locale cookie
-const getLocaleCookie = () => {
-  if (typeof document === 'undefined') return 'pt';
-  const match = document.cookie.match(/NEXT_LOCALE=([^;]+)/);
-  return match ? match[1] : 'pt';
-};
-
-const setLocaleCookie = (locale: string) => {
-  document.cookie = `NEXT_LOCALE=${locale};path=/;max-age=31536000`;
-};
 
 export function Header() {
   const t = useTranslations('nav');
@@ -49,8 +29,6 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [langMenuOpen, setLangMenuOpen] = useState(false);
-  const [currentLang, setCurrentLang] = useState('pt');
   const [ctaMenuOpen, setCtaMenuOpen] = useState(false);
   
   // Filter states
@@ -63,38 +41,21 @@ export function Header() {
     setMounted(true);
   }, []);
 
-  // Load current language from cookie on mount
-  useEffect(() => {
-    setCurrentLang(getLocaleCookie());
-  }, []);
-
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
       if (!target.closest('[data-dropdown]')) {
         setCtaMenuOpen(false);
-        setLangMenuOpen(false);
         setUserMenuOpen(false);
       }
     };
     
-    if (ctaMenuOpen || langMenuOpen || userMenuOpen) {
+    if (ctaMenuOpen || userMenuOpen) {
       document.addEventListener('click', handleClickOutside);
       return () => document.removeEventListener('click', handleClickOutside);
     }
-  }, [ctaMenuOpen, langMenuOpen, userMenuOpen]);
-
-
-  const currentLanguage = languages.find(l => l.code === currentLang) || languages[0];
-
-  const handleLanguageChange = (langCode: string) => {
-    setCurrentLang(langCode);
-    setLangMenuOpen(false);
-    setLocaleCookie(langCode);
-    // Reload page to apply new language
-    window.location.reload();
-  };
+  }, [ctaMenuOpen, userMenuOpen]);
 
   const toggleTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
@@ -150,33 +111,6 @@ export function Header() {
 
         {/* Desktop Actions */}
         <div className="hidden lg:flex items-center gap-2 relative z-50">
-          {/* Language Selector */}
-          <div className="relative" data-dropdown>
-            <button
-              onClick={() => setLangMenuOpen(!langMenuOpen)}
-              className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-            >
-              <Globe className="h-4 w-4" />
-            </button>
-            {langMenuOpen && (
-              <div className="absolute right-0 mt-2 w-44 bg-card rounded-xl shadow-lg border border-border py-2 z-[100]">
-                {languages.map((lang) => (
-                  <button
-                    key={lang.code}
-                    onClick={() => handleLanguageChange(lang.code)}
-                    className={cn(
-                      "w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-secondary transition-colors",
-                      currentLang === lang.code ? "text-yellow-600 font-medium" : "text-foreground"
-                    )}
-                  >
-                    <span className="text-lg">{lang.flag}</span>
-                    <span>{lang.name}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
           {/* Dark/Light Mode Toggle */}
           <button
             onClick={toggleTheme}
@@ -382,25 +316,8 @@ export function Header() {
             </Link>
           ))}
           
-          {/* Mobile Language & Theme */}
-          <div className="flex items-center justify-between py-2">
-            {/* Language Selector */}
-            <div className="flex items-center gap-2">
-              <Globe className="h-4 w-4 text-muted-foreground" />
-              <select
-                value={currentLang}
-                onChange={(e) => handleLanguageChange(e.target.value)}
-                className="bg-transparent text-foreground text-sm font-medium focus:outline-none cursor-pointer"
-              >
-                {languages.map((lang) => (
-                  <option key={lang.code} value={lang.code}>
-                    {lang.flag} {lang.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            
-            {/* Theme Toggle */}
+          {/* Mobile Theme Toggle */}
+          <div className="flex justify-end py-2">
             <button
               onClick={toggleTheme}
               className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary text-foreground"
