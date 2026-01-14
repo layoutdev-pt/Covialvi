@@ -304,7 +304,6 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                 <div>
                   <h2 className="text-xl font-bold text-foreground mb-4">Extras</h2>
                   <ul className="space-y-2 text-muted-foreground">
-                    {property.floors && <li>Piso {property.floors}</li>}
                     {property.extras?.map((item: string) => (
                       <li key={item}>{item}</li>
                     ))}
