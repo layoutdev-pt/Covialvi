@@ -2,7 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { MapPin, ChevronDown, Building2, FileDown, FileText, LayoutGrid } from 'lucide-react';
+import { MapPin, ChevronDown, Building2, FileDown, FileText, LayoutGrid, ClipboardList } from 'lucide-react';
 import { PropertyActions } from './property-actions';
 import { PropertyGallery } from './property-gallery';
 
@@ -311,38 +311,47 @@ export default async function PropertyDetailPage({ params }: PageProps) {
               </div>
             </div>
 
-            {/* Documentos */}
-            {(property.property_floor_plans?.length > 0 || property.brochure_url) && (
-              <div className="pt-8 border-t border-border">
-                <h2 className="text-xl font-bold text-foreground mb-4">Documentos</h2>
-                <div className="flex flex-wrap gap-3">
-                  {property.property_floor_plans?.length > 0 && (
-                    <a
-                      href={property.property_floor_plans[0].url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      download
-                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-background hover:bg-secondary transition-colors text-sm font-medium text-foreground"
-                    >
-                      <FileDown className="h-4 w-4" />
-                      Planta (PDF)
-                    </a>
-                  )}
-                  {property.brochure_url && (
-                    <a
-                      href={property.brochure_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      download
-                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-background hover:bg-secondary transition-colors text-sm font-medium text-foreground"
-                    >
-                      <FileDown className="h-4 w-4" />
-                      Brochura (PDF)
-                    </a>
-                  )}
-                </div>
+            {/* Documentos - Downloads Section */}
+            <div className="pt-8 border-t border-border">
+              <h2 className="text-xl font-bold text-foreground mb-4">Documentos</h2>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {/* Ficha Técnica */}
+                <a
+                  href={`/api/properties/${property.id}/pdf`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-border bg-background hover:bg-secondary transition-colors text-sm font-medium text-foreground"
+                >
+                  <ClipboardList className="h-4 w-4" />
+                  Ficha Técnica
+                </a>
+                
+                {/* Brochura */}
+                <a
+                  href={`/api/properties/${property.id}/pdf`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-border bg-background hover:bg-secondary transition-colors text-sm font-medium text-foreground"
+                >
+                  <FileText className="h-4 w-4" />
+                  Brochura
+                </a>
+                
+                {/* Planta - only show if floor plans exist */}
+                {property.property_floor_plans?.length > 0 && (
+                  <a
+                    href={property.property_floor_plans[0].url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    download
+                    className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-border bg-background hover:bg-secondary transition-colors text-sm font-medium text-foreground"
+                  >
+                    <LayoutGrid className="h-4 w-4" />
+                    Planta
+                  </a>
+                )}
               </div>
-            )}
+            </div>
 
             {/* Zona Envolvente */}
             <div className="pt-8 border-t border-border">
@@ -415,33 +424,6 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                 </button>
               </form>
               
-              {/* Download Buttons */}
-              <div className="mt-6 pt-6 border-t border-border space-y-3">
-                {/* Brochure PDF Button */}
-                <a
-                  href={`/api/properties/${property.id}/pdf`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-3 w-full px-6 py-4 bg-secondary hover:bg-secondary/80 text-foreground rounded-xl font-medium transition-colors"
-                >
-                  <FileText className="h-5 w-5" />
-                  Descarregar Brochura
-                </a>
-                
-                {/* Floor Plan Button - only show if floor plans exist */}
-                {property.property_floor_plans && property.property_floor_plans.length > 0 && (
-                  <a
-                    href={property.property_floor_plans[0].url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    download
-                    className="flex items-center justify-center gap-3 w-full px-6 py-4 bg-yellow-500/10 hover:bg-yellow-500/20 text-foreground rounded-xl font-medium transition-colors border border-yellow-500/30"
-                  >
-                    <LayoutGrid className="h-5 w-5 text-yellow-600" />
-                    Descarregar Planta
-                  </a>
-                )}
-              </div>
             </div>
           </div>
         </div>
