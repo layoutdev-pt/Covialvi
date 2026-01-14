@@ -498,6 +498,7 @@ export default function SimpleNewPropertyPage() {
         energy_certificate: data.energy_certificate || null,
         video_url: data.video_url || null,
         virtual_tour_url: data.virtual_tour_url || null,
+        divisions: Object.keys(divisionsData).length > 0 ? divisionsData : null,
         surrounding_area: selectedZonaEnvolvente.length > 0 ? selectedZonaEnvolvente : null,
         equipment: selectedEquipamentos.length > 0 ? selectedEquipamentos : null,
         extras: selectedExtras.length > 0 ? selectedExtras : null,

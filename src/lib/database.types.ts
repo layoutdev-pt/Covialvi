@@ -96,6 +96,7 @@ export interface Database {
           construction_status: ConstructionStatus | null;
           construction_year: number | null;
           energy_certificate: string | null;
+          divisions: Record<string, number> | null;
           equipment: string[] | null;
           extras: string[] | null;
           surrounding_area: string[] | null;
@@ -136,6 +137,7 @@ export interface Database {
           construction_status?: ConstructionStatus | null;
           construction_year?: number | null;
           energy_certificate?: string | null;
+          divisions?: Record<string, number> | null;
           equipment?: string[] | null;
           extras?: string[] | null;
           surrounding_area?: string[] | null;
@@ -176,6 +178,7 @@ export interface Database {
           construction_status?: ConstructionStatus | null;
           construction_year?: number | null;
           energy_certificate?: string | null;
+          divisions?: Record<string, number> | null;
           equipment?: string[] | null;
           extras?: string[] | null;
           surrounding_area?: string[] | null;

@@ -310,6 +310,15 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
         if (property.extras) setSelectedExtras(property.extras);
         if (property.construction_status) setSelectedEstado(property.construction_status);
         
+        // Load divisions from database
+        if (property.divisions && typeof property.divisions === 'object') {
+          const loadedDivisions = Object.entries(property.divisions).map(([name, area]) => ({
+            name,
+            area: String(area),
+          }));
+          setDivisions(loadedDivisions);
+        }
+        
         setIsLoading(false);
       } catch (err) {
         console.error('Error loading property:', err);
@@ -478,6 +487,12 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
   const onSubmit = async (data: PropertyFormData) => {
     setIsSaving(true);
     try {
+      // Build divisions data
+      const divisionsData = divisions.filter(d => d.name && d.area).reduce((acc, d) => {
+        acc[d.name] = parseFloat(d.area);
+        return acc;
+      }, {} as Record<string, number>);
+
       const updateData = {
         title: data.title,
         reference: data.reference,
@@ -503,6 +518,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
         energy_certificate: data.energy_certificate || null,
         video_url: data.video_url || null,
         virtual_tour_url: data.virtual_tour_url || null,
+        divisions: Object.keys(divisionsData).length > 0 ? divisionsData : null,
         surrounding_area: selectedZonaEnvolvente.length > 0 ? selectedZonaEnvolvente : null,
         equipment: selectedEquipamentos.length > 0 ? selectedEquipamentos : null,
         extras: selectedExtras.length > 0 ? selectedExtras : null,
