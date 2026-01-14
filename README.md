@@ -9,6 +9,7 @@ A Covialvi é uma plataforma imobiliária de produção que inclui:
 - **Site Público**: Página inicial, listagem de imóveis, páginas de detalhe com SEO otimizado
 - **Área de Utilizador**: Autenticação, favoritos, agendamento de visitas, gestão de perfil
 - **Backoffice Admin**: Dashboard com KPIs, gestão de imóveis, CRM com pipeline Kanban, gestão de visitas
+- **Ferramentas**: Simulador de crédito habitação, questionário de avaliação de imóveis
 - **Integrações**: Google Calendar para sincronização de visitas
 
 ## 🚀 Tecnologias
@@ -337,6 +338,16 @@ Objetivos Lighthouse:
 - Lazy loading
 - ISR para páginas de imóveis
 - Skeleton loading states para UX melhorada
+
+## 🔍 SEO
+
+### Funcionalidades Implementadas
+
+- **Structured Data (JSON-LD)**: Organization, LocalBusiness, Website, RealEstateListing, BreadcrumbList
+- **Metadata dinâmica**: Título, descrição, keywords, OpenGraph, Twitter Cards
+- **Sitemap dinâmico**: Gerado automaticamente com todas as páginas e imóveis
+- **robots.txt**: Configurado para crawlers
+- **Canonical URLs**: Em todas as páginas públicas
 
 ## ♿ Acessibilidade
 
