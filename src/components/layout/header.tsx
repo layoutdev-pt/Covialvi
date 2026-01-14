@@ -231,12 +231,12 @@ export function Header() {
               )}
             </div>
           ) : (
-            <button 
-              onClick={() => { window.location.href = '/auth/login'; }}
-              className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+            <Link 
+              href="/auth/login"
+              className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors flex items-center justify-center"
             >
               <User className="h-4 w-4" />
-            </button>
+            </Link>
           )}
         </div>
 
