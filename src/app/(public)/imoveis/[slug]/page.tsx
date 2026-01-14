@@ -337,8 +337,8 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                   Brochura
                 </a>
                 
-                {/* Planta - only show if floor plans exist */}
-                {property.property_floor_plans?.length > 0 && (
+                {/* Planta */}
+                {property.property_floor_plans?.length > 0 ? (
                   <a
                     href={property.property_floor_plans[0].url}
                     target="_blank"
@@ -349,6 +349,11 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                     <LayoutGrid className="h-4 w-4" />
                     Planta
                   </a>
+                ) : (
+                  <span className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-border bg-background text-sm font-medium text-muted-foreground cursor-not-allowed opacity-50">
+                    <LayoutGrid className="h-4 w-4" />
+                    Planta
+                  </span>
                 )}
               </div>
             </div>
