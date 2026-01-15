@@ -815,14 +815,10 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-4">
+              <div className="grid gap-4 md:grid-cols-3">
                 <div className="space-y-2">
                   <Label>Área Bruta (m²)</Label>
                   <Input {...register('gross_area')} type="number" placeholder="0" />
-                </div>
-                <div className="space-y-2">
-                  <Label>Área Terreno (m²)</Label>
-                  <Input {...register('land_area')} type="number" placeholder="0" />
                 </div>
                 <div className="space-y-2">
                   <Label>Ano Construção</Label>
