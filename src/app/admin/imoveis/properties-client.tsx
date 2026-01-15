@@ -419,7 +419,7 @@ export function PropertiesClient({ properties: initialProperties }: PropertiesCl
                       </div>
                     )}
                     <div className="absolute top-4 right-4 flex gap-2">
-                      <Link href={`/imoveis/${selectedProperty.slug}`} target="_blank">
+                      <Link href={`/imoveis/${selectedProperty.slug}`}>
                         <button className="p-2 bg-white/90 backdrop-blur-sm rounded-lg hover:bg-white transition-colors">
                           <ExternalLink className="h-4 w-4 text-gray-700" />
                         </button>
