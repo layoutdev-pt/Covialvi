@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -89,6 +91,17 @@ export function Footer() {
                 <Link href="/politica-de-cookies" className="text-gray-300 hover:text-white transition-colors text-sm">
                   Política de Cookies
                 </Link>
+              </li>
+              <li>
+                <button
+                  onClick={() => {
+                    localStorage.removeItem('covialvi_cookie_consent');
+                    window.location.reload();
+                  }}
+                  className="text-gray-300 hover:text-white transition-colors text-sm"
+                >
+                  Configurar Cookies
+                </button>
               </li>
             </ul>
           </div>
