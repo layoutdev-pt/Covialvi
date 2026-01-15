@@ -851,7 +851,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                   <Input {...register('bathrooms')} type="number" placeholder="0" />
                 </div>
                 <div className="space-y-2">
-                  <Label>Pisos</Label>
+                  <Label>Piso</Label>
                   <Input {...register('floors')} type="number" placeholder="0" />
                 </div>
                 <div className="space-y-2">
