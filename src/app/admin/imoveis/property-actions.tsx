@@ -54,7 +54,7 @@ export function DeletePropertyButton({ propertyId, propertyTitle }: PropertyActi
         <div className="bg-white rounded-2xl p-6 max-w-md mx-4 shadow-xl">
           <h3 className="text-lg font-bold text-gray-900 mb-2">Confirmar eliminação</h3>
           <p className="text-gray-600 mb-6">
-            Tem a certeza que deseja eliminar o imóvel <strong>"{propertyTitle}"</strong>? Esta ação não pode ser revertida.
+            Tem a certeza que deseja eliminar o imóvel <strong>&ldquo;{propertyTitle}&rdquo;</strong>? Esta ação não pode ser revertida.
           </p>
           <div className="flex gap-3">
             <button

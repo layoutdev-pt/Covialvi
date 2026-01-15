@@ -272,7 +272,7 @@ export default function SupportPage() {
                   Como adiciono um novo imóvel?
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Clique em "Novo Imóvel" no topo da página ou aceda a Imóveis → Adicionar.
+                  Clique em &ldquo;Novo Imóvel&rdquo; no topo da página ou aceda a Imóveis → Adicionar.
                 </p>
               </div>
               <div>

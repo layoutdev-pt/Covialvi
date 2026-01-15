@@ -28,10 +28,10 @@ export default async function TermsPage() {
             Nestes Termos e Condições, as seguintes definições aplicam-se:
           </p>
           <ul>
-            <li><strong>"Covialvi"</strong> refere-se à empresa Covialvi - Mediação Imobiliária, Lda.</li>
-            <li><strong>"Website"</strong> refere-se ao website acessível em www.covialvi.com</li>
-            <li><strong>"Utilizador"</strong> refere-se a qualquer pessoa que aceda ao Website</li>
-            <li><strong>"Serviços"</strong> refere-se aos serviços de mediação imobiliária prestados pela Covialvi</li>
+            <li><strong>&ldquo;Covialvi&rdquo;</strong> refere-se à empresa Covialvi - Mediação Imobiliária, Lda.</li>
+            <li><strong>&ldquo;Website&rdquo;</strong> refere-se ao website acessível em www.covialvi.com</li>
+            <li><strong>&ldquo;Utilizador&rdquo;</strong> refere-se a qualquer pessoa que aceda ao Website</li>
+            <li><strong>&ldquo;Serviços&rdquo;</strong> refere-se aos serviços de mediação imobiliária prestados pela Covialvi</li>
           </ul>
 
           <h2>3. Utilização do Website</h2>

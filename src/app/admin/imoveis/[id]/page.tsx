@@ -905,7 +905,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
             <CardContent className="space-y-3">
               {divisions.length === 0 ? (
                 <p className="text-sm text-muted-foreground text-center py-4">
-                  Clique em "Adicionar" para inserir divisões com as respetivas áreas.
+                  Clique em &ldquo;Adicionar&rdquo; para inserir divisões com as respetivas áreas.
                 </p>
               ) : (
                 divisions.map((division, index) => (
