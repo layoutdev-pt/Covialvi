@@ -480,7 +480,7 @@ export default function NewPropertyPage() {
                   <Input {...register('bathrooms')} type="number" placeholder="0" />
                 </div>
                 <div className="space-y-2">
-                  <Label>Pisos</Label>
+                  <Label>Piso</Label>
                   <Input {...register('floors')} type="number" placeholder="0" />
                 </div>
                 <div className="space-y-2">

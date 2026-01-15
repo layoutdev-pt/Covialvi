@@ -761,7 +761,7 @@ export default function SimpleNewPropertyPage() {
               </div>
               <div className="grid gap-4 md:grid-cols-4">
                 <div className="space-y-2">
-                  <Label>Pisos</Label>
+                  <Label>Piso</Label>
                   <Input {...register('floors')} type="number" placeholder="0" />
                 </div>
               </div>
