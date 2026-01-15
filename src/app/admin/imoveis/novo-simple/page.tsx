@@ -742,10 +742,6 @@ export default function SimpleNewPropertyPage() {
                   <Input {...register('gross_area')} type="number" placeholder="0" />
                 </div>
                 <div className="space-y-2">
-                  <Label>Área Terreno (m²)</Label>
-                  <Input {...register('land_area')} type="number" placeholder="0" />
-                </div>
-                <div className="space-y-2">
                   <Label>Ano Construção</Label>
                   <Input {...register('construction_year')} type="number" placeholder="2024" />
                 </div>

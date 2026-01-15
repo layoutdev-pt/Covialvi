@@ -469,10 +469,6 @@ export default function NewPropertyPage() {
                   <Label>Área Útil (m²)</Label>
                   <Input {...register('useful_area')} type="number" placeholder="0" />
                 </div>
-                <div className="space-y-2">
-                  <Label>Área Terreno (m²)</Label>
-                  <Input {...register('land_area')} type="number" placeholder="0" />
-                </div>
               </div>
               <div className="grid gap-4 md:grid-cols-4">
                 <div className="space-y-2">
