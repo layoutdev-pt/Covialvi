@@ -276,8 +276,13 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                 <div>
                   <h2 className="text-xl font-bold text-foreground mb-4">Divisões</h2>
                   <ul className="space-y-2 text-muted-foreground">
-                    {property.bathrooms && <li>Casa(s) de Banho {property.bathrooms}</li>}
-                    {property.bedrooms && <li>Quarto(s) {property.bedrooms}</li>}
+                    {property.bathrooms && <li>Casa(s) de Banho: {property.bathrooms}</li>}
+                    {property.bedrooms && <li>Quarto(s): {property.bedrooms}</li>}
+                    {property.divisions && typeof property.divisions === 'object' && 
+                      Object.entries(property.divisions).map(([name, area]) => (
+                        <li key={name}>{name}: {String(area)} m²</li>
+                      ))
+                    }
                   </ul>
                 </div>
                 <div>
