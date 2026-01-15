@@ -82,6 +82,14 @@ const estadoOptions = [
   'Vendido',
 ];
 
+const constructionStatusLabels: Record<string, string> = {
+  new: 'Novo',
+  used: 'Usado',
+  under_construction: 'Em Construção',
+  renovated: 'Renovado',
+  to_renovate: 'Para Renovar',
+};
+
 const zonaEnvolventeOptions = [
   'Ampla Oferta de Serviços',
   'Biblioteca',
@@ -815,30 +823,14 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-3">
+              <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label>Área Bruta (m²)</Label>
                   <Input {...register('gross_area')} type="number" placeholder="0" />
                 </div>
                 <div className="space-y-2">
-                  <Label>Ano Construção</Label>
-                  <Input {...register('construction_year')} type="number" placeholder="2024" />
-                </div>
-                <div className="space-y-2">
-                  <Label>Categoria Energética</Label>
-                  <Select
-                    value={watch('energy_certificate') || ''}
-                    onValueChange={(value) => setValue('energy_certificate', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecionar..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {energyCertificateOptions.map((cert) => (
-                        <SelectItem key={cert} value={cert}>{cert}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Label>Área Útil (m²)</Label>
+                  <Input {...register('useful_area')} type="number" placeholder="0" />
                 </div>
               </div>
               <div className="grid gap-4 md:grid-cols-4">
@@ -855,8 +847,42 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                   <Input {...register('floors')} type="number" placeholder="0" />
                 </div>
                 <div className="space-y-2">
-                  <Label>Área Útil (m²)</Label>
-                  <Input {...register('useful_area')} type="number" placeholder="0" />
+                  <Label>Ano Construção</Label>
+                  <Input {...register('construction_year')} type="number" placeholder="2024" />
+                </div>
+              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Estado de Construção</Label>
+                  <Select
+                    value={watch('construction_status') || ''}
+                    onValueChange={(value) => setValue('construction_status', value as any)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecionar..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(constructionStatusLabels).map(([value, label]) => (
+                        <SelectItem key={value} value={value}>{label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Certificado Energético</Label>
+                  <Select
+                    value={watch('energy_certificate') || ''}
+                    onValueChange={(value) => setValue('energy_certificate', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecionar..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {energyCertificateOptions.map((cert) => (
+                        <SelectItem key={cert} value={cert}>{cert}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </CardContent>
