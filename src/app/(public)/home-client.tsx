@@ -823,7 +823,7 @@ function PropertyCard({
           whileTap={{ scale: 0.9 }}
           className="absolute top-14 left-4 w-10 h-10 rounded-full bg-white/95 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-lg hover:bg-yellow-500 hover:text-white z-20"
         >
-          <Heart className="h-5 w-5" />
+          <Heart className="h-5 w-5 text-gray-700" />
         </motion.button>
         
         {/* Quick View on Hover */}
