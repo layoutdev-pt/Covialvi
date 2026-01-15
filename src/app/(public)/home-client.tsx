@@ -326,7 +326,7 @@ export function HomeClient({ properties, stats, heroProperty }: HomeClientProps)
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 1 }}
-          className="mt-6 max-w-7xl mx-auto"
+          className="mt-16 max-w-7xl mx-auto"
         >
           {heroProperties.length > 0 ? (
             <div className="grid md:grid-cols-3 gap-6">
@@ -358,6 +358,17 @@ export function HomeClient({ properties, stats, heroProperty }: HomeClientProps)
                         <span className="absolute top-3 left-3 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-xs font-medium text-gray-900">
                           {businessTypeLabels[property.business_type] || 'Venda'}
                         </span>
+                        
+                        {/* Heart/Save Button */}
+                        <button 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                          }}
+                          className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-yellow-500 hover:text-white transition-colors"
+                        >
+                          <Heart className="h-4 w-4 text-gray-700" />
+                        </button>
                       </div>
                       
                       <div className="absolute bottom-0 left-0 right-0 p-4">
