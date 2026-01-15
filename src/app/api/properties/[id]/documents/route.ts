@@ -55,7 +55,6 @@ export async function POST(
         .insert({
           property_id: params.id,
           url: publicUrl,
-          name: file.name,
           order: 0,
         });
 
