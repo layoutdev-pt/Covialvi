@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { Building2, Play, ImageIcon, ChevronUp, ChevronDown } from 'lucide-react';
+import { Building2, Play, ImageIcon, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface PropertyImage {
@@ -45,6 +45,20 @@ export function PropertyGallery({ images, videoUrl, title, businessType }: Prope
   const handleThumbnailClick = (index: number) => {
     setSelectedIndex(index);
     setShowVideo(false);
+  };
+
+  const goToPreviousImage = () => {
+    if (selectedIndex > 0) {
+      setSelectedIndex(selectedIndex - 1);
+      setShowVideo(false);
+    }
+  };
+
+  const goToNextImage = () => {
+    if (selectedIndex < sortedImages.length - 1) {
+      setSelectedIndex(selectedIndex + 1);
+      setShowVideo(false);
+    }
   };
 
   return (
@@ -236,6 +250,28 @@ export function PropertyGallery({ images, videoUrl, title, businessType }: Prope
                 Vídeo
               </motion.button>
             </div>
+          )}
+
+          {/* Navigation Arrows */}
+          {!showVideo && sortedImages.length > 1 && (
+            <>
+              <button
+                onClick={goToPreviousImage}
+                disabled={selectedIndex === 0}
+                aria-label="Imagem anterior"
+                className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white/90 dark:bg-card/90 backdrop-blur-sm flex items-center justify-center shadow-lg hover:bg-white dark:hover:bg-card transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              >
+                <ChevronLeft className="h-6 w-6 text-foreground" />
+              </button>
+              <button
+                onClick={goToNextImage}
+                disabled={selectedIndex === sortedImages.length - 1}
+                aria-label="Próxima imagem"
+                className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white/90 dark:bg-card/90 backdrop-blur-sm flex items-center justify-center shadow-lg hover:bg-white dark:hover:bg-card transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              >
+                <ChevronRight className="h-6 w-6 text-foreground" />
+              </button>
+            </>
           )}
 
           {/* Image Counter */}
