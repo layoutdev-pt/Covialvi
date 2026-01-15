@@ -9,6 +9,7 @@ import { AuthProvider } from '@/components/providers/auth-provider';
 import { QueryProvider } from '@/components/providers/query-provider';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { StructuredData, organizationSchema, websiteSchema } from '@/components/seo/structured-data';
+import { CookieConsent } from '@/components/cookie-consent';
 import './globals.css';
 
 const poppins = Poppins({
@@ -103,6 +104,7 @@ export default async function RootLayout({
               <AuthProvider>
                 {children}
                 <Toaster position="top-right" richColors />
+                <CookieConsent />
                 <Analytics />
                 <SpeedInsights />
               </AuthProvider>
