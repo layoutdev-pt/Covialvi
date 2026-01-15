@@ -341,7 +341,6 @@ export function PropertiesClient({ properties: initialProperties }: PropertiesCl
                             </Link>
                             <Link 
                               href={`/imoveis/${property.slug}`}
-                              target="_blank"
                               onClick={() => setOpenMenuId(null)}
                               className="flex items-center gap-2 px-4 py-2 text-sm text-foreground hover:bg-secondary transition-colors"
                             >
