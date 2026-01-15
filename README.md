@@ -2,6 +2,17 @@
 
 Uma aplicação web imobiliária moderna e completa para a Covialvi (Portugal), construída com Next.js 14, React, TypeScript, Tailwind CSS e Supabase.
 
+**Live Demo:** [https://covialvi.vercel.app](https://covialvi.vercel.app)
+
+## ⚡ Quick Deploy
+
+See [SETUP.md](./SETUP.md) for detailed deployment instructions.
+
+### Required Supabase SQL (run before first deploy)
+```sql
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS divisions jsonb DEFAULT NULL;
+```
+
 ## 🏠 Visão Geral
 
 A Covialvi é uma plataforma imobiliária de produção que inclui:
