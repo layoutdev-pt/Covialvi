@@ -697,7 +697,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                 </div>
               </div>
 
-              <div className="grid gap-4 md:grid-cols-3">
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <div className="space-y-2">
                   <Label>Tipo de Negócio *</Label>
                   <Select
@@ -742,6 +742,22 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                     <SelectContent>
                       {typologyOptions.map((typ) => (
                         <SelectItem key={typ} value={typ}>{typ}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Estado da Propriedade</Label>
+                  <Select
+                    value={selectedEstado}
+                    onValueChange={(value) => setSelectedEstado(value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecionar..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {estadoOptions.map((estado) => (
+                        <SelectItem key={estado} value={estado}>{estado}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
