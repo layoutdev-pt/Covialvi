@@ -3,6 +3,7 @@ import { Poppins } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
 import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Toaster } from '@/components/ui/sonner';
 import { AuthProvider } from '@/components/providers/auth-provider';
 import { QueryProvider } from '@/components/providers/query-provider';
@@ -103,6 +104,7 @@ export default async function RootLayout({
                 {children}
                 <Toaster position="top-right" richColors />
                 <Analytics />
+                <SpeedInsights />
               </AuthProvider>
             </QueryProvider>
           </NextIntlClientProvider>
