@@ -1,5 +1,6 @@
 import { createClient, createServiceClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { validateCreateProperty } from '@/lib/property-utils';
 
 export async function POST(request: NextRequest) {
   try {
@@ -51,13 +52,37 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate required fields for creation
+    const validationError = validateCreateProperty(body);
+    if (validationError) {
+      return NextResponse.json(
+        { error: validationError },
+        { status: 400 }
+      );
+    }
+
+    // Build create payload with only allowed fields
+    const createPayload = {
+      reference: body.reference,
+      title: body.title,
+      slug: body.slug,
+      business_type: body.business_type,
+      nature: body.nature,
+      status: body.status || 'draft',
+      description: body.description || null,
+      price: body.price || null,
+      price_on_request: body.price_on_request || false,
+      district: body.district || null,
+      municipality: body.municipality || null,
+      parish: body.parish || null,
+      address: body.address || null,
+      created_by: user.id,
+    };
+
     // Create the property using service client (bypasses RLS)
     const { data: property, error } = await serviceClient
       .from('properties')
-      .insert({
-        ...body,
-        created_by: user.id,
-      })
+      .insert(createPayload)
       .select()
       .single();
 

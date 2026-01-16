@@ -1,5 +1,6 @@
 import { createClient, createServiceClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { sanitizePropertyUpdate } from '@/lib/property-utils';
 
 export async function GET(
   request: NextRequest,
@@ -93,11 +94,30 @@ export async function PUT(
       );
     }
 
-    // Update property using service client
+    // CRITICAL: Sanitize payload to prevent unknown fields and null overwrites
+    const sanitizedPayload = sanitizePropertyUpdate(body);
+    
+    // Remove undefined values to prevent overwriting existing data with null
+    const cleanPayload = Object.fromEntries(
+      Object.entries(sanitizedPayload).filter(([_, v]) => v !== undefined)
+    );
+    
+    // Skip update if no valid fields to update
+    if (Object.keys(cleanPayload).length === 0) {
+      // Fetch and return current property
+      const { data: currentProperty } = await serviceClient
+        .from('properties')
+        .select('*')
+        .eq('id', params.id)
+        .single();
+      return NextResponse.json(currentProperty);
+    }
+
+    // Update property using service client with sanitized data only
     const { data: property, error } = await serviceClient
       .from('properties')
       .update({
-        ...body,
+        ...cleanPayload,
         updated_at: new Date().toISOString(),
       })
       .eq('id', params.id)
