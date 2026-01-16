@@ -310,16 +310,19 @@ export default async function PropertyDetailPage({ params }: PageProps) {
               <div className="grid md:grid-cols-2 gap-8">
                 <div>
                   <h2 className="text-xl font-bold text-foreground mb-4">Áreas</h2>
-                  <p className="text-muted-foreground">
-                    {property.gross_area ? `${property.gross_area} M²` : '-'}
-                  </p>
+                  <ul className="space-y-2 text-muted-foreground">
+                    {property.gross_area && <li>Área Bruta: {property.gross_area} m²</li>}
+                    {property.useful_area && <li>Área Útil: {property.useful_area} m²</li>}
+                    {property.land_area && <li>Área do Terreno: {property.land_area} m²</li>}
+                    {!property.gross_area && !property.useful_area && !property.land_area && <li>-</li>}
+                  </ul>
                 </div>
                 <div>
                   <h2 className="text-xl font-bold text-foreground mb-4">Extras</h2>
                   <ul className="space-y-2 text-muted-foreground">
-                    {property.extras?.map((item: string) => (
+                    {property.extras?.length > 0 ? property.extras.map((item: string) => (
                       <li key={item}>{item}</li>
-                    ))}
+                    )) : <li>-</li>}
                   </ul>
                 </div>
               </div>
@@ -341,15 +344,23 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                 </a>
                 
                 {/* Brochura */}
-                <a
-                  href={`/api/properties/${property.id}/pdf`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-border bg-background hover:bg-secondary transition-colors text-sm font-medium text-foreground"
-                >
-                  <FileText className="h-4 w-4" />
-                  Brochura
-                </a>
+                {property.brochure_url ? (
+                  <a
+                    href={property.brochure_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    download
+                    className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-border bg-background hover:bg-secondary transition-colors text-sm font-medium text-foreground"
+                  >
+                    <FileText className="h-4 w-4" />
+                    Brochura
+                  </a>
+                ) : (
+                  <span className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-border bg-background text-sm font-medium text-muted-foreground cursor-not-allowed opacity-50">
+                    <FileText className="h-4 w-4" />
+                    Brochura
+                  </span>
+                )}
                 
                 {/* Planta */}
                 {property.property_floor_plans?.length > 0 ? (
