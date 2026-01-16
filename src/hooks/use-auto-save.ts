@@ -22,6 +22,7 @@ interface UseAutoSaveReturn {
   forceSave: () => Promise<void>;
   pendingChanges: Record<string, any>;
   hasPendingChanges: boolean;
+  isSaving: boolean;
 }
 
 export function useAutoSave({
@@ -37,6 +38,8 @@ export function useAutoSave({
   const [pendingChanges, setPendingChanges] = useState<Record<string, any>>({});
   
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const isSavingRef = useRef<boolean>(false);
+  const queuedChangesRef = useRef<Record<string, any>>({});
   const supabase = createClient();
 
   // Clean up pending changes that are empty/undefined
@@ -52,7 +55,7 @@ export function useAutoSave({
     return cleaned;
   }, []);
 
-  // Perform the actual save to Supabase
+  // Perform the actual save to Supabase with race condition prevention
   const performSave = useCallback(async (changes: Record<string, any>) => {
     if (!id || Object.keys(changes).length === 0) {
       return;
@@ -63,6 +66,13 @@ export function useAutoSave({
       return;
     }
 
+    // If already saving, queue the changes for later
+    if (isSavingRef.current) {
+      queuedChangesRef.current = { ...queuedChangesRef.current, ...cleanedChanges };
+      return;
+    }
+
+    isSavingRef.current = true;
     setStatus('saving');
     setError(null);
 
@@ -93,6 +103,15 @@ export function useAutoSave({
       setStatus('error');
       setError(errorMessage);
       onSaveError?.(err instanceof Error ? err : new Error(errorMessage));
+    } finally {
+      isSavingRef.current = false;
+      
+      // Process queued changes if any
+      if (Object.keys(queuedChangesRef.current).length > 0) {
+        const queuedChanges = { ...queuedChangesRef.current };
+        queuedChangesRef.current = {};
+        performSave(queuedChanges);
+      }
     }
   }, [id, table, supabase, cleanChanges, onSaveSuccess, onSaveError]);
 
@@ -174,5 +193,6 @@ export function useAutoSave({
     forceSave,
     pendingChanges,
     hasPendingChanges: Object.keys(pendingChanges).length > 0,
+    isSaving: status === 'saving',
   };
 }

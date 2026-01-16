@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
@@ -32,7 +32,11 @@ import {
   Euro,
   Ruler,
   Image as ImageIcon,
+  Check,
+  AlertCircle,
 } from 'lucide-react';
+import { useAutoSave } from '@/hooks/use-auto-save';
+import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
 
 const propertySchema = z.object({
   title: z.string().min(1, 'O título é obrigatório'),
@@ -118,18 +122,33 @@ function generateSlug(title: string): string {
     .replace(/(^-|-$)/g, '');
 }
 
+const DRAFT_STORAGE_KEY = 'property_draft_id';
+
+function generateSlugFromTitle(title: string): string {
+  return title
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+}
+
 export default function NewPropertyPage() {
   const router = useRouter();
   const supabase = createClient();
   const [isLoading, setIsLoading] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
+  const [draftId, setDraftId] = useState<string | null>(null);
   const [images, setImages] = useState<File[]>([]);
   const [imagesPreviews, setImagesPreviews] = useState<string[]>([]);
+  const [uploadedImages, setUploadedImages] = useState<Array<{ id: string; url: string; order: number }>>([]);
 
   const {
     register,
     handleSubmit,
     setValue,
     watch,
+    reset,
     formState: { errors },
   } = useForm<PropertyFormData>({
     resolver: zodResolver(propertySchema),
@@ -141,108 +160,282 @@ export default function NewPropertyPage() {
     },
   });
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    setImages((prev) => [...prev, ...files]);
+  // Auto-save hook
+  const {
+    status: autoSaveStatus,
+    lastSaved,
+    error: autoSaveError,
+    saveField,
+    saveFields,
+    forceSave,
+    isSaving,
+  } = useAutoSave({
+    table: 'properties',
+    id: draftId,
+    debounceMs: 800,
+    onSaveError: (err) => {
+      console.error('Auto-save error:', err);
+    },
+  });
+
+  // Create or restore draft on mount
+  useEffect(() => {
+    const initializeDraft = async () => {
+      setIsInitializing(true);
+      
+      // Check for existing draft in localStorage
+      const existingDraftId = localStorage.getItem(DRAFT_STORAGE_KEY);
+      
+      if (existingDraftId) {
+        // Try to load existing draft
+        const { data: existingDraft, error } = await supabase
+          .from('properties')
+          .select('*')
+          .eq('id', existingDraftId)
+          .eq('status', 'draft')
+          .single();
+        
+        if (existingDraft && !error) {
+          // Restore draft data to form
+          setDraftId(existingDraftId);
+          reset({
+            title: existingDraft.title || '',
+            reference: existingDraft.reference || '',
+            description: existingDraft.description || '',
+            business_type: existingDraft.business_type || 'sale',
+            nature: existingDraft.nature || 'apartment',
+            status: existingDraft.status || 'draft',
+            price: existingDraft.price?.toString() || '',
+            price_on_request: existingDraft.price_on_request || false,
+            district: existingDraft.district || '',
+            municipality: existingDraft.municipality || '',
+            parish: existingDraft.parish || '',
+            address: existingDraft.address || '',
+            postal_code: existingDraft.postal_code || '',
+            gross_area: existingDraft.gross_area?.toString() || '',
+            useful_area: existingDraft.useful_area?.toString() || '',
+            land_area: existingDraft.land_area?.toString() || '',
+            bedrooms: existingDraft.bedrooms?.toString() || '',
+            bathrooms: existingDraft.bathrooms?.toString() || '',
+            floors: existingDraft.floors?.toString() || '',
+            typology: existingDraft.typology || '',
+            construction_status: existingDraft.construction_status || '',
+            construction_year: existingDraft.construction_year?.toString() || '',
+            energy_certificate: existingDraft.energy_certificate || '',
+          });
+          
+          // Load existing images
+          const { data: existingImages } = await supabase
+            .from('property_images')
+            .select('id, url, order')
+            .eq('property_id', existingDraftId)
+            .order('order');
+          
+          if (existingImages) {
+            setUploadedImages(existingImages);
+            setImagesPreviews(existingImages.map((img: { url: string }) => img.url));
+          }
+          
+          setIsInitializing(false);
+          return;
+        } else {
+          // Draft no longer exists, clear localStorage
+          localStorage.removeItem(DRAFT_STORAGE_KEY);
+        }
+      }
+      
+      // Create new draft
+      const tempSlug = `draft-${Date.now()}`;
+      const { data: newDraft, error: createError } = await supabase
+        .from('properties')
+        .insert({
+          title: '',
+          reference: `REF-${Date.now()}`,
+          slug: tempSlug,
+          status: 'draft',
+          business_type: 'sale',
+          nature: 'apartment',
+        })
+        .select()
+        .single();
+      
+      if (newDraft && !createError) {
+        setDraftId(newDraft.id);
+        localStorage.setItem(DRAFT_STORAGE_KEY, newDraft.id);
+        setValue('reference', newDraft.reference);
+      } else {
+        console.error('Error creating draft:', createError);
+        toast.error('Erro ao inicializar rascunho');
+      }
+      
+      setIsInitializing(false);
+    };
     
-    files.forEach((file) => {
+    initializeDraft();
+  }, [supabase, reset, setValue]);
+
+  // Auto-save wrapper functions
+  const handleFieldBlur = useCallback((field: string, value: any) => {
+    if (value !== undefined && value !== '') {
+      saveField(field, value);
+    }
+  }, [saveField]);
+
+  const handleSelectChange = useCallback((field: string, value: any) => {
+    setValue(field as any, value);
+    saveField(field, value);
+  }, [setValue, saveField]);
+
+  const handleCheckboxChange = useCallback((field: string, checked: boolean) => {
+    setValue(field as any, checked);
+    saveField(field, checked);
+  }, [setValue, saveField]);
+
+  // Immediate image upload to Supabase
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!draftId) {
+      toast.error('Aguarde a inicialização do rascunho');
+      return;
+    }
+    
+    const files = Array.from(e.target.files || []);
+    
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${draftId}/${Date.now()}-${i}.${fileExt}`;
+      
+      // Show preview immediately
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagesPreviews((prev) => [...prev, reader.result as string]);
       };
       reader.readAsDataURL(file);
-    });
+      
+      // Upload to Supabase
+      const { error: uploadError } = await supabase.storage
+        .from('property-images')
+        .upload(fileName, file);
+      
+      if (!uploadError) {
+        const { data: { publicUrl } } = supabase.storage
+          .from('property-images')
+          .getPublicUrl(fileName);
+        
+        const currentOrder = uploadedImages.length + i;
+        const { data: imageRecord, error: insertError } = await supabase
+          .from('property_images')
+          .insert({
+            property_id: draftId,
+            url: publicUrl,
+            order: currentOrder,
+            is_cover: currentOrder === 0,
+          })
+          .select()
+          .single();
+        
+        if (imageRecord && !insertError) {
+          setUploadedImages((prev) => [...prev, { id: imageRecord.id, url: publicUrl, order: currentOrder }]);
+        }
+      } else {
+        console.error('Error uploading image:', uploadError);
+        toast.error('Erro ao carregar imagem');
+      }
+    }
+    
+    e.target.value = '';
   };
 
-  const removeImage = (index: number) => {
-    setImages((prev) => prev.filter((_, i) => i !== index));
+  const removeImage = async (index: number) => {
+    const imageToRemove = uploadedImages[index];
+    
+    if (imageToRemove) {
+      // Delete from database
+      await supabase
+        .from('property_images')
+        .delete()
+        .eq('id', imageToRemove.id);
+    }
+    
+    setUploadedImages((prev) => prev.filter((_, i) => i !== index));
     setImagesPreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
+  // Finalize draft - update with final data and proper slug
   const onSubmit = async (data: PropertyFormData) => {
+    if (!draftId) {
+      toast.error('Rascunho não inicializado');
+      return;
+    }
+    
     setIsLoading(true);
     try {
-      const slug = generateSlug(data.title) + '-' + Date.now();
+      // Force save any pending changes
+      await forceSave();
       
-      // Simplified property data
-      const propertyData = {
+      // Generate proper slug from title
+      const slug = generateSlugFromTitle(data.title) + '-' + Date.now();
+      
+      // Final update with all data
+      const finalData = {
         title: data.title,
         reference: data.reference,
-        description: data.description || '',
+        description: data.description || null,
         business_type: data.business_type,
         nature: data.nature,
         status: data.status,
         slug,
         price: data.price ? parseFloat(data.price) : null,
         price_on_request: data.price_on_request,
-        district: data.district || '',
-        municipality: data.municipality || '',
-        address: data.address || '',
+        district: data.district || null,
+        municipality: data.municipality || null,
+        parish: data.parish || null,
+        address: data.address || null,
+        postal_code: data.postal_code || null,
         gross_area: data.gross_area ? parseFloat(data.gross_area) : null,
         useful_area: data.useful_area ? parseFloat(data.useful_area) : null,
+        land_area: data.land_area ? parseFloat(data.land_area) : null,
         bedrooms: data.bedrooms ? parseInt(data.bedrooms) : null,
         bathrooms: data.bathrooms ? parseInt(data.bathrooms) : null,
-        typology: data.typology || '',
-        construction_status: data.construction_status || 'used',
+        floors: data.floors ? parseInt(data.floors) : null,
+        typology: data.typology || null,
+        construction_status: data.construction_status || null,
         construction_year: data.construction_year ? parseInt(data.construction_year) : null,
-        energy_certificate: data.energy_certificate || '',
+        energy_certificate: data.energy_certificate || null,
+        updated_at: new Date().toISOString(),
       };
 
-      console.log('Creating property:', propertyData);
+      const { error: updateError } = await supabase
+        .from('properties')
+        .update(finalData)
+        .eq('id', draftId);
 
-      // Use fetch to create property
-      const response = await fetch('/api/properties', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(propertyData),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        console.error('Insert error:', error);
-        toast.error(error.message || 'Erro ao criar imóvel');
-        return;
+      if (updateError) {
+        throw new Error(updateError.message);
       }
 
-      const property = await response.json();
-      console.log('Property created:', property);
+      // Clear draft from localStorage
+      localStorage.removeItem(DRAFT_STORAGE_KEY);
 
-      // Upload images (simplified)
-      if (images.length > 0 && property) {
-        for (let i = 0; i < images.length; i++) {
-          const file = images[i];
-          const fileExt = file.name.split('.').pop();
-          const fileName = `${property.id}/${Date.now()}-${i}.${fileExt}`;
-
-          const { error: uploadError } = await supabase.storage
-            .from('property-images')
-            .upload(fileName, file);
-
-          if (!uploadError) {
-            const { data: { publicUrl } } = supabase.storage
-              .from('property-images')
-              .getPublicUrl(fileName);
-
-            await supabase.from('property_images').insert({
-              property_id: property.id,
-              url: publicUrl,
-              order: i,
-              is_cover: i === 0,
-            });
-          }
-        }
-      }
-
-      toast.success('Imóvel criado com sucesso!');
+      toast.success('Imóvel guardado com sucesso!');
       router.push('/admin/imoveis');
     } catch (error: any) {
-      console.error('Error creating property:', error);
-      toast.error(error.message || 'Erro ao criar imóvel');
+      console.error('Error saving property:', error);
+      toast.error(error.message || 'Erro ao guardar imóvel');
     } finally {
       setIsLoading(false);
     }
+  };
+  
+  // Start new draft (discard current)
+  const handleNewDraft = async () => {
+    if (draftId) {
+      // Delete current draft
+      await supabase.from('properties').delete().eq('id', draftId);
+      localStorage.removeItem(DRAFT_STORAGE_KEY);
+    }
+    // Reload page to create new draft
+    window.location.reload();
   };
 
   const handlePreview = () => {
@@ -272,6 +465,18 @@ export default function NewPropertyPage() {
     window.open('/admin/imoveis/preview', '_blank');
   };
 
+  // Show loading state while initializing
+  if (isInitializing) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto text-yellow-500" />
+          <p className="text-muted-foreground">A inicializar rascunho...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -284,15 +489,16 @@ export default function NewPropertyPage() {
           </Link>
           <div>
             <h1 className="text-2xl font-bold text-foreground">Novo Imóvel</h1>
-            <p className="text-muted-foreground">Preencha os dados do imóvel</p>
+            <p className="text-muted-foreground">Preencha os dados do imóvel - guardado automaticamente</p>
           </div>
         </div>
         <div className="flex items-center space-x-3">
-          <Button variant="outline" onClick={handlePreview} disabled={isLoading}>
+          <AutoSaveIndicator status={autoSaveStatus} lastSaved={lastSaved} error={autoSaveError} />
+          <Button variant="outline" onClick={handlePreview} disabled={isLoading || isInitializing}>
             <Eye className="mr-2 h-4 w-4" />
             Pré-visualizar
           </Button>
-          <Button variant="gold" onClick={handleSubmit(onSubmit)} disabled={isLoading}>
+          <Button variant="gold" onClick={handleSubmit(onSubmit)} disabled={isLoading || isInitializing || isSaving}>
             {isLoading ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
@@ -323,6 +529,7 @@ export default function NewPropertyPage() {
                     {...register('title')}
                     placeholder="Ex: Apartamento T3 em Lisboa"
                     className={errors.title ? 'border-destructive' : ''}
+                    onBlur={(e) => handleFieldBlur('title', e.target.value)}
                   />
                   {errors.title && (
                     <p className="text-sm text-destructive">{errors.title.message}</p>
@@ -335,6 +542,7 @@ export default function NewPropertyPage() {
                     {...register('reference')}
                     placeholder="Ex: COV-001"
                     className={errors.reference ? 'border-destructive' : ''}
+                    onBlur={(e) => handleFieldBlur('reference', e.target.value)}
                   />
                   {errors.reference && (
                     <p className="text-sm text-destructive">{errors.reference.message}</p>
@@ -346,8 +554,8 @@ export default function NewPropertyPage() {
                 <div className="space-y-2">
                   <Label>Tipo de Negócio *</Label>
                   <Select
-                    defaultValue="sale"
-                    onValueChange={(value) => setValue('business_type', value as any)}
+                    value={watch('business_type')}
+                    onValueChange={(value) => handleSelectChange('business_type', value)}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -362,8 +570,8 @@ export default function NewPropertyPage() {
                 <div className="space-y-2">
                   <Label>Natureza *</Label>
                   <Select
-                    defaultValue="apartment"
-                    onValueChange={(value) => setValue('nature', value as any)}
+                    value={watch('nature')}
+                    onValueChange={(value) => handleSelectChange('nature', value)}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -381,11 +589,11 @@ export default function NewPropertyPage() {
                 <div className="space-y-2">
                   <Label>Estado do Imóvel</Label>
                   <Select
-                    defaultValue="used"
-                    onValueChange={(value) => setValue('construction_status', value)}
+                    value={watch('construction_status') || ''}
+                    onValueChange={(value) => handleSelectChange('construction_status', value)}
                   >
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue placeholder="Selecionar..." />
                     </SelectTrigger>
                     <SelectContent>
                       {Object.entries(constructionStatusLabels).map(([value, label]) => (
@@ -399,6 +607,7 @@ export default function NewPropertyPage() {
                   <Input
                     {...register('typology')}
                     placeholder="Ex: T3"
+                    onBlur={(e) => handleFieldBlur('typology', e.target.value)}
                   />
                 </div>
               </div>
@@ -410,6 +619,7 @@ export default function NewPropertyPage() {
                   {...register('description')}
                   placeholder="Descreva o imóvel em detalhe..."
                   rows={6}
+                  onBlur={(e) => handleFieldBlur('description', e.target.value)}
                 />
               </div>
             </CardContent>
@@ -427,25 +637,25 @@ export default function NewPropertyPage() {
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="space-y-2">
                   <Label>Distrito</Label>
-                  <Input {...register('district')} placeholder="Ex: Lisboa" />
+                  <Input {...register('district')} placeholder="Ex: Lisboa" onBlur={(e) => handleFieldBlur('district', e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label>Concelho</Label>
-                  <Input {...register('municipality')} placeholder="Ex: Lisboa" />
+                  <Input {...register('municipality')} placeholder="Ex: Lisboa" onBlur={(e) => handleFieldBlur('municipality', e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label>Freguesia</Label>
-                  <Input {...register('parish')} placeholder="Ex: Avenidas Novas" />
+                  <Input {...register('parish')} placeholder="Ex: Avenidas Novas" onBlur={(e) => handleFieldBlur('parish', e.target.value)} />
                 </div>
               </div>
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label>Morada</Label>
-                  <Input {...register('address')} placeholder="Rua, número, andar..." />
+                  <Input {...register('address')} placeholder="Rua, número, andar..." onBlur={(e) => handleFieldBlur('address', e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label>Código Postal</Label>
-                  <Input {...register('postal_code')} placeholder="0000-000" />
+                  <Input {...register('postal_code')} placeholder="0000-000" onBlur={(e) => handleFieldBlur('postal_code', e.target.value)} />
                 </div>
               </div>
                           </CardContent>
@@ -463,35 +673,38 @@ export default function NewPropertyPage() {
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="space-y-2">
                   <Label>Área Bruta (m²)</Label>
-                  <Input {...register('gross_area')} type="number" placeholder="0" />
+                  <Input {...register('gross_area')} type="number" placeholder="0" onBlur={(e) => handleFieldBlur('gross_area', e.target.value ? parseFloat(e.target.value) : null)} />
                 </div>
                 <div className="space-y-2">
                   <Label>Área Útil (m²)</Label>
-                  <Input {...register('useful_area')} type="number" placeholder="0" />
+                  <Input {...register('useful_area')} type="number" placeholder="0" onBlur={(e) => handleFieldBlur('useful_area', e.target.value ? parseFloat(e.target.value) : null)} />
                 </div>
               </div>
               <div className="grid gap-4 md:grid-cols-4">
                 <div className="space-y-2">
                   <Label>Quartos</Label>
-                  <Input {...register('bedrooms')} type="number" placeholder="0" />
+                  <Input {...register('bedrooms')} type="number" placeholder="0" onBlur={(e) => handleFieldBlur('bedrooms', e.target.value ? parseInt(e.target.value) : null)} />
                 </div>
                 <div className="space-y-2">
                   <Label>Casas de Banho</Label>
-                  <Input {...register('bathrooms')} type="number" placeholder="0" />
+                  <Input {...register('bathrooms')} type="number" placeholder="0" onBlur={(e) => handleFieldBlur('bathrooms', e.target.value ? parseInt(e.target.value) : null)} />
                 </div>
                 <div className="space-y-2">
                   <Label>Piso</Label>
-                  <Input {...register('floors')} type="number" placeholder="0" />
+                  <Input {...register('floors')} type="number" placeholder="0" onBlur={(e) => handleFieldBlur('floors', e.target.value ? parseInt(e.target.value) : null)} />
                 </div>
                 <div className="space-y-2">
                   <Label>Ano Construção</Label>
-                  <Input {...register('construction_year')} type="number" placeholder="2024" />
+                  <Input {...register('construction_year')} type="number" placeholder="2024" onBlur={(e) => handleFieldBlur('construction_year', e.target.value ? parseInt(e.target.value) : null)} />
                 </div>
               </div>
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label>Estado de Construção</Label>
-                  <Select onValueChange={(value) => setValue('construction_status', value as any)}>
+                  <Select 
+                    value={watch('construction_status') || ''}
+                    onValueChange={(value) => handleSelectChange('construction_status', value)}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecionar..." />
                     </SelectTrigger>
@@ -504,7 +717,10 @@ export default function NewPropertyPage() {
                 </div>
                 <div className="space-y-2">
                   <Label>Certificado Energético</Label>
-                  <Select onValueChange={(value) => setValue('energy_certificate', value)}>
+                  <Select 
+                    value={watch('energy_certificate') || ''}
+                    onValueChange={(value) => handleSelectChange('energy_certificate', value)}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecionar..." />
                     </SelectTrigger>
@@ -597,13 +813,15 @@ export default function NewPropertyPage() {
                   type="number"
                   placeholder="0"
                   disabled={watch('price_on_request')}
+                  onBlur={(e) => handleFieldBlur('price', e.target.value ? parseFloat(e.target.value) : null)}
                 />
               </div>
               <div className="flex items-center space-x-2">
                 <input
                   type="checkbox"
                   id="price_on_request"
-                  {...register('price_on_request')}
+                  checked={watch('price_on_request')}
+                  onChange={(e) => handleCheckboxChange('price_on_request', e.target.checked)}
                   className="h-4 w-4 rounded border-gray-300"
                 />
                 <Label htmlFor="price_on_request" className="text-sm font-normal">
@@ -620,8 +838,8 @@ export default function NewPropertyPage() {
             </CardHeader>
             <CardContent>
               <Select
-                defaultValue="draft"
-                onValueChange={(value) => setValue('status', value as any)}
+                value={watch('status')}
+                onValueChange={(value) => handleSelectChange('status', value)}
               >
                 <SelectTrigger>
                   <SelectValue />
