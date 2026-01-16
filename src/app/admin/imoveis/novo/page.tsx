@@ -153,7 +153,7 @@ export default function NewPropertyPage() {
   } = useForm<PropertyFormData>({
     resolver: zodResolver(propertySchema),
     defaultValues: {
-      status: 'draft',
+      status: 'published',
       business_type: 'sale',
       nature: 'apartment',
       price_on_request: false,
@@ -244,15 +244,15 @@ export default function NewPropertyPage() {
         }
       }
       
-      // Create new draft
-      const tempSlug = `draft-${Date.now()}`;
+      // Create new property (always published)
+      const tempSlug = `novo-imovel-${Date.now()}`;
       const { data: newDraft, error: createError } = await supabase
         .from('properties')
         .insert({
           title: '',
           reference: `REF-${Date.now()}`,
           slug: tempSlug,
-          status: 'draft',
+          status: 'published',
           business_type: 'sale',
           nature: 'apartment',
         })
@@ -828,31 +828,6 @@ export default function NewPropertyPage() {
                   Preço sob consulta
                 </Label>
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Publication Status */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Estado de Publicação</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Select
-                value={watch('status')}
-                onValueChange={(value) => handleSelectChange('status', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(statusLabels).map(([value, label]) => (
-                    <SelectItem key={value} value={value}>{label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground mt-2">
-                Apenas imóveis publicados são visíveis no site.
-              </p>
             </CardContent>
           </Card>
         </div>
