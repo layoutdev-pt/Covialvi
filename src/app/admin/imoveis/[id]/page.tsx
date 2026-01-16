@@ -29,17 +29,12 @@ import {
   Home,
   Euro,
   Ruler,
-  Video,
-  FileText,
-  Layers,
-  TreePine,
-  Settings,
-  Sparkles,
-  Plus,
   X,
   Upload,
   Trash2,
+  Image as ImageIcon,
 } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
 
 const propertySchema = z.object({
   title: z.string().min(1, 'O título é obrigatório'),
@@ -68,22 +63,6 @@ const propertySchema = z.object({
   virtual_tour_url: z.string().optional(),
 });
 
-interface Division {
-  name: string;
-  area: string;
-}
-
-const estadoOptions = [
-  'Em construção',
-  'Em projecto',
-  'Novo',
-  'Por recuperar',
-  'Recuperado',
-  'Renovado',
-  'Usado',
-  'Vendido',
-];
-
 const constructionStatusLabels: Record<string, string> = {
   new: 'Novo',
   used: 'Usado',
@@ -92,91 +71,8 @@ const constructionStatusLabels: Record<string, string> = {
   to_renovate: 'Para Renovar',
 };
 
-const zonaEnvolventeOptions = [
-  'Ampla Oferta de Serviços',
-  'Biblioteca',
-  'Centro Comercial',
-  'Condomínio Fechado',
-  'Escola',
-  'Espaços Verdes',
-  'Estação Ferroviária',
-  'Estação Rodoviária',
-  'Excelentes Acessos',
-  'Hipermercado',
-  'Hospital',
-  'Polícia',
-  'Praça Táxis',
-  'Praia',
-  'Transportes Públicos',
-  'Universidade',
-  'Vista para Cidade',
-  'Vista para Mar',
-  'Vista para Montanha',
-  'Vista para Rio',
-  'Zona Comercial',
-  'Zona Histórica',
-  'Zona Residencial',
-];
-
-const equipamentosOptions = [
-  'Ar Condicionado',
-  'Aquecimento Central',
-  'Aspiração Central',
-  'Bomba de Calor',
-  'Caldeira',
-  'Carregamento Eléctrico de Veículos',
-  'Combinado',
-  'Domótica',
-  'Elevador',
-  'Estores Eléctricos',
-  'Exaustor',
-  'Fogão',
-  'Forno',
-  'Frigorífico',
-  'Gás Canalizado',
-  'Lareira',
-  'Máquina de Lavar Louça',
-  'Máquina de Lavar Roupa',
-  'Máquina de Secar Roupa',
-  'Microondas',
-  'Painéis Solares',
-  'Piso Radiante',
-  'Placa Vitrocerâmica',
-  'Poliban/Base de Duche',
-  'Porta Blindada',
-  'Recuperador de Calor',
-  'Roupeiros',
-  'Termoacumulador',
-  'Vídeo Porteiro',
-  'Vidros Duplos',
-];
-
-const extrasOptions = [
-  'Alarme',
-  'Arrecadação',
-  'Barbecue',
-  'Box',
-  'Churrasqueira',
-  'Despensa',
-  'Garagem',
-  'Jardim',
-  'Lugar de Estacionamento',
-  'Luz Natural',
-  'Piscina',
-  'Quintal',
-  'Sotão',
-  'Suite',
-  'Terraço',
-  'Varanda',
-  'Vista Desafogada',
-];
-
 const energyCertificateOptions = [
-  'A+', 'A', 'B', 'B-', 'C', 'D', 'E', 'F', 'G', 'Isento', 'Em Processo',
-];
-
-const typologyOptions = [
-  'T0', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6+',
+  'A+', 'A', 'B', 'B-', 'C', 'D', 'E', 'F', 'Isento',
 ];
 
 type PropertyFormData = z.infer<typeof propertySchema>;
@@ -251,27 +147,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
   const [existingImages, setExistingImages] = useState<PropertyImage[]>([]);
   const [coverImageId, setCoverImageId] = useState<string | null>(null);
   
-  // Additional state for arrays
-  const [divisions, setDivisions] = useState<Division[]>([]);
-  const [selectedZonaEnvolvente, setSelectedZonaEnvolvente] = useState<string[]>([]);
-  const [selectedEquipamentos, setSelectedEquipamentos] = useState<string[]>([]);
-  const [selectedExtras, setSelectedExtras] = useState<string[]>([]);
-  const [selectedEstado, setSelectedEstado] = useState<string>('');
   
-  // Custom options state
-  const [customZonaEnvolvente, setCustomZonaEnvolvente] = useState<string[]>([]);
-  const [customEquipamentos, setCustomEquipamentos] = useState<string[]>([]);
-  const [customExtras, setCustomExtras] = useState<string[]>([]);
-  const [newZonaInput, setNewZonaInput] = useState('');
-  const [newEquipamentoInput, setNewEquipamentoInput] = useState('');
-  const [newExtraInput, setNewExtraInput] = useState('');
-  
-  // Brochure and Floor Plan state
-  const [brochureUrl, setBrochureUrl] = useState<string | null>(null);
-  const [floorPlanUrl, setFloorPlanUrl] = useState<string | null>(null);
-  const [isUploadingBrochure, setIsUploadingBrochure] = useState(false);
-  const [isUploadingFloorPlan, setIsUploadingFloorPlan] = useState(false);
-
   const {
     register,
     handleSubmit,
@@ -283,11 +159,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
     resolver: zodResolver(propertySchema),
   });
 
-  // Combined options
-  const allZonaEnvolventeOptions = [...zonaEnvolventeOptions, ...customZonaEnvolvente];
-  const allEquipamentosOptions = [...equipamentosOptions, ...customEquipamentos];
-  const allExtrasOptions = [...extrasOptions, ...customExtras];
-
+  
   // Auto-save wrapper for text inputs (onBlur)
   const handleFieldBlur = useCallback((field: string, value: any) => {
     if (value !== undefined && value !== null) {
@@ -364,27 +236,6 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
           if (cover) setCoverImageId(cover.id);
         }
 
-        // Set arrays
-        if (property.surrounding_area) setSelectedZonaEnvolvente(property.surrounding_area);
-        if (property.equipment) setSelectedEquipamentos(property.equipment);
-        if (property.extras) setSelectedExtras(property.extras);
-        if (property.construction_status) setSelectedEstado(property.construction_status);
-        
-        // Load divisions from database
-        if (property.divisions && typeof property.divisions === 'object') {
-          const loadedDivisions = Object.entries(property.divisions).map(([name, area]) => ({
-            name,
-            area: String(area),
-          }));
-          setDivisions(loadedDivisions);
-        }
-        
-        // Load brochure and floor plan URLs
-        if (property.brochure_url) setBrochureUrl(property.brochure_url);
-        if (property.property_floor_plans?.length > 0) {
-          setFloorPlanUrl(property.property_floor_plans[0].url);
-        }
-        
         setIsLoading(false);
       } catch (err) {
         console.error('Error loading property:', err);
@@ -401,77 +252,6 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
       isMounted = false;
     };
   }, [params.id]);
-
-  // Division handlers
-  const addDivision = () => {
-    setDivisions([...divisions, { name: '', area: '' }]);
-  };
-
-  const updateDivision = (index: number, field: 'name' | 'area', value: string) => {
-    const updated = [...divisions];
-    updated[index][field] = value;
-    setDivisions(updated);
-  };
-
-  const saveDivisions = useCallback(() => {
-    saveField('divisions', divisions);
-  }, [divisions, saveField]);
-
-  const removeDivision = (index: number) => {
-    const updated = divisions.filter((_, i) => i !== index);
-    setDivisions(updated);
-    saveField('divisions', updated);
-  };
-
-  // Toggle handlers with auto-save
-  const toggleZonaEnvolvente = (item: string) => {
-    setSelectedZonaEnvolvente(prev => {
-      const updated = prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item];
-      saveField('zona_envolvente', updated);
-      return updated;
-    });
-  };
-
-  const toggleEquipamento = (item: string) => {
-    setSelectedEquipamentos(prev => {
-      const updated = prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item];
-      saveField('equipamentos', updated);
-      return updated;
-    });
-  };
-
-  const toggleExtra = (item: string) => {
-    setSelectedExtras(prev => {
-      const updated = prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item];
-      saveField('extras', updated);
-      return updated;
-    });
-  };
-
-  // Add custom options
-  const addCustomZona = () => {
-    if (newZonaInput.trim() && !customZonaEnvolvente.includes(newZonaInput.trim())) {
-      setCustomZonaEnvolvente(prev => [...prev, newZonaInput.trim()]);
-      setSelectedZonaEnvolvente(prev => [...prev, newZonaInput.trim()]);
-      setNewZonaInput('');
-    }
-  };
-
-  const addCustomEquipamento = () => {
-    if (newEquipamentoInput.trim() && !customEquipamentos.includes(newEquipamentoInput.trim())) {
-      setCustomEquipamentos(prev => [...prev, newEquipamentoInput.trim()]);
-      setSelectedEquipamentos(prev => [...prev, newEquipamentoInput.trim()]);
-      setNewEquipamentoInput('');
-    }
-  };
-
-  const addCustomExtra = () => {
-    if (newExtraInput.trim() && !customExtras.includes(newExtraInput.trim())) {
-      setCustomExtras(prev => [...prev, newExtraInput.trim()]);
-      setSelectedExtras(prev => [...prev, newExtraInput.trim()]);
-      setNewExtraInput('');
-    }
-  };
 
   // Image handlers
   const setCoverImage = async (imageId: string) => {
@@ -562,75 +342,9 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
     e.target.value = '';
   };
 
-  // Brochure upload handler
-  const handleBrochureUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setIsUploadingBrochure(true);
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('type', 'brochure');
-
-      const response = await fetch(`/api/properties/${params.id}/documents`, {
-        method: 'POST',
-        body: formData,
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Erro ao carregar');
-
-      setBrochureUrl(data.url);
-      toast.success('Brochura carregada com sucesso');
-    } catch (err: any) {
-      console.error('Error uploading brochure:', err);
-      toast.error(err.message || 'Erro ao carregar brochura');
-    } finally {
-      setIsUploadingBrochure(false);
-      e.target.value = '';
-    }
-  };
-
-  // Floor plan upload handler
-  const handleFloorPlanUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setIsUploadingFloorPlan(true);
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('type', 'floor_plan');
-
-      const response = await fetch(`/api/properties/${params.id}/documents`, {
-        method: 'POST',
-        body: formData,
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Erro ao carregar');
-
-      setFloorPlanUrl(data.url);
-      toast.success('Planta carregada com sucesso');
-    } catch (err: any) {
-      console.error('Error uploading floor plan:', err);
-      toast.error(err.message || 'Erro ao carregar planta');
-    } finally {
-      setIsUploadingFloorPlan(false);
-      e.target.value = '';
-    }
-  };
-
   const onSubmit = async (data: PropertyFormData) => {
     setIsSaving(true);
     try {
-      // Build divisions data
-      const divisionsData = divisions.filter(d => d.name && d.area).reduce((acc, d) => {
-        acc[d.name] = parseFloat(d.area);
-        return acc;
-      }, {} as Record<string, number>);
-
       const updateData = {
         title: data.title,
         reference: data.reference,
@@ -651,15 +365,9 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
         bathrooms: data.bathrooms ? parseInt(data.bathrooms) : null,
         floors: data.floors ? parseInt(data.floors) : null,
         typology: data.typology || null,
-        construction_status: selectedEstado || data.construction_status || null,
+        construction_status: data.construction_status || null,
         construction_year: data.construction_year ? parseInt(data.construction_year) : null,
         energy_certificate: data.energy_certificate || null,
-        video_url: data.video_url || null,
-        virtual_tour_url: data.virtual_tour_url || null,
-        divisions: Object.keys(divisionsData).length > 0 ? divisionsData : null,
-        surrounding_area: selectedZonaEnvolvente.length > 0 ? selectedZonaEnvolvente : null,
-        equipment: selectedEquipamentos.length > 0 ? selectedEquipamentos : null,
-        extras: selectedExtras.length > 0 ? selectedExtras : null,
       };
 
       const response = await fetch(`/api/properties/${params.id}`, {
@@ -805,35 +513,27 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                 </div>
                 <div className="space-y-2">
                   <Label>Tipologia</Label>
-                  <Select
-                    value={watch('typology') || ''}
-                    onValueChange={(value) => handleSelectChange('typology', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecionar..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {typologyOptions.map((typ) => (
-                        <SelectItem key={typ} value={typ}>{typ}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Input
+                    {...register('typology')}
+                    placeholder="Ex: T3"
+                    onBlur={(e) => handleFieldBlur('typology', e.target.value)}
+                  />
                 </div>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label>Estado da Propriedade</Label>
+                  <Label>Estado do Imóvel</Label>
                   <Select
-                    value={selectedEstado}
-                    onValueChange={(value) => {
-                      setSelectedEstado(value);
-                      saveField('construction_status', value);
-                    }}
+                    value={watch('construction_status') || ''}
+                    onValueChange={(value) => handleSelectChange('construction_status', value)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecionar..." />
                     </SelectTrigger>
                     <SelectContent>
-                      {estadoOptions.map((estado) => (
-                        <SelectItem key={estado} value={estado}>{estado}</SelectItem>
+                      {Object.entries(constructionStatusLabels).map(([value, label]) => (
+                        <SelectItem key={value} value={value}>{label}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -841,12 +541,12 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
               </div>
 
               <div className="space-y-2">
-                <Label>Descrição do Imóvel</Label>
-                <textarea
+                <Label htmlFor="description">Descrição</Label>
+                <Textarea
+                  id="description"
                   {...register('description')}
                   rows={6}
                   placeholder="Descreva o imóvel em detalhe..."
-                  className="w-full px-3 py-2 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring resize-y"
                   onBlur={(e) => handleFieldBlur('description', e.target.value)}
                 />
               </div>
@@ -957,247 +657,6 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
             </CardContent>
           </Card>
 
-          {/* Divisions with Areas */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span className="flex items-center">
-                  <Layers className="mr-2 h-5 w-5" />
-                  Divisões e Áreas
-                </span>
-                <Button type="button" variant="outline" size="sm" onClick={addDivision}>
-                  <Plus className="mr-1 h-4 w-4" />
-                  Adicionar
-                </Button>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {divisions.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-4">
-                  Clique em &ldquo;Adicionar&rdquo; para inserir divisões com as respetivas áreas.
-                </p>
-              ) : (
-                divisions.map((division, index) => (
-                  <div key={index} className="flex gap-3 items-center">
-                    <Input
-                      value={division.name}
-                      onChange={(e) => updateDivision(index, 'name', e.target.value)}
-                      onBlur={saveDivisions}
-                      placeholder="Ex: Quarto, Sala, Cozinha..."
-                      className="flex-1"
-                    />
-                    <div className="flex items-center gap-2">
-                      <Input
-                        value={division.area}
-                        onChange={(e) => updateDivision(index, 'area', e.target.value)}
-                        onBlur={saveDivisions}
-                        placeholder="0"
-                        type="number"
-                        className="w-24"
-                      />
-                      <span className="text-sm text-muted-foreground">m²</span>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeDivision(index)}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Zona Envolvente */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <TreePine className="mr-2 h-5 w-5" />
-                Zona Envolvente
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex flex-wrap gap-2">
-                {allZonaEnvolventeOptions.map((item) => {
-                  const isSelected = selectedZonaEnvolvente.includes(item);
-                  return (
-                    <div key={item} className="relative group">
-                      <button
-                        type="button"
-                        onClick={() => toggleZonaEnvolvente(item)}
-                        className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
-                          isSelected
-                            ? 'bg-yellow-500 text-white border-yellow-500 pr-7'
-                            : 'bg-background border-input hover:border-yellow-300'
-                        }`}
-                      >
-                        {item}
-                      </button>
-                      {isSelected && (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleZonaEnvolvente(item);
-                          }}
-                          className="absolute right-1 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition-colors"
-                          title="Remover"
-                        >
-                          <X className="h-3 w-3 text-white" />
-                        </button>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="flex gap-2">
-                <Input
-                  value={newZonaInput}
-                  onChange={(e) => setNewZonaInput(e.target.value)}
-                  placeholder="Adicionar nova opção..."
-                  className="flex-1"
-                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomZona())}
-                />
-                <Button type="button" variant="outline" onClick={addCustomZona}>
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-              {selectedZonaEnvolvente.length > 0 && (
-                <p className="text-xs text-muted-foreground">
-                  {selectedZonaEnvolvente.length} selecionado(s)
-                </p>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Equipamentos */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Settings className="mr-2 h-5 w-5" />
-                Equipamentos
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex flex-wrap gap-2">
-                {allEquipamentosOptions.map((item) => {
-                  const isSelected = selectedEquipamentos.includes(item);
-                  return (
-                    <div key={item} className="relative group">
-                      <button
-                        type="button"
-                        onClick={() => toggleEquipamento(item)}
-                        className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
-                          isSelected
-                            ? 'bg-yellow-500 text-white border-yellow-500 pr-7'
-                            : 'bg-background border-input hover:border-yellow-300'
-                        }`}
-                      >
-                        {item}
-                      </button>
-                      {isSelected && (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleEquipamento(item);
-                          }}
-                          className="absolute right-1 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition-colors"
-                          title="Remover"
-                        >
-                          <X className="h-3 w-3 text-white" />
-                        </button>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="flex gap-2">
-                <Input
-                  value={newEquipamentoInput}
-                  onChange={(e) => setNewEquipamentoInput(e.target.value)}
-                  placeholder="Adicionar novo equipamento..."
-                  className="flex-1"
-                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomEquipamento())}
-                />
-                <Button type="button" variant="outline" onClick={addCustomEquipamento}>
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-              {selectedEquipamentos.length > 0 && (
-                <p className="text-xs text-muted-foreground">
-                  {selectedEquipamentos.length} selecionado(s)
-                </p>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Extras */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Sparkles className="mr-2 h-5 w-5" />
-                Extras
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex flex-wrap gap-2">
-                {allExtrasOptions.map((item) => {
-                  const isSelected = selectedExtras.includes(item);
-                  return (
-                    <div key={item} className="relative group">
-                      <button
-                        type="button"
-                        onClick={() => toggleExtra(item)}
-                        className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
-                          isSelected
-                            ? 'bg-yellow-500 text-white border-yellow-500 pr-7'
-                            : 'bg-background border-input hover:border-yellow-300'
-                        }`}
-                      >
-                        {item}
-                      </button>
-                      {isSelected && (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleExtra(item);
-                          }}
-                          className="absolute right-1 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition-colors"
-                          title="Remover"
-                        >
-                          <X className="h-3 w-3 text-white" />
-                        </button>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="flex gap-2">
-                <Input
-                  value={newExtraInput}
-                  onChange={(e) => setNewExtraInput(e.target.value)}
-                  placeholder="Adicionar novo extra..."
-                  className="flex-1"
-                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomExtra())}
-                />
-                <Button type="button" variant="outline" onClick={addCustomExtra}>
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-              {selectedExtras.length > 0 && (
-                <p className="text-xs text-muted-foreground">
-                  {selectedExtras.length} selecionado(s)
-                </p>
-              )}
-            </CardContent>
-          </Card>
-
           {/* Property Images */}
           <Card>
             <CardHeader>
@@ -1294,121 +753,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
             </CardContent>
           </Card>
 
-          {/* Brochure & Floor Plan Upload */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <FileText className="mr-2 h-5 w-5" />
-                Documentos
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Brochure Upload */}
-              <div className="space-y-3">
-                <Label>Brochura (PDF)</Label>
-                <div className="border-2 border-dashed border-input rounded-lg p-4 text-center">
-                  <input
-                    type="file"
-                    accept=".pdf"
-                    onChange={handleBrochureUpload}
-                    className="hidden"
-                    id="brochure-upload"
-                    disabled={isUploadingBrochure}
-                  />
-                  <label htmlFor="brochure-upload" className="cursor-pointer">
-                    {isUploadingBrochure ? (
-                      <Loader2 className="h-6 w-6 mx-auto text-yellow-500 animate-spin" />
-                    ) : (
-                      <>
-                        <Upload className="h-6 w-6 mx-auto text-muted-foreground mb-2" />
-                        <p className="text-xs text-muted-foreground">Clique para carregar PDF</p>
-                      </>
-                    )}
-                  </label>
-                </div>
-                {brochureUrl && (
-                  <div className="flex items-center justify-between p-3 bg-secondary rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <FileText className="h-4 w-4 text-yellow-500" />
-                      <span className="text-sm">Brochura carregada</span>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setBrochureUrl(null)}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                )}
-              </div>
-
-              {/* Floor Plan Upload */}
-              <div className="space-y-3">
-                <Label>Planta (PDF/Imagem)</Label>
-                <div className="border-2 border-dashed border-input rounded-lg p-4 text-center">
-                  <input
-                    type="file"
-                    accept=".pdf,image/*"
-                    onChange={handleFloorPlanUpload}
-                    className="hidden"
-                    id="floorplan-upload"
-                    disabled={isUploadingFloorPlan}
-                  />
-                  <label htmlFor="floorplan-upload" className="cursor-pointer">
-                    {isUploadingFloorPlan ? (
-                      <Loader2 className="h-6 w-6 mx-auto text-yellow-500 animate-spin" />
-                    ) : (
-                      <>
-                        <Upload className="h-6 w-6 mx-auto text-muted-foreground mb-2" />
-                        <p className="text-xs text-muted-foreground">Clique para carregar PDF ou imagem</p>
-                      </>
-                    )}
-                  </label>
-                </div>
-                {floorPlanUrl && (
-                  <div className="flex items-center justify-between p-3 bg-secondary rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <Layers className="h-4 w-4 text-yellow-500" />
-                      <span className="text-sm">Planta carregada</span>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setFloorPlanUrl(null)}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Video & Virtual Tour */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Video className="mr-2 h-5 w-5" />
-                Vídeo e Tour Virtual
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label>Link do Vídeo (YouTube, Vimeo, etc.)</Label>
-                <Input {...register('video_url')} placeholder="https://youtube.com/watch?v=..." onBlur={(e) => handleFieldBlur('video_url', e.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <Label>Link do Tour Virtual 360º</Label>
-                <Input {...register('virtual_tour_url')} placeholder="https://..." onBlur={(e) => handleFieldBlur('virtual_tour_url', e.target.value)} />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+          </div>
 
         {/* Sidebar */}
         <div className="space-y-6">
