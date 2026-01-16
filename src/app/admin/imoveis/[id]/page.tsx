@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
@@ -9,6 +9,8 @@ import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useAutoSave } from '@/hooks/use-auto-save';
+import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
 import {
   Select,
   SelectContent,
@@ -225,6 +227,26 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   
+  // Auto-save hook
+  const {
+    status: autoSaveStatus,
+    lastSaved,
+    error: autoSaveError,
+    saveField,
+    saveFields,
+    forceSave,
+  } = useAutoSave({
+    table: 'properties',
+    id: params.id,
+    debounceMs: 800,
+    onSaveSuccess: () => {
+      // Silent success - indicator shows feedback
+    },
+    onSaveError: (error) => {
+      toast.error(`Erro ao guardar: ${error.message}`);
+    },
+  });
+  
   // Images state
   const [existingImages, setExistingImages] = useState<PropertyImage[]>([]);
   const [coverImageId, setCoverImageId] = useState<string | null>(null);
@@ -265,6 +287,30 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
   const allZonaEnvolventeOptions = [...zonaEnvolventeOptions, ...customZonaEnvolvente];
   const allEquipamentosOptions = [...equipamentosOptions, ...customEquipamentos];
   const allExtrasOptions = [...extrasOptions, ...customExtras];
+
+  // Auto-save wrapper for text inputs (onBlur)
+  const handleFieldBlur = useCallback((field: string, value: any) => {
+    if (value !== undefined && value !== null) {
+      // Convert numeric strings to numbers for numeric fields
+      const numericFields = ['price', 'gross_area', 'useful_area', 'land_area', 'bedrooms', 'bathrooms', 'floors', 'construction_year'];
+      if (numericFields.includes(field) && value !== '') {
+        saveField(field, parseFloat(value) || null);
+      } else {
+        saveField(field, value || null);
+      }
+    }
+  }, [saveField]);
+
+  // Auto-save wrapper for select/toggle changes (immediate)
+  const handleSelectChange = useCallback((field: string, value: any) => {
+    setValue(field as any, value);
+    saveField(field, value);
+  }, [setValue, saveField]);
+
+  // Auto-save for array fields (zona envolvente, equipamentos, extras)
+  const handleArrayFieldChange = useCallback((field: string, values: string[]) => {
+    saveField(field, values);
+  }, [saveField]);
 
   // Load property data
   useEffect(() => {
@@ -367,27 +413,39 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
     setDivisions(updated);
   };
 
+  const saveDivisions = useCallback(() => {
+    saveField('divisions', divisions);
+  }, [divisions, saveField]);
+
   const removeDivision = (index: number) => {
-    setDivisions(divisions.filter((_, i) => i !== index));
+    const updated = divisions.filter((_, i) => i !== index);
+    setDivisions(updated);
+    saveField('divisions', updated);
   };
 
-  // Toggle handlers
+  // Toggle handlers with auto-save
   const toggleZonaEnvolvente = (item: string) => {
-    setSelectedZonaEnvolvente(prev => 
-      prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]
-    );
+    setSelectedZonaEnvolvente(prev => {
+      const updated = prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item];
+      saveField('zona_envolvente', updated);
+      return updated;
+    });
   };
 
   const toggleEquipamento = (item: string) => {
-    setSelectedEquipamentos(prev => 
-      prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]
-    );
+    setSelectedEquipamentos(prev => {
+      const updated = prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item];
+      saveField('equipamentos', updated);
+      return updated;
+    });
   };
 
   const toggleExtra = (item: string) => {
-    setSelectedExtras(prev => 
-      prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]
-    );
+    setSelectedExtras(prev => {
+      const updated = prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item];
+      saveField('extras', updated);
+      return updated;
+    });
   };
 
   // Add custom options
@@ -652,6 +710,11 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
           </div>
         </div>
         <div className="flex items-center space-x-3">
+          <AutoSaveIndicator 
+            status={autoSaveStatus} 
+            lastSaved={lastSaved} 
+            error={autoSaveError} 
+          />
           <Button variant="outline" onClick={() => router.push('/admin/imoveis')}>
             Cancelar
           </Button>
@@ -686,6 +749,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                     {...register('title')}
                     placeholder="Ex: Apartamento T3 em Lisboa"
                     className={errors.title ? 'border-destructive' : ''}
+                    onBlur={(e) => handleFieldBlur('title', e.target.value)}
                   />
                   {errors.title && (
                     <p className="text-sm text-destructive">{errors.title.message}</p>
@@ -698,6 +762,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                     {...register('reference')}
                     placeholder="Ex: COV-001"
                     className={errors.reference ? 'border-destructive' : ''}
+                    onBlur={(e) => handleFieldBlur('reference', e.target.value)}
                   />
                   {errors.reference && (
                     <p className="text-sm text-destructive">{errors.reference.message}</p>
@@ -710,7 +775,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                   <Label>Tipo de Negócio *</Label>
                   <Select
                     value={watch('business_type')}
-                    onValueChange={(value) => setValue('business_type', value as any)}
+                    onValueChange={(value) => handleSelectChange('business_type', value)}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -726,7 +791,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                   <Label>Natureza *</Label>
                   <Select
                     value={watch('nature')}
-                    onValueChange={(value) => setValue('nature', value as any)}
+                    onValueChange={(value) => handleSelectChange('nature', value)}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -742,7 +807,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                   <Label>Tipologia</Label>
                   <Select
                     value={watch('typology') || ''}
-                    onValueChange={(value) => setValue('typology', value)}
+                    onValueChange={(value) => handleSelectChange('typology', value)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecionar..." />
@@ -758,7 +823,10 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                   <Label>Estado da Propriedade</Label>
                   <Select
                     value={selectedEstado}
-                    onValueChange={(value) => setSelectedEstado(value)}
+                    onValueChange={(value) => {
+                      setSelectedEstado(value);
+                      saveField('estado', value);
+                    }}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecionar..." />
@@ -779,6 +847,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                   rows={6}
                   placeholder="Descreva o imóvel em detalhe..."
                   className="w-full px-3 py-2 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring resize-y"
+                  onBlur={(e) => handleFieldBlur('description', e.target.value)}
                 />
               </div>
             </CardContent>
@@ -796,20 +865,20 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="space-y-2">
                   <Label>Distrito</Label>
-                  <Input {...register('district')} placeholder="Ex: Castelo Branco" />
+                  <Input {...register('district')} placeholder="Ex: Castelo Branco" onBlur={(e) => handleFieldBlur('district', e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label>Concelho</Label>
-                  <Input {...register('municipality')} placeholder="Ex: Covilhã" />
+                  <Input {...register('municipality')} placeholder="Ex: Covilhã" onBlur={(e) => handleFieldBlur('municipality', e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label>Freguesia</Label>
-                  <Input {...register('parish')} placeholder="Ex: Covilhã e Canhoso" />
+                  <Input {...register('parish')} placeholder="Ex: Covilhã e Canhoso" onBlur={(e) => handleFieldBlur('parish', e.target.value)} />
                 </div>
               </div>
               <div className="space-y-2">
                 <Label>Morada</Label>
-                <Input {...register('address')} placeholder="Rua, número, andar..." />
+                <Input {...register('address')} placeholder="Rua, número, andar..." onBlur={(e) => handleFieldBlur('address', e.target.value)} />
               </div>
             </CardContent>
           </Card>
@@ -826,29 +895,29 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label>Área Bruta (m²)</Label>
-                  <Input {...register('gross_area')} type="number" placeholder="0" />
+                  <Input {...register('gross_area')} type="number" placeholder="0" onBlur={(e) => handleFieldBlur('gross_area', e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label>Área Útil (m²)</Label>
-                  <Input {...register('useful_area')} type="number" placeholder="0" />
+                  <Input {...register('useful_area')} type="number" placeholder="0" onBlur={(e) => handleFieldBlur('useful_area', e.target.value)} />
                 </div>
               </div>
               <div className="grid gap-4 md:grid-cols-4">
                 <div className="space-y-2">
                   <Label>Quartos</Label>
-                  <Input {...register('bedrooms')} type="number" placeholder="0" />
+                  <Input {...register('bedrooms')} type="number" placeholder="0" onBlur={(e) => handleFieldBlur('bedrooms', e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label>Casas de Banho</Label>
-                  <Input {...register('bathrooms')} type="number" placeholder="0" />
+                  <Input {...register('bathrooms')} type="number" placeholder="0" onBlur={(e) => handleFieldBlur('bathrooms', e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label>Piso</Label>
-                  <Input {...register('floors')} type="number" placeholder="0" />
+                  <Input {...register('floors')} type="number" placeholder="0" onBlur={(e) => handleFieldBlur('floors', e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label>Ano Construção</Label>
-                  <Input {...register('construction_year')} type="number" placeholder="2024" />
+                  <Input {...register('construction_year')} type="number" placeholder="2024" onBlur={(e) => handleFieldBlur('construction_year', e.target.value)} />
                 </div>
               </div>
               <div className="grid gap-4 md:grid-cols-2">
@@ -856,7 +925,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                   <Label>Estado de Construção</Label>
                   <Select
                     value={watch('construction_status') || ''}
-                    onValueChange={(value) => setValue('construction_status', value as any)}
+                    onValueChange={(value) => handleSelectChange('construction_status', value)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecionar..." />
@@ -872,7 +941,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                   <Label>Certificado Energético</Label>
                   <Select
                     value={watch('energy_certificate') || ''}
-                    onValueChange={(value) => setValue('energy_certificate', value)}
+                    onValueChange={(value) => handleSelectChange('energy_certificate', value)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecionar..." />
@@ -913,6 +982,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                     <Input
                       value={division.name}
                       onChange={(e) => updateDivision(index, 'name', e.target.value)}
+                      onBlur={saveDivisions}
                       placeholder="Ex: Quarto, Sala, Cozinha..."
                       className="flex-1"
                     />
@@ -920,6 +990,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                       <Input
                         value={division.area}
                         onChange={(e) => updateDivision(index, 'area', e.target.value)}
+                        onBlur={saveDivisions}
                         placeholder="0"
                         type="number"
                         className="w-24"
@@ -1329,11 +1400,11 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label>Link do Vídeo (YouTube, Vimeo, etc.)</Label>
-                <Input {...register('video_url')} placeholder="https://youtube.com/watch?v=..." />
+                <Input {...register('video_url')} placeholder="https://youtube.com/watch?v=..." onBlur={(e) => handleFieldBlur('video_url', e.target.value)} />
               </div>
               <div className="space-y-2">
                 <Label>Link do Tour Virtual 360º</Label>
-                <Input {...register('virtual_tour_url')} placeholder="https://..." />
+                <Input {...register('virtual_tour_url')} placeholder="https://..." onBlur={(e) => handleFieldBlur('virtual_tour_url', e.target.value)} />
               </div>
             </CardContent>
           </Card>
@@ -1357,6 +1428,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                   type="number"
                   placeholder="0"
                   disabled={watch('price_on_request')}
+                  onBlur={(e) => handleFieldBlur('price', e.target.value)}
                 />
               </div>
               <div className="flex items-center space-x-2">
@@ -1365,6 +1437,10 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                   id="price_on_request"
                   {...register('price_on_request')}
                   className="h-4 w-4 rounded border-gray-300"
+                  onChange={(e) => {
+                    setValue('price_on_request', e.target.checked);
+                    saveField('price_on_request', e.target.checked);
+                  }}
                 />
                 <Label htmlFor="price_on_request" className="text-sm font-normal">
                   Preço sob consulta
@@ -1381,7 +1457,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
             <CardContent>
               <Select
                 value={watch('status')}
-                onValueChange={(value) => setValue('status', value as any)}
+                onValueChange={(value) => handleSelectChange('status', value)}
               >
                 <SelectTrigger>
                   <SelectValue />
