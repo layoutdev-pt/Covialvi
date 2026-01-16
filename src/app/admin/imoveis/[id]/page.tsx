@@ -33,6 +33,7 @@ import {
   Upload,
   Trash2,
   Image as ImageIcon,
+  FileText,
 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -147,6 +148,10 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
   const [existingImages, setExistingImages] = useState<PropertyImage[]>([]);
   const [coverImageId, setCoverImageId] = useState<string | null>(null);
   
+  // Floor plan state
+  const [floorPlanUrl, setFloorPlanUrl] = useState<string | null>(null);
+  const [isUploadingFloorPlan, setIsUploadingFloorPlan] = useState(false);
+  
   
   const {
     register,
@@ -234,6 +239,11 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
           setExistingImages(property.property_images);
           const cover = property.property_images.find((img: PropertyImage) => img.is_cover);
           if (cover) setCoverImageId(cover.id);
+        }
+        
+        // Load floor plan URL
+        if (property.property_floor_plans?.length > 0) {
+          setFloorPlanUrl(property.property_floor_plans[0].url);
         }
 
         setIsLoading(false);
@@ -340,6 +350,36 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
     
     // Reset file input
     e.target.value = '';
+  };
+
+  // Floor plan upload handler
+  const handleFloorPlanUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingFloorPlan(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('type', 'floor_plan');
+
+      const response = await fetch(`/api/properties/${params.id}/documents`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Erro ao carregar');
+
+      setFloorPlanUrl(data.url);
+      toast.success('Planta carregada com sucesso');
+    } catch (err: any) {
+      console.error('Error uploading floor plan:', err);
+      toast.error(err.message || 'Erro ao carregar planta');
+    } finally {
+      setIsUploadingFloorPlan(false);
+      e.target.value = '';
+    }
   };
 
   const onSubmit = async (data: PropertyFormData) => {
@@ -749,6 +789,55 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                 <p className="text-xs text-muted-foreground text-center">
                   Nenhuma imagem adicionada. Use o botão acima para carregar fotografias.
                 </p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Floor Plan Upload */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <FileText className="mr-2 h-5 w-5" />
+                Planta do Imóvel
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="border-2 border-dashed border-input rounded-lg p-4 text-center">
+                <input
+                  type="file"
+                  accept=".pdf,image/*"
+                  onChange={handleFloorPlanUpload}
+                  className="hidden"
+                  id="floorplan-upload"
+                  disabled={isUploadingFloorPlan}
+                />
+                <label htmlFor="floorplan-upload" className="cursor-pointer">
+                  {isUploadingFloorPlan ? (
+                    <Loader2 className="h-6 w-6 mx-auto text-yellow-500 animate-spin" />
+                  ) : (
+                    <>
+                      <Upload className="h-6 w-6 mx-auto text-muted-foreground mb-2" />
+                      <p className="text-xs text-muted-foreground">Clique para carregar PDF ou imagem</p>
+                    </>
+                  )}
+                </label>
+              </div>
+              {floorPlanUrl && (
+                <div className="flex items-center justify-between p-3 bg-secondary rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-4 w-4 text-yellow-500" />
+                    <span className="text-sm">Planta carregada</span>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setFloorPlanUrl(null)}
+                    className="text-destructive hover:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               )}
             </CardContent>
           </Card>
