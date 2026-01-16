@@ -156,6 +156,10 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
   const [floorPlanUrl, setFloorPlanUrl] = useState<string | null>(null);
   const [isUploadingFloorPlan, setIsUploadingFloorPlan] = useState(false);
   
+  // Brochure state
+  const [brochureUrl, setBrochureUrl] = useState<string | null>(null);
+  const [isUploadingBrochure, setIsUploadingBrochure] = useState(false);
+  
   
   const {
     register,
@@ -248,6 +252,11 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
         // Load floor plan URL
         if (property.property_floor_plans?.length > 0) {
           setFloorPlanUrl(property.property_floor_plans[0].url);
+        }
+        
+        // Load brochure URL
+        if (property.brochure_url) {
+          setBrochureUrl(property.brochure_url);
         }
 
         setIsLoading(false);
@@ -382,6 +391,36 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
       toast.error(err.message || 'Erro ao carregar planta');
     } finally {
       setIsUploadingFloorPlan(false);
+      e.target.value = '';
+    }
+  };
+
+  // Brochure upload handler
+  const handleBrochureUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingBrochure(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('type', 'brochure');
+
+      const response = await fetch(`/api/properties/${params.id}/documents`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Erro ao carregar');
+
+      setBrochureUrl(data.url);
+      toast.success('Brochura carregada com sucesso');
+    } catch (err: any) {
+      console.error('Error uploading brochure:', err);
+      toast.error(err.message || 'Erro ao carregar brochura');
+    } finally {
+      setIsUploadingBrochure(false);
       e.target.value = '';
     }
   };
@@ -843,6 +882,75 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                   </Button>
                 </div>
               )}
+            </CardContent>
+          </Card>
+
+          {/* Brochure Upload */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <FileText className="mr-2 h-5 w-5" />
+                Brochura
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="border-2 border-dashed border-input rounded-lg p-4 text-center">
+                <input
+                  type="file"
+                  accept=".pdf"
+                  onChange={handleBrochureUpload}
+                  className="hidden"
+                  id="brochure-upload"
+                  disabled={isUploadingBrochure}
+                />
+                <label htmlFor="brochure-upload" className="cursor-pointer">
+                  {isUploadingBrochure ? (
+                    <Loader2 className="h-6 w-6 mx-auto text-yellow-500 animate-spin" />
+                  ) : (
+                    <>
+                      <Upload className="h-6 w-6 mx-auto text-muted-foreground mb-2" />
+                      <p className="text-xs text-muted-foreground">Clique para carregar PDF</p>
+                    </>
+                  )}
+                </label>
+              </div>
+              {brochureUrl && (
+                <div className="flex items-center justify-between p-3 bg-secondary rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-4 w-4 text-yellow-500" />
+                    <span className="text-sm">Brochura carregada</span>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setBrochureUrl(null)}
+                    className="text-destructive hover:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Video Link */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Upload className="mr-2 h-5 w-5" />
+                Vídeo
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>URL do Vídeo (YouTube)</Label>
+                <Input
+                  {...register('video_url')}
+                  placeholder="https://youtube.com/watch?v=..."
+                  onBlur={(e) => handleFieldBlur('video_url', e.target.value)}
+                />
+              </div>
             </CardContent>
           </Card>
 
