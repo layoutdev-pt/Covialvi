@@ -449,14 +449,10 @@ export function PropertiesClient({ properties: initialProperties }: PropertiesCl
                     </p>
 
                     {/* Stats */}
-                    <div className="grid grid-cols-4 gap-4 mt-6 py-4 border-y border-border">
+                    <div className="grid grid-cols-3 gap-4 mt-6 py-4 border-y border-border">
                       <div className="text-center">
                         <p className="text-lg font-bold text-foreground">{selectedProperty.bedrooms || '-'}</p>
                         <p className="text-xs text-muted-foreground">Quartos</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-lg font-bold text-foreground">{selectedProperty.bathrooms || '-'}</p>
-                        <p className="text-xs text-muted-foreground">Casas de Banho</p>
                       </div>
                       <div className="text-center">
                         <p className="text-lg font-bold text-foreground">{selectedProperty.gross_area || '-'}</p>
