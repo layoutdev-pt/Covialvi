@@ -9,6 +9,7 @@ interface UseAutoSaveOptions {
   table: string;
   id: string | null;
   debounceMs?: number;
+  maxRetries?: number;
   onSaveSuccess?: () => void;
   onSaveError?: (error: Error) => void;
 }
@@ -28,7 +29,8 @@ interface UseAutoSaveReturn {
 export function useAutoSave({
   table,
   id,
-  debounceMs = 800,
+  debounceMs = 1500, // Increased default to 1.5 seconds
+  maxRetries = 2,
   onSaveSuccess,
   onSaveError,
 }: UseAutoSaveOptions): UseAutoSaveReturn {
@@ -40,6 +42,7 @@ export function useAutoSave({
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const isSavingRef = useRef<boolean>(false);
   const queuedChangesRef = useRef<Record<string, any>>({});
+  const retryCountRef = useRef<number>(0);
   const supabase = createClient();
 
   // Clean up pending changes that are empty/undefined
@@ -55,8 +58,8 @@ export function useAutoSave({
     return cleaned;
   }, []);
 
-  // Perform the actual save to Supabase with race condition prevention
-  const performSave = useCallback(async (changes: Record<string, any>) => {
+  // Perform the actual save to Supabase with race condition prevention and retry
+  const performSave = useCallback(async (changes: Record<string, any>, isRetry = false) => {
     if (!id || Object.keys(changes).length === 0) {
       return;
     }
@@ -67,7 +70,7 @@ export function useAutoSave({
     }
 
     // If already saving, queue the changes for later
-    if (isSavingRef.current) {
+    if (isSavingRef.current && !isRetry) {
       queuedChangesRef.current = { ...queuedChangesRef.current, ...cleanedChanges };
       return;
     }
@@ -89,6 +92,8 @@ export function useAutoSave({
         throw new Error(updateError.message);
       }
 
+      // Success - reset retry count
+      retryCountRef.current = 0;
       setStatus('saved');
       setLastSaved(new Date());
       setPendingChanges({});
@@ -100,20 +105,37 @@ export function useAutoSave({
       }, 3000);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao guardar';
+      
+      // Retry logic for network errors
+      if (retryCountRef.current < maxRetries) {
+        retryCountRef.current++;
+        console.log(`[AutoSave] Retry ${retryCountRef.current}/${maxRetries}...`);
+        
+        // Wait 1 second before retry
+        setTimeout(() => {
+          performSave(cleanedChanges, true);
+        }, 1000);
+        return;
+      }
+      
+      // Max retries exceeded
+      retryCountRef.current = 0;
       setStatus('error');
       setError(errorMessage);
       onSaveError?.(err instanceof Error ? err : new Error(errorMessage));
     } finally {
-      isSavingRef.current = false;
+      if (!isRetry || retryCountRef.current === 0) {
+        isSavingRef.current = false;
+      }
       
-      // Process queued changes if any
-      if (Object.keys(queuedChangesRef.current).length > 0) {
+      // Process queued changes if any (only after all retries done)
+      if (!isRetry && Object.keys(queuedChangesRef.current).length > 0) {
         const queuedChanges = { ...queuedChangesRef.current };
         queuedChangesRef.current = {};
         performSave(queuedChanges);
       }
     }
-  }, [id, table, supabase, cleanChanges, onSaveSuccess, onSaveError]);
+  }, [id, table, supabase, cleanChanges, maxRetries, onSaveSuccess, onSaveError]);
 
   // Debounced save
   const debouncedSave = useCallback((changes: Record<string, any>) => {
