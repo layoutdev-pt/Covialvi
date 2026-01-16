@@ -451,6 +451,8 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
         construction_status: data.construction_status || null,
         construction_year: data.construction_year ? parseInt(data.construction_year) : null,
         energy_certificate: data.energy_certificate || null,
+        video_url: data.video_url || null,
+        virtual_tour_url: data.virtual_tour_url || null,
       };
 
       const response = await fetch(`/api/properties/${params.id}`, {
