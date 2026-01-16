@@ -115,7 +115,7 @@ export function useAutoSave({
       if (!isMountedRef.current) return;
       
       // Ignore AbortError (happens when request is cancelled due to unmount)
-      if (err instanceof Error && err.name === 'AbortError') {
+      if (err instanceof Error && (err.name === 'AbortError' || err.message.includes('aborted'))) {
         console.log('[AutoSave] Request aborted, ignoring');
         isSavingRef.current = false;
         return;

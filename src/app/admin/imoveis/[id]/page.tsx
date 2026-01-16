@@ -140,6 +140,10 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
       // Silent success - indicator shows feedback
     },
     onSaveError: (error) => {
+      // Ignore AbortError (happens on navigation/unmount)
+      if (error.name === 'AbortError' || error.message.includes('aborted')) {
+        return;
+      }
       toast.error(`Erro ao guardar: ${error.message}`);
     },
   });
