@@ -50,6 +50,7 @@ const propertySchema = z.object({
   municipality: z.string().optional(),
   parish: z.string().optional(),
   address: z.string().optional(),
+  postal_code: z.string().optional(),
   gross_area: z.string().optional(),
   useful_area: z.string().optional(),
   land_area: z.string().optional(),
@@ -228,6 +229,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
           municipality: property.municipality || '',
           parish: property.parish || '',
           address: property.address || '',
+          postal_code: property.postal_code || '',
           gross_area: property.gross_area?.toString() || '',
           useful_area: property.useful_area?.toString() || '',
           land_area: property.land_area?.toString() || '',
@@ -441,6 +443,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
         municipality: data.municipality || null,
         parish: data.parish || null,
         address: data.address || null,
+        postal_code: data.postal_code || null,
         gross_area: data.gross_area ? parseFloat(data.gross_area) : null,
         useful_area: data.useful_area ? parseFloat(data.useful_area) : null,
         land_area: data.land_area ? parseFloat(data.land_area) : null,
@@ -661,9 +664,15 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                   <Input {...register('parish')} placeholder="Ex: Covilhã e Canhoso" onBlur={(e) => handleFieldBlur('parish', e.target.value)} />
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label>Morada</Label>
-                <Input {...register('address')} placeholder="Rua, número, andar..." onBlur={(e) => handleFieldBlur('address', e.target.value)} />
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Morada</Label>
+                  <Input {...register('address')} placeholder="Rua, número, andar..." onBlur={(e) => handleFieldBlur('address', e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Código Postal</Label>
+                  <Input {...register('postal_code')} placeholder="0000-000" onBlur={(e) => handleFieldBlur('postal_code', e.target.value)} />
+                </div>
               </div>
             </CardContent>
           </Card>
