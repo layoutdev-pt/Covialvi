@@ -825,7 +825,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                     value={selectedEstado}
                     onValueChange={(value) => {
                       setSelectedEstado(value);
-                      saveField('estado', value);
+                      saveField('construction_status', value);
                     }}
                   >
                     <SelectTrigger>

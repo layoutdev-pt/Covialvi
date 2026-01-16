@@ -191,6 +191,15 @@ export default async function PropertyDetailPage({ params }: PageProps) {
     under_construction: 'Em Construção',
     to_recover: 'Para Recuperar',
     renovated: 'Renovado',
+    // Portuguese values from admin estadoOptions
+    'Em construção': 'Em Construção',
+    'Em projecto': 'Em Projecto',
+    'Novo': 'Novo',
+    'Por recuperar': 'Por Recuperar',
+    'Recuperado': 'Recuperado',
+    'Renovado': 'Renovado',
+    'Usado': 'Usado',
+    'Vendido': 'Vendido',
   };
 
   return (
