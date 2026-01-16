@@ -39,7 +39,12 @@ import {
   StaggerContainer,
   StaggerItem
 } from '@/components/ui/motion';
+import dynamic from 'next/dynamic';
 import { motion, useScroll, useTransform, useInView, useSpring } from 'framer-motion';
+
+const WhatsAppButton = dynamic(() => import('@/components/ui/whatsapp-button').then(mod => mod.WhatsAppButton), {
+  ssr: false,
+});
 
 interface HomeClientProps {
   properties: any[];
@@ -196,11 +201,15 @@ export function HomeClient({ properties, stats, heroProperty }: HomeClientProps)
             transition={{ duration: 1.2, ease: [0.4, 0, 0.2, 1] }}
           >
             <Image
-              src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2075"
+              src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=1200&auto=format"
               alt="Moradia moderna de luxo"
               fill
               className="object-cover"
               priority
+              sizes="100vw"
+              quality={75}
+              placeholder="blur"
+              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH/8QAIhAAAgEDAwUBAAAAAAAAAAAAAQIDAAQRBRIhBhMiMUFR/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAZEQACAwEAAAAAAAAAAAAAAAABAgADESH/2gAMAwEAAhEDEQA/ANJ0rqG+1C3uJLmztYGjlMaLFKzggAHJyB7z+VKlVLKlYBmJxP/Z"
             />
           </motion.div>
           <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
