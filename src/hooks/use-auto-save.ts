@@ -125,21 +125,31 @@ export function useAutoSave({
     });
   }, [debouncedSave]);
 
+  // Use ref to track pending changes for beforeunload without causing re-renders
+  const pendingChangesRef = useRef<Record<string, any>>({});
+  
+  // Keep ref in sync with state
+  useEffect(() => {
+    pendingChangesRef.current = pendingChanges;
+  }, [pendingChanges]);
+
   // Force immediate save (for manual save button or before navigation)
   const forceSave = useCallback(async () => {
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current);
       debounceTimerRef.current = null;
     }
-    await performSave(pendingChanges);
-  }, [performSave, pendingChanges]);
+    const currentChanges = pendingChangesRef.current;
+    if (Object.keys(currentChanges).length > 0) {
+      await performSave(currentChanges);
+    }
+  }, [performSave]);
 
-  // Save on page unload/navigation
+  // Save on page unload/navigation - only set up once
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (Object.keys(pendingChanges).length > 0) {
-        // Attempt to save synchronously (may not complete)
-        forceSave();
+      const changes = pendingChangesRef.current;
+      if (Object.keys(changes).length > 0) {
         e.preventDefault();
         e.returnValue = '';
       }
@@ -153,7 +163,7 @@ export function useAutoSave({
         clearTimeout(debounceTimerRef.current);
       }
     };
-  }, [pendingChanges, forceSave]);
+  }, []);
 
   return {
     status,
