@@ -43,7 +43,9 @@ export function useAutoSave({
   const isSavingRef = useRef<boolean>(false);
   const queuedChangesRef = useRef<Record<string, any>>({});
   const retryCountRef = useRef<number>(0);
-  const supabase = createClient();
+  const isMountedRef = useRef<boolean>(true);
+  const supabaseRef = useRef(createClient());
+  const supabase = supabaseRef.current;
 
   // Clean up pending changes that are empty/undefined
   const cleanChanges = useCallback((changes: Record<string, any>) => {
@@ -88,6 +90,9 @@ export function useAutoSave({
         })
         .eq('id', id);
 
+      // Check if component is still mounted
+      if (!isMountedRef.current) return;
+
       if (updateError) {
         throw new Error(updateError.message);
       }
@@ -101,9 +106,21 @@ export function useAutoSave({
 
       // Reset to idle after 3 seconds
       setTimeout(() => {
-        setStatus((current) => (current === 'saved' ? 'idle' : current));
+        if (isMountedRef.current) {
+          setStatus((current) => (current === 'saved' ? 'idle' : current));
+        }
       }, 3000);
     } catch (err) {
+      // Check if component is still mounted
+      if (!isMountedRef.current) return;
+      
+      // Ignore AbortError (happens when request is cancelled due to unmount)
+      if (err instanceof Error && err.name === 'AbortError') {
+        console.log('[AutoSave] Request aborted, ignoring');
+        isSavingRef.current = false;
+        return;
+      }
+      
       const errorMessage = err instanceof Error ? err.message : 'Erro ao guardar';
       
       // Retry logic for network errors
@@ -113,7 +130,9 @@ export function useAutoSave({
         
         // Wait 1 second before retry
         setTimeout(() => {
-          performSave(cleanedChanges, true);
+          if (isMountedRef.current) {
+            performSave(cleanedChanges, true);
+          }
         }, 1000);
         return;
       }
@@ -129,7 +148,7 @@ export function useAutoSave({
       }
       
       // Process queued changes if any (only after all retries done)
-      if (!isRetry && Object.keys(queuedChangesRef.current).length > 0) {
+      if (!isRetry && isMountedRef.current && Object.keys(queuedChangesRef.current).length > 0) {
         const queuedChanges = { ...queuedChangesRef.current };
         queuedChangesRef.current = {};
         performSave(queuedChanges);
@@ -199,6 +218,8 @@ export function useAutoSave({
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
+      // Mark as unmounted to prevent state updates
+      isMountedRef.current = false;
       // Clean up timer on unmount
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);
