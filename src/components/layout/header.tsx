@@ -256,11 +256,9 @@ export function Header() {
       </nav>
 
       {/* Filter Bar Dropdown */}
+      {showFilters && (
       <div
-        className={cn(
-          'absolute left-0 right-0 top-20 bg-background border-b border-border shadow-lg transition-all duration-300 overflow-hidden',
-          showFilters ? 'max-h-32 opacity-100 z-40' : 'max-h-0 opacity-0 pointer-events-none z-[-1]'
-        )}
+        className="absolute left-0 right-0 top-20 bg-background border-b border-border shadow-lg transition-all duration-300 overflow-hidden max-h-32 opacity-100 z-40"
       >
         <div className="max-w-5xl mx-auto px-6 md:px-12 lg:px-20 py-4">
           <div className="flex flex-wrap md:flex-nowrap items-center gap-4">
@@ -306,6 +304,7 @@ export function Header() {
           </div>
         </div>
       </div>
+      )}
 
       {/* Mobile Menu */}
       <div
