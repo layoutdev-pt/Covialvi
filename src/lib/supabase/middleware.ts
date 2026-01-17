@@ -72,7 +72,13 @@ export async function updateSession(request: NextRequest) {
   const isAccountRoute = request.nextUrl.pathname.startsWith('/conta');
   const isAuthRoute = request.nextUrl.pathname.startsWith('/auth');
 
+  // Skip admin login page from admin route protection
+  if (isAdminRoute && request.nextUrl.pathname === '/admin/login') {
+    return response;
+  }
+
   if (!user && (isAdminRoute || isAccountRoute)) {
+    console.log('[Middleware] No user, redirecting to /auth/login');
     const redirectUrl = new URL('/auth/login', request.url);
     redirectUrl.searchParams.set('redirect', request.nextUrl.pathname);
     return NextResponse.redirect(redirectUrl);
@@ -84,13 +90,20 @@ export async function updateSession(request: NextRequest) {
 
   // Check admin role for admin routes
   if (user && isAdminRoute) {
-    const { data: profile } = await supabase
+    const { data: profile, error } = await supabase
       .from('profiles')
       .select('role')
       .eq('id', user.id)
-      .single() as { data: { role: string } | null };
+      .single() as { data: { role: string } | null; error: any };
+
+    console.log('[Middleware] Admin route check:', { 
+      userId: user.id, 
+      profile: profile?.role,
+      error: error?.message 
+    });
 
     if (!profile || (profile.role !== 'admin' && profile.role !== 'super_admin')) {
+      console.log('[Middleware] Not admin, redirecting to /');
       return NextResponse.redirect(new URL('/', request.url));
     }
   }
