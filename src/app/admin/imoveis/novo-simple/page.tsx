@@ -46,7 +46,7 @@ const propertySchema = z.object({
   description: z.string().optional(),
   business_type: z.enum(['sale', 'rent', 'transfer']),
   nature: z.enum(['apartment', 'house', 'land', 'commercial', 'warehouse', 'office', 'garage', 'shop']),
-  status: z.enum(['draft', 'published', 'archived']).default('draft'),
+  status: z.enum(['draft', 'published', 'archived']).default('published'),
   price: z.string().optional(),
   price_on_request: z.boolean().default(false),
   district: z.string().optional(),
@@ -265,7 +265,7 @@ export default function SimpleNewPropertyPage() {
   } = useForm<PropertyFormData>({
     resolver: zodResolver(propertySchema),
     defaultValues: {
-      status: 'draft',
+      status: 'published',
       business_type: 'sale',
       nature: 'apartment',
       price_on_request: false,
@@ -1278,31 +1278,6 @@ export default function SimpleNewPropertyPage() {
                   Preço sob consulta
                 </Label>
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Status */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Estado de Publicação</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Select
-                defaultValue="draft"
-                onValueChange={(value) => setValue('status', value as any)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(statusLabels).map(([value, label]) => (
-                    <SelectItem key={value} value={value}>{label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground mt-2">
-                Apenas imóveis publicados são visíveis no site.
-              </p>
             </CardContent>
           </Card>
         </div>
