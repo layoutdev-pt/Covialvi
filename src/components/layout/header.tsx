@@ -207,7 +207,7 @@ export function Header() {
                   >
                     Favoritos
                   </Link>
-                  {(isAdmin || profile?.role === 'admin' || profile?.role === 'super_admin') && (
+                  {isAdmin && (
                     <Link
                       href="/admin"
                       className="block px-4 py-2.5 text-sm text-foreground hover:bg-secondary"
@@ -446,7 +446,7 @@ export function Header() {
               >
                 Favoritos
               </Link>
-              {(isAdmin || profile?.role === 'admin' || profile?.role === 'super_admin') && (
+              {isAdmin && (
                 <Link
                   href="/admin"
                   className="block text-lg font-medium text-foreground"
