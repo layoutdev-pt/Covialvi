@@ -332,15 +332,23 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                 </a>
                 
                 {/* Brochura */}
-                <a
-                  href={`/api/properties/${property.id}/pdf`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-border bg-background hover:bg-secondary transition-colors text-sm font-medium text-foreground"
-                >
-                  <FileText className="h-4 w-4" />
-                  Brochura
-                </a>
+                {property.brochure_url ? (
+                  <a
+                    href={property.brochure_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    download
+                    className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-border bg-background hover:bg-secondary transition-colors text-sm font-medium text-foreground"
+                  >
+                    <FileText className="h-4 w-4" />
+                    Brochura
+                  </a>
+                ) : (
+                  <span className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-border bg-background text-sm font-medium text-muted-foreground cursor-not-allowed opacity-50">
+                    <FileText className="h-4 w-4" />
+                    Brochura
+                  </span>
+                )}
                 
                 {/* Planta */}
                 {property.property_floor_plans?.length > 0 ? (
@@ -366,8 +374,18 @@ export default async function PropertyDetailPage({ params }: PageProps) {
             {/* Zona Envolvente */}
             <div className="pt-8 border-t border-border">
               <h2 className="text-xl font-bold text-foreground mb-4">Zona Envolvente</h2>
-              <p className="text-muted-foreground mb-4">{property.parish || property.municipality || 'Portugal'}</p>
-              {/* Map placeholder */}
+              {property.surrounding_area && property.surrounding_area.length > 0 ? (
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {property.surrounding_area.map((item: string) => (
+                    <span key={item} className="px-3 py-1.5 rounded-full text-sm bg-yellow-500/10 text-yellow-600 border border-yellow-500/20">
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-muted-foreground mb-4">{property.parish || property.municipality || 'Portugal'}</p>
+              )}
+              {/* Map */}
               <div className="aspect-video rounded-2xl overflow-hidden bg-gray-100">
                 <iframe
                   src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(

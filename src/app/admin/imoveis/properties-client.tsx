@@ -62,6 +62,8 @@ interface Property {
   bathrooms: number | null;
   gross_area: number | null;
   construction_year: number | null;
+  typology: string | null;
+  energy_certificate: string | null;
   property_images: Array<{ id: string; url: string; is_cover: boolean; order: number }> | null;
 }
 
@@ -449,22 +451,18 @@ export function PropertiesClient({ properties: initialProperties }: PropertiesCl
                     </p>
 
                     {/* Stats */}
-                    <div className="grid grid-cols-4 gap-4 mt-6 py-4 border-y border-border">
+                    <div className="grid grid-cols-3 gap-4 mt-6 py-4 border-y border-border">
                       <div className="text-center">
-                        <p className="text-lg font-bold text-foreground">{selectedProperty.bedrooms || '-'}</p>
-                        <p className="text-xs text-muted-foreground">Quartos</p>
+                        <p className="text-lg font-bold text-foreground">{selectedProperty.typology || '-'}</p>
+                        <p className="text-xs text-muted-foreground">Tipologia</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-lg font-bold text-foreground">{selectedProperty.bathrooms || '-'}</p>
-                        <p className="text-xs text-muted-foreground">Casas de Banho</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-lg font-bold text-foreground">{selectedProperty.gross_area || '-'}</p>
+                        <p className="text-lg font-bold text-foreground">{selectedProperty.gross_area ? `${selectedProperty.gross_area}` : '-'}</p>
                         <p className="text-xs text-muted-foreground">Área (m²)</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-lg font-bold text-foreground">{selectedProperty.construction_year || '-'}</p>
-                        <p className="text-xs text-muted-foreground">Ano</p>
+                        <p className="text-lg font-bold text-foreground">{selectedProperty.energy_certificate || '-'}</p>
+                        <p className="text-xs text-muted-foreground">Energia</p>
                       </div>
                     </div>
 

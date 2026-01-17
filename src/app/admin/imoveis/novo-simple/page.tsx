@@ -523,6 +523,58 @@ export default function SimpleNewPropertyPage() {
       }
 
       console.log('Property saved:', result);
+      
+      // Upload images
+      const propertyId = result.id;
+      for (let i = 0; i < propertyImages.length; i++) {
+        const file = propertyImages[i];
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('is_cover', (i === coverImageIndex).toString());
+        formData.append('order', i.toString());
+
+        const uploadRes = await fetch(`/api/properties/${propertyId}/upload`, {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!uploadRes.ok) {
+          console.error('Image upload failed:', await uploadRes.text());
+        }
+      }
+
+      // Upload brochures
+      for (const file of brochureFiles) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('type', 'brochure');
+
+        const uploadRes = await fetch(`/api/properties/${propertyId}/documents`, {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!uploadRes.ok) {
+          console.error('Brochure upload failed:', await uploadRes.text());
+        }
+      }
+
+      // Upload floor plans
+      for (const file of floorPlanFiles) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('type', 'floor_plan');
+
+        const uploadRes = await fetch(`/api/properties/${propertyId}/documents`, {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!uploadRes.ok) {
+          console.error('Floor plan upload failed:', await uploadRes.text());
+        }
+      }
+
       toast.success('Imóvel criado com sucesso!');
       router.push('/admin/imoveis');
     } catch (error: any) {

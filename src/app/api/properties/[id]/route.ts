@@ -33,12 +33,13 @@ export async function GET(
       );
     }
 
-    // Fetch property with images using service client
+    // Fetch property with images and floor plans using service client
     const { data: property, error } = await serviceClient
       .from('properties')
       .select(`
         *,
-        property_images (*)
+        property_images (*),
+        property_floor_plans (*)
       `)
       .eq('id', params.id)
       .single();
