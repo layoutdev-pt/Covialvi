@@ -9,6 +9,8 @@ import {
 /**
  * PATCH - Update a calendar event when visit is modified
  */
+export const dynamic = 'force-dynamic';
+
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json();
