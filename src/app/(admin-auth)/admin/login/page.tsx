@@ -25,13 +25,11 @@ function AdminLoginForm() {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', user.id)
-          .single();
+        // Check role from JWT (consistent with middleware)
+        const role = user.app_metadata?.role || user.user_metadata?.role || 'user';
+        const isAdmin = role === 'admin' || role === 'super_admin';
         
-        if (profile?.role === 'admin' || profile?.role === 'super_admin') {
+        if (isAdmin) {
           window.location.href = '/admin';
           return;
         }
@@ -76,14 +74,11 @@ function AdminLoginForm() {
         return;
       }
 
-      // Check if user is admin
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', data.user.id)
-        .single();
+      // Check if user is admin from JWT
+      const role = data.user.app_metadata?.role || data.user.user_metadata?.role || 'user';
+      const isAdmin = role === 'admin' || role === 'super_admin';
 
-      if (!profile || (profile.role !== 'admin' && profile.role !== 'super_admin')) {
+      if (!isAdmin) {
         await supabase.auth.signOut();
         setError('Esta conta não tem permissões de administrador.');
         setIsLoading(false);
