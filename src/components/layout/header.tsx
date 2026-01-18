@@ -196,22 +196,34 @@ export function Header() {
                   <Link
                     href="/conta"
                     className="block px-4 py-2.5 text-sm text-foreground hover:bg-secondary"
-                    onClick={() => setUserMenuOpen(false)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setUserMenuOpen(false);
+                      router.push('/conta');
+                    }}
                   >
                     Minha Conta
                   </Link>
                   <Link
                     href="/conta/favoritos"
                     className="block px-4 py-2.5 text-sm text-foreground hover:bg-secondary"
-                    onClick={() => setUserMenuOpen(false)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setUserMenuOpen(false);
+                      router.push('/conta/favoritos');
+                    }}
                   >
                     Favoritos
                   </Link>
-                  {(isAdmin || profile?.role === 'admin' || profile?.role === 'super_admin') && (
+                  {isAdmin && (
                     <Link
                       href="/admin"
                       className="block px-4 py-2.5 text-sm text-foreground hover:bg-secondary"
-                      onClick={() => setUserMenuOpen(false)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setUserMenuOpen(false);
+                        router.push('/admin');
+                      }}
                     >
                       Painel Admin
                     </Link>
@@ -445,7 +457,7 @@ export function Header() {
               >
                 Favoritos
               </Link>
-              {(isAdmin || profile?.role === 'admin' || profile?.role === 'super_admin') && (
+              {isAdmin && (
                 <Link
                   href="/admin"
                   className="block text-lg font-medium text-foreground"

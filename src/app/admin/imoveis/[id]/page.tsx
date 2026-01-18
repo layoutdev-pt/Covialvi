@@ -29,6 +29,14 @@ import {
   Home,
   Euro,
   Ruler,
+  Video,
+  FileText,
+  Layers,
+  TreePine,
+  Settings,
+  Sparkles,
+  Zap,
+  Plus,
   X,
   Upload,
   Trash2,
@@ -43,7 +51,7 @@ const propertySchema = z.object({
   description: z.string().optional(),
   business_type: z.enum(['sale', 'rent', 'transfer']),
   nature: z.enum(['apartment', 'house', 'land', 'commercial', 'warehouse', 'office', 'garage', 'shop']),
-  status: z.enum(['draft', 'published', 'archived']).default('draft'),
+  status: z.enum(['draft', 'published', 'archived']).default('published'),
   price: z.string().optional(),
   price_on_request: z.boolean().default(false),
   district: z.string().optional(),
@@ -65,16 +73,119 @@ const propertySchema = z.object({
   virtual_tour_url: z.string().optional(),
 });
 
-const constructionStatusLabels: Record<string, string> = {
-  new: 'Novo',
-  used: 'Usado',
-  under_construction: 'Em Construção',
-  renovated: 'Renovado',
-  to_renovate: 'Para Renovar',
-};
+// Division type for rooms with areas
+interface Division {
+  name: string;
+  area: string;
+}
 
+// Estado (Property State) options
+const estadoOptions = [
+  'Em construção',
+  'Em projecto',
+  'Novo',
+  'Por recuperar',
+  'Recuperado',
+  'Renovado',
+  'Usado',
+  'Vendido',
+];
+
+// Zona Envolvente options
+const zonaEnvolventeOptions = [
+  'Ampla Oferta de Serviços',
+  'Biblioteca',
+  'Centro Comercial',
+  'Condomínio Fechado',
+  'Escola',
+  'Espaços Verdes',
+  'Estação Ferroviária',
+  'Estação Rodoviária',
+  'Excelentes Acessos',
+  'Hipermercado',
+  'Hospital',
+  'Polícia',
+  'Praça Táxis',
+  'Praia',
+  'Transportes Públicos',
+  'Universidade',
+  'Vista para Cidade',
+  'Vista para Mar',
+  'Vista para Montanha',
+  'Vista para Rio',
+  'Zona Comercial',
+  'Zona Histórica',
+  'Zona Residencial',
+];
+
+// Equipamentos options
+const equipamentosOptions = [
+  'Ar Condicionado',
+  'Aquecimento Central',
+  'Aspiração Central',
+  'Bomba de Calor',
+  'Caldeira',
+  'Carregamento Eléctrico de Veículos',
+  'Combinado',
+  'Domótica',
+  'Elevador',
+  'Estores Eléctricos',
+  'Exaustor',
+  'Fogão',
+  'Forno',
+  'Frigorífico',
+  'Gás Canalizado',
+  'Lareira',
+  'Máquina de Lavar Louça',
+  'Máquina de Lavar Roupa',
+  'Máquina de Secar Roupa',
+  'Microondas',
+  'Painéis Solares',
+  'Piso Radiante',
+  'Placa Vitrocerâmica',
+  'Poliban/Base de Duche',
+  'Porta Blindada',
+  'Recuperador de Calor',
+  'Roupeiros',
+  'Termoacumulador',
+  'Vídeo Porteiro',
+  'Vidros Duplos',
+];
+
+// Extras options
+const extrasOptions = [
+  'Alarme',
+  'Arrecadação',
+  'Barbecue',
+  'Box',
+  'Churrasqueira',
+  'Despensa',
+  'Garagem',
+  'Jardim',
+  'Lugar de Estacionamento',
+  'Luz Natural',
+  'Piscina',
+  'Quintal',
+  'Sotão',
+  'Suite',
+  'Terraço',
+  'Varanda',
+  'Vista Desafogada',
+];
+
+// Energy certificate options
 const energyCertificateOptions = [
-  'A+', 'A', 'B', 'B-', 'C', 'D', 'E', 'F', 'Isento',
+  'A+',
+  'A',
+  'B',
+  'B-',
+  'C',
+  'D',
+  'E',
+  'F',
+  'G',
+  'Isento',
+  'Em Processo',
 ];
 
 type PropertyFormData = z.infer<typeof propertySchema>;
@@ -113,55 +224,49 @@ const statusLabels: Record<string, string> = {
   archived: 'Arquivado',
 };
 
-interface PropertyImage {
-  id: string;
-  url: string;
-  is_cover: boolean;
-  order: number;
+function generateSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
 }
 
 export default function EditPropertyPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [property, setProperty] = useState<any>(null);
+  const [existingImages, setExistingImages] = useState<any[]>([]);
   
-  // Auto-save hook
-  const {
-    status: autoSaveStatus,
-    lastSaved,
-    error: autoSaveError,
-    saveField,
-    saveFields,
-    forceSave,
-  } = useAutoSave({
-    table: 'properties',
-    id: params.id,
-    debounceMs: 800,
-    onSaveSuccess: () => {
-      // Silent success - indicator shows feedback
-    },
-    onSaveError: (error) => {
-      // Ignore AbortError (happens on navigation/unmount)
-      if (error.name === 'AbortError' || error.message.includes('aborted')) {
-        return;
-      }
-      toast.error(`Erro ao guardar: ${error.message}`);
-    },
-  });
+  // Additional state for arrays and files
+  const [divisions, setDivisions] = useState<Division[]>([]);
+  const [selectedZonaEnvolvente, setSelectedZonaEnvolvente] = useState<string[]>([]);
+  const [selectedEquipamentos, setSelectedEquipamentos] = useState<string[]>([]);
+  const [selectedExtras, setSelectedExtras] = useState<string[]>([]);
+  const [selectedEstado, setSelectedEstado] = useState<string[]>([]);
+  const [brochureFiles, setBrochureFiles] = useState<File[]>([]);
+  const [floorPlanFiles, setFloorPlanFiles] = useState<File[]>([]);
+  const [propertyImages, setPropertyImages] = useState<File[]>([]);
+  const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
+  const [coverImageIndex, setCoverImageIndex] = useState<number>(0);
+  const [existingBrochure, setExistingBrochure] = useState<string | null>(null);
+  const [existingFloorPlans, setExistingFloorPlans] = useState<any[]>([]);
   
-  // Images state
-  const [existingImages, setExistingImages] = useState<PropertyImage[]>([]);
-  const [coverImageId, setCoverImageId] = useState<string | null>(null);
+  // Custom options state
+  const [customZonaEnvolvente, setCustomZonaEnvolvente] = useState<string[]>([]);
+  const [customEquipamentos, setCustomEquipamentos] = useState<string[]>([]);
+  const [customExtras, setCustomExtras] = useState<string[]>([]);
+  const [newZonaInput, setNewZonaInput] = useState('');
+  const [newEquipamentoInput, setNewEquipamentoInput] = useState('');
+  const [newExtraInput, setNewExtraInput] = useState('');
   
-  // Floor plan state
-  const [floorPlanUrl, setFloorPlanUrl] = useState<string | null>(null);
-  const [isUploadingFloorPlan, setIsUploadingFloorPlan] = useState(false);
-  
-  // Brochure state
-  const [brochureUrl, setBrochureUrl] = useState<string | null>(null);
-  const [isUploadingBrochure, setIsUploadingBrochure] = useState(false);
-  
-  
+  // Deleted default options (to hide them from the list)
+  const [deletedZonaEnvolvente, setDeletedZonaEnvolvente] = useState<string[]>([]);
+  const [deletedEquipamentos, setDeletedEquipamentos] = useState<string[]>([]);
+  const [deletedExtras, setDeletedExtras] = useState<string[]>([]);
+
   const {
     register,
     handleSubmit,
@@ -171,89 +276,85 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
     formState: { errors },
   } = useForm<PropertyFormData>({
     resolver: zodResolver(propertySchema),
+    defaultValues: {
+      status: 'published',
+      business_type: 'sale',
+      nature: 'apartment',
+      price_on_request: false,
+    },
   });
 
-  
-  // Auto-save wrapper for text inputs (onBlur)
-  const handleFieldBlur = useCallback((field: string, value: any) => {
-    if (value !== undefined && value !== null) {
-      // Convert numeric strings to numbers for numeric fields
-      const numericFields = ['price', 'gross_area', 'useful_area', 'land_area', 'bedrooms', 'bathrooms', 'floors', 'construction_year'];
-      if (numericFields.includes(field) && value !== '') {
-        saveField(field, parseFloat(value) || null);
-      } else {
-        saveField(field, value || null);
-      }
-    }
-  }, [saveField]);
-
-  // Auto-save wrapper for select/toggle changes (immediate)
-  const handleSelectChange = useCallback((field: string, value: any) => {
-    setValue(field as any, value);
-    saveField(field, value);
-  }, [setValue, saveField]);
-
-  // Auto-save for array fields (zona envolvente, equipamentos, extras)
-  const handleArrayFieldChange = useCallback((field: string, values: string[]) => {
-    saveField(field, values);
-  }, [saveField]);
-
-  // Load property data
+  // Load existing property data
   useEffect(() => {
-    let isMounted = true;
-    
     async function loadProperty() {
       try {
         const response = await fetch(`/api/properties/${params.id}`);
-        const property = await response.json();
-
-        if (!isMounted) return;
-
-        if (!response.ok || !property || property.error) {
-          toast.error(property.error || 'Imóvel não encontrado');
+        if (!response.ok) {
+          toast.error('Imóvel não encontrado');
           router.push('/admin/imoveis');
           return;
         }
-
-        // Set form values
+        
+        const data = await response.json();
+        setProperty(data);
+        
+        // Reset form with loaded data
         reset({
-          title: property.title || '',
-          reference: property.reference || '',
-          description: property.description || '',
-          business_type: property.business_type || 'sale',
-          nature: property.nature || 'apartment',
-          status: property.status || 'draft',
-          price: property.price?.toString() || '',
-          price_on_request: property.price_on_request || false,
-          district: property.district || '',
-          municipality: property.municipality || '',
-          parish: property.parish || '',
-          address: property.address || '',
-          postal_code: property.postal_code || '',
-          gross_area: property.gross_area?.toString() || '',
-          useful_area: property.useful_area?.toString() || '',
-          land_area: property.land_area?.toString() || '',
-          bedrooms: property.bedrooms?.toString() || '',
-          bathrooms: property.bathrooms?.toString() || '',
-          floors: property.floors?.toString() || '',
-          typology: property.typology || '',
-          construction_status: property.construction_status || '',
-          construction_year: property.construction_year?.toString() || '',
-          energy_certificate: property.energy_certificate || '',
-          video_url: property.video_url || '',
-          virtual_tour_url: property.virtual_tour_url || '',
+          title: data.title || '',
+          reference: data.reference || '',
+          description: data.description || '',
+          business_type: data.business_type || 'sale',
+          nature: data.nature || 'apartment',
+          status: data.status || 'published',
+          price: data.price?.toString() || '',
+          price_on_request: data.price_on_request || false,
+          district: data.district || '',
+          municipality: data.municipality || '',
+          parish: data.parish || '',
+          address: data.address || '',
+          gross_area: data.gross_area?.toString() || '',
+          useful_area: data.useful_area?.toString() || '',
+          land_area: data.land_area?.toString() || '',
+          bedrooms: data.bedrooms?.toString() || '',
+          bathrooms: data.bathrooms?.toString() || '',
+          floors: data.floors?.toString() || '',
+          typology: data.typology || '',
+          construction_status: data.construction_status || '',
+          construction_year: data.construction_year?.toString() || '',
+          energy_certificate: data.energy_certificate || '',
+          video_url: data.video_url || '',
+          virtual_tour_url: data.virtual_tour_url || '',
         });
-
-        // Set existing images
-        if (property.property_images) {
-          setExistingImages(property.property_images);
-          const cover = property.property_images.find((img: PropertyImage) => img.is_cover);
-          if (cover) setCoverImageId(cover.id);
+        
+        // Load divisions
+        if (data.divisions && typeof data.divisions === 'object') {
+          const divs = Object.entries(data.divisions).map(([name, area]) => ({
+            name,
+            area: String(area),
+          }));
+          setDivisions(divs);
         }
         
-        // Load floor plan URL
-        if (property.property_floor_plans?.length > 0) {
-          setFloorPlanUrl(property.property_floor_plans[0].url);
+        // Load arrays
+        if (data.surrounding_area) setSelectedZonaEnvolvente(data.surrounding_area);
+        if (data.equipment) setSelectedEquipamentos(data.equipment);
+        if (data.extras) setSelectedExtras(data.extras);
+        
+        // Load existing images
+        if (data.property_images) {
+          setExistingImages(data.property_images);
+          const urls = data.property_images.map((img: any) => img.url);
+          setImagePreviewUrls(urls);
+          const coverIdx = data.property_images.findIndex((img: any) => img.is_cover);
+          if (coverIdx >= 0) setCoverImageIndex(coverIdx);
+        }
+        
+        // Load existing brochure and floor plans
+        if (data.brochure_url) {
+          setExistingBrochure(data.brochure_url);
+        }
+        if (data.property_floor_plans && data.property_floor_plans.length > 0) {
+          setExistingFloorPlans(data.property_floor_plans);
         }
         
         // Load brochure URL
@@ -262,178 +363,218 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
         }
 
         setIsLoading(false);
-      } catch (err) {
-        console.error('Error loading property:', err);
-        if (isMounted) {
-          toast.error('Erro ao carregar imóvel');
-          setIsLoading(false);
-        }
+      } catch (error) {
+        console.error('Error loading property:', error);
+        toast.error('Erro ao carregar imóvel');
+        setIsLoading(false);
       }
     }
-
+    
     loadProperty();
-    
-    return () => {
-      isMounted = false;
-    };
-  }, [params.id]);
+  }, [params.id, reset, router]);
 
-  // Image handlers
-  const setCoverImage = async (imageId: string) => {
-    try {
-      const response = await fetch(`/api/properties/${params.id}/images`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageId, is_cover: true }),
-      });
+  // Division handlers
+  const addDivision = () => {
+    setDivisions([...divisions, { name: '', area: '' }]);
+  };
 
-      if (!response.ok) {
-        const result = await response.json();
-        throw new Error(result.error || 'Erro ao atualizar');
-      }
+  const updateDivision = (index: number, field: 'name' | 'area', value: string) => {
+    const updated = [...divisions];
+    updated[index][field] = value;
+    setDivisions(updated);
+  };
 
-      setCoverImageId(imageId);
-      setExistingImages(prev => prev.map(img => ({
-        ...img,
-        is_cover: img.id === imageId
-      })));
-      toast.success('Imagem de capa atualizada');
-    } catch (err: any) {
-      toast.error(err.message || 'Erro ao atualizar imagem de capa');
+  const removeDivision = (index: number) => {
+    setDivisions(divisions.filter((_, i) => i !== index));
+  };
+
+  // Toggle handlers for multi-select
+  const toggleZonaEnvolvente = (item: string) => {
+    setSelectedZonaEnvolvente(prev => 
+      prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]
+    );
+  };
+
+  const toggleEquipamento = (item: string) => {
+    setSelectedEquipamentos(prev => 
+      prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]
+    );
+  };
+
+  const toggleExtra = (item: string) => {
+    setSelectedExtras(prev => 
+      prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]
+    );
+  };
+
+  // Remove handlers (direct removal without toggle)
+  const removeZonaEnvolvente = (item: string) => {
+    setSelectedZonaEnvolvente(prev => prev.filter(i => i !== item));
+  };
+
+  const removeEquipamento = (item: string) => {
+    setSelectedEquipamentos(prev => prev.filter(i => i !== item));
+  };
+
+  const removeExtra = (item: string) => {
+    setSelectedExtras(prev => prev.filter(i => i !== item));
+  };
+
+  const toggleEstado = (item: string) => {
+    setSelectedEstado(prev => 
+      prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]
+    );
+  };
+
+  // File handlers
+  const handleBrochureUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setBrochureFiles(prev => [...prev, ...Array.from(e.target.files!)]);
     }
   };
 
-  const deleteImage = async (imageId: string) => {
-    try {
-      const response = await fetch(`/api/properties/${params.id}/images?imageId=${imageId}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        const result = await response.json();
-        throw new Error(result.error || 'Erro ao remover');
-      }
-
-      setExistingImages(prev => prev.filter(img => img.id !== imageId));
-      if (coverImageId === imageId) {
-        setCoverImageId(null);
-      }
-      toast.success('Imagem removida');
-    } catch (err: any) {
-      toast.error(err.message || 'Erro ao remover imagem');
+  const handleFloorPlanUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFloorPlanFiles(prev => [...prev, ...Array.from(e.target.files!)]);
     }
   };
 
-  const [isUploading, setIsUploading] = useState(false);
+  const removeBrochure = (index: number) => {
+    setBrochureFiles(prev => prev.filter((_, i) => i !== index));
+  };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
+  const removeFloorPlan = (index: number) => {
+    setFloorPlanFiles(prev => prev.filter((_, i) => i !== index));
+  };
 
-    setIsUploading(true);
-    
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const isFirstImage = existingImages.length === 0 && i === 0;
+  // Property images handlers
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files);
+      setPropertyImages(prev => [...prev, ...files]);
       
-      try {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('is_cover', isFirstImage ? 'true' : 'false');
-        formData.append('order', (existingImages.length + i).toString());
-
-        const response = await fetch(`/api/properties/${params.id}/upload`, {
-          method: 'POST',
-          body: formData,
-        });
-
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || 'Erro ao carregar');
-
-        setExistingImages(prev => [...prev, data]);
-        if (isFirstImage) {
-          setCoverImageId(data.id);
-        }
-      } catch (err: any) {
-        console.error('Error uploading image:', err);
-        toast.error(`Erro ao carregar ${file.name}: ${err.message}`);
-      }
-    }
-
-    setIsUploading(false);
-    toast.success('Imagens carregadas com sucesso');
-    
-    // Reset file input
-    e.target.value = '';
-  };
-
-  // Floor plan upload handler
-  const handleFloorPlanUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setIsUploadingFloorPlan(true);
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('type', 'floor_plan');
-
-      const response = await fetch(`/api/properties/${params.id}/documents`, {
-        method: 'POST',
-        body: formData,
+      // Create preview URLs
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImagePreviewUrls(prev => [...prev, reader.result as string]);
+        };
+        reader.readAsDataURL(file);
       });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Erro ao carregar');
-
-      setFloorPlanUrl(data.url);
-      toast.success('Planta carregada com sucesso');
-    } catch (err: any) {
-      console.error('Error uploading floor plan:', err);
-      toast.error(err.message || 'Erro ao carregar planta');
-    } finally {
-      setIsUploadingFloorPlan(false);
-      e.target.value = '';
     }
   };
 
-  // Brochure upload handler
-  const handleBrochureUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setIsUploadingBrochure(true);
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('type', 'brochure');
-
-      const response = await fetch(`/api/properties/${params.id}/documents`, {
-        method: 'POST',
-        body: formData,
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Erro ao carregar');
-
-      setBrochureUrl(data.url);
-      toast.success('Brochura carregada com sucesso');
-    } catch (err: any) {
-      console.error('Error uploading brochure:', err);
-      toast.error(err.message || 'Erro ao carregar brochura');
-    } finally {
-      setIsUploadingBrochure(false);
-      e.target.value = '';
+  const removeImage = (index: number) => {
+    setPropertyImages(prev => prev.filter((_, i) => i !== index));
+    setImagePreviewUrls(prev => prev.filter((_, i) => i !== index));
+    // Adjust cover index if needed
+    if (index === coverImageIndex) {
+      setCoverImageIndex(0);
+    } else if (index < coverImageIndex) {
+      setCoverImageIndex(prev => prev - 1);
     }
   };
+
+  const setCoverImage = (index: number) => {
+    setCoverImageIndex(index);
+  };
+
+  // Custom options handlers
+  const addCustomZona = () => {
+    if (newZonaInput.trim() && !customZonaEnvolvente.includes(newZonaInput.trim()) && !zonaEnvolventeOptions.includes(newZonaInput.trim())) {
+      setCustomZonaEnvolvente(prev => [...prev, newZonaInput.trim()]);
+      setSelectedZonaEnvolvente(prev => [...prev, newZonaInput.trim()]);
+      setNewZonaInput('');
+    }
+  };
+
+  const addCustomEquipamento = () => {
+    if (newEquipamentoInput.trim() && !customEquipamentos.includes(newEquipamentoInput.trim()) && !equipamentosOptions.includes(newEquipamentoInput.trim())) {
+      setCustomEquipamentos(prev => [...prev, newEquipamentoInput.trim()]);
+      setSelectedEquipamentos(prev => [...prev, newEquipamentoInput.trim()]);
+      setNewEquipamentoInput('');
+    }
+  };
+
+  const addCustomExtra = () => {
+    if (newExtraInput.trim() && !customExtras.includes(newExtraInput.trim()) && !extrasOptions.includes(newExtraInput.trim())) {
+      setCustomExtras(prev => [...prev, newExtraInput.trim()]);
+      setSelectedExtras(prev => [...prev, newExtraInput.trim()]);
+      setNewExtraInput('');
+    }
+  };
+
+  // Delete single pill permanently (custom or default)
+  const deleteZonaPill = (item: string) => {
+    if (customZonaEnvolvente.includes(item)) {
+      setCustomZonaEnvolvente(prev => prev.filter(i => i !== item));
+    } else {
+      setDeletedZonaEnvolvente(prev => [...prev, item]);
+    }
+    setSelectedZonaEnvolvente(prev => prev.filter(i => i !== item));
+  };
+
+  const deleteEquipamentoPill = (item: string) => {
+    if (customEquipamentos.includes(item)) {
+      setCustomEquipamentos(prev => prev.filter(i => i !== item));
+    } else {
+      setDeletedEquipamentos(prev => [...prev, item]);
+    }
+    setSelectedEquipamentos(prev => prev.filter(i => i !== item));
+  };
+
+  const deleteExtraPill = (item: string) => {
+    if (customExtras.includes(item)) {
+      setCustomExtras(prev => prev.filter(i => i !== item));
+    } else {
+      setDeletedExtras(prev => [...prev, item]);
+    }
+    setSelectedExtras(prev => prev.filter(i => i !== item));
+  };
+
+  // Delete all selected pills permanently
+  const deleteAllSelectedZona = () => {
+    // Add selected default options to deleted list
+    const defaultsToDelete = selectedZonaEnvolvente.filter(item => zonaEnvolventeOptions.includes(item));
+    setDeletedZonaEnvolvente(prev => [...prev, ...defaultsToDelete]);
+    // Remove selected custom options
+    setCustomZonaEnvolvente(prev => prev.filter(item => !selectedZonaEnvolvente.includes(item)));
+    // Clear selection
+    setSelectedZonaEnvolvente([]);
+  };
+
+  const deleteAllSelectedEquipamentos = () => {
+    const defaultsToDelete = selectedEquipamentos.filter(item => equipamentosOptions.includes(item));
+    setDeletedEquipamentos(prev => [...prev, ...defaultsToDelete]);
+    setCustomEquipamentos(prev => prev.filter(item => !selectedEquipamentos.includes(item)));
+    setSelectedEquipamentos([]);
+  };
+
+  const deleteAllSelectedExtras = () => {
+    const defaultsToDelete = selectedExtras.filter(item => extrasOptions.includes(item));
+    setDeletedExtras(prev => [...prev, ...defaultsToDelete]);
+    setCustomExtras(prev => prev.filter(item => !selectedExtras.includes(item)));
+    setSelectedExtras([]);
+  };
+
+  // Combined options (default + custom, excluding deleted)
+  const allZonaEnvolventeOptions = [...zonaEnvolventeOptions.filter(o => !deletedZonaEnvolvente.includes(o)), ...customZonaEnvolvente];
+  const allEquipamentosOptions = [...equipamentosOptions.filter(o => !deletedEquipamentos.includes(o)), ...customEquipamentos];
+  const allExtrasOptions = [...extrasOptions.filter(o => !deletedExtras.includes(o)), ...customExtras];
 
   const onSubmit = async (data: PropertyFormData) => {
     setIsSaving(true);
     try {
-      const updateData = {
+      // Build divisions data for areas
+      const divisionsData = divisions.filter(d => d.name && d.area).reduce((acc, d) => {
+        acc[d.name] = parseFloat(d.area);
+        return acc;
+      }, {} as Record<string, number>);
+
+      const propertyData = {
         title: data.title,
         reference: data.reference,
-        description: data.description || null,
+        description: data.description || '',
         business_type: data.business_type,
         nature: data.nature,
         status: data.status,
@@ -458,28 +599,109 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
         virtual_tour_url: data.virtual_tour_url || null,
       };
 
+      console.log('Updating property:', propertyData);
+
       const response = await fetch(`/api/properties/${params.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updateData),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(propertyData),
       });
 
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error || 'Erro ao atualizar');
 
+      if (!response.ok) {
+        console.error('API Error:', result);
+        toast.error(result.error || 'Erro ao atualizar imóvel');
+        return;
+      }
+
+      // Upload new images (only File objects, not existing URLs)
+      for (let i = 0; i < propertyImages.length; i++) {
+        const file = propertyImages[i];
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('is_cover', (i === coverImageIndex).toString());
+        formData.append('order', i.toString());
+
+        const uploadRes = await fetch(`/api/properties/${params.id}/upload`, {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!uploadRes.ok) {
+          console.error('Image upload failed:', await uploadRes.text());
+        }
+      }
+
+      // Upload brochures
+      for (const file of brochureFiles) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('type', 'brochure');
+
+        const uploadRes = await fetch(`/api/properties/${params.id}/documents`, {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!uploadRes.ok) {
+          console.error('Brochure upload failed:', await uploadRes.text());
+        }
+      }
+
+      // Upload floor plans
+      for (const file of floorPlanFiles) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('type', 'floor_plan');
+
+        const uploadRes = await fetch(`/api/properties/${params.id}/documents`, {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!uploadRes.ok) {
+          console.error('Floor plan upload failed:', await uploadRes.text());
+        }
+      }
+
+      console.log('Property updated:', result);
       toast.success('Imóvel atualizado com sucesso!');
       router.push('/admin/imoveis');
-    } catch (err: any) {
-      console.error('Error updating property:', err);
-      toast.error(err.message || 'Erro ao atualizar imóvel');
+    } catch (error: any) {
+      console.error('Error:', error);
+      toast.error(error.message || 'Erro ao atualizar imóvel');
     } finally {
       setIsSaving(false);
     }
   };
 
-  const publishProperty = async () => {
-    setValue('status', 'published');
-    handleSubmit(onSubmit)();
+  const handlePreview = () => {
+    const formData = watch();
+    const previewData = {
+      title: formData.title || 'Sem título',
+      reference: formData.reference || 'REF-000',
+      description: formData.description || '',
+      business_type: formData.business_type,
+      nature: formData.nature,
+      price: formData.price,
+      price_on_request: formData.price_on_request,
+      district: formData.district,
+      municipality: formData.municipality,
+      address: formData.address,
+      gross_area: formData.gross_area,
+      useful_area: formData.useful_area,
+      bedrooms: formData.bedrooms,
+      bathrooms: formData.bathrooms,
+      typology: formData.typology,
+      construction_status: formData.construction_status,
+      construction_year: formData.construction_year,
+      energy_certificate: formData.energy_certificate,
+    };
+    sessionStorage.setItem('propertyPreview', JSON.stringify(previewData));
+    window.open('/admin/imoveis/preview', '_blank');
   };
 
   if (isLoading) {
@@ -506,21 +728,17 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
           </div>
         </div>
         <div className="flex items-center space-x-3">
-          <AutoSaveIndicator 
-            status={autoSaveStatus} 
-            lastSaved={lastSaved} 
-            error={autoSaveError} 
-          />
-          <Button variant="outline" onClick={() => router.push('/admin/imoveis')}>
-            Cancelar
-          </Button>
-          <Button variant="outline" onClick={handleSubmit(onSubmit)} disabled={isSaving}>
-            {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-            Guardar
-          </Button>
-          <Button variant="gold" onClick={publishProperty} disabled={isSaving}>
+          <Button variant="outline" onClick={handlePreview} disabled={isLoading || isSaving}>
             <Eye className="mr-2 h-4 w-4" />
-            Publicar
+            Pré-visualizar
+          </Button>
+          <Button variant="gold" onClick={handleSubmit(onSubmit)} disabled={isLoading || isSaving}>
+            {isSaving ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Save className="mr-2 h-4 w-4" />
+            )}
+            Guardar
           </Button>
         </div>
       </div>
@@ -537,7 +755,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-4 md:grid-cols-3">
                 <div className="space-y-2">
                   <Label htmlFor="title">Título *</Label>
                   <Input
@@ -564,14 +782,27 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                     <p className="text-sm text-destructive">{errors.reference.message}</p>
                   )}
                 </div>
+                <div className="space-y-2">
+                  <Label>Estado</Label>
+                  <Select onValueChange={(value) => setSelectedEstado([value])}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecionar..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {estadoOptions.map((estado) => (
+                        <SelectItem key={estado} value={estado}>{estado}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <div className="grid gap-4 md:grid-cols-3">
                 <div className="space-y-2">
                   <Label>Tipo de Negócio *</Label>
                   <Select
-                    value={watch('business_type')}
-                    onValueChange={(value) => handleSelectChange('business_type', value)}
+                    defaultValue="sale"
+                    onValueChange={(value) => setValue('business_type', value as any)}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -586,8 +817,8 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                 <div className="space-y-2">
                   <Label>Natureza *</Label>
                   <Select
-                    value={watch('nature')}
-                    onValueChange={(value) => handleSelectChange('nature', value)}
+                    defaultValue="apartment"
+                    onValueChange={(value) => setValue('nature', value as any)}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -604,30 +835,11 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                   <Input
                     {...register('typology')}
                     placeholder="Ex: T3"
-                    onBlur={(e) => handleFieldBlur('typology', e.target.value)}
                   />
                 </div>
               </div>
 
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Estado do Imóvel</Label>
-                  <Select
-                    value={watch('construction_status') || ''}
-                    onValueChange={(value) => handleSelectChange('construction_status', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecionar..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(constructionStatusLabels).map(([value, label]) => (
-                        <SelectItem key={value} value={value}>{label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
+              {/* Description */}
               <div className="space-y-2">
                 <Label htmlFor="description">Descrição</Label>
                 <Textarea
@@ -692,51 +904,16 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                   <Input {...register('gross_area')} type="number" placeholder="0" onBlur={(e) => handleFieldBlur('gross_area', e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Área Útil (m²)</Label>
-                  <Input {...register('useful_area')} type="number" placeholder="0" onBlur={(e) => handleFieldBlur('useful_area', e.target.value)} />
-                </div>
-              </div>
-              <div className="grid gap-4 md:grid-cols-4">
-                <div className="space-y-2">
-                  <Label>Quartos</Label>
-                  <Input {...register('bedrooms')} type="number" placeholder="0" onBlur={(e) => handleFieldBlur('bedrooms', e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Casas de Banho</Label>
-                  <Input {...register('bathrooms')} type="number" placeholder="0" onBlur={(e) => handleFieldBlur('bathrooms', e.target.value)} />
+                  <Label>Ano Construção</Label>
+                  <Input {...register('construction_year')} type="number" placeholder="2024" />
                 </div>
                 <div className="space-y-2">
                   <Label>Piso</Label>
                   <Input {...register('floors')} type="number" placeholder="0" onBlur={(e) => handleFieldBlur('floors', e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Ano Construção</Label>
-                  <Input {...register('construction_year')} type="number" placeholder="2024" onBlur={(e) => handleFieldBlur('construction_year', e.target.value)} />
-                </div>
-              </div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Estado de Construção</Label>
-                  <Select
-                    value={watch('construction_status') || ''}
-                    onValueChange={(value) => handleSelectChange('construction_status', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecionar..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(constructionStatusLabels).map(([value, label]) => (
-                        <SelectItem key={value} value={value}>{label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Certificado Energético</Label>
-                  <Select
-                    value={watch('energy_certificate') || ''}
-                    onValueChange={(value) => handleSelectChange('energy_certificate', value)}
-                  >
+                  <Label>Categoria Energética</Label>
+                  <Select onValueChange={(value) => setValue('energy_certificate', value)}>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecionar..." />
                     </SelectTrigger>
@@ -748,6 +925,299 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                   </Select>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Divisions with Areas */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span className="flex items-center">
+                  <Layers className="mr-2 h-5 w-5" />
+                  Divisões e Áreas
+                </span>
+                <Button type="button" variant="outline" size="sm" onClick={addDivision}>
+                  <Plus className="mr-1 h-4 w-4" />
+                  Adicionar
+                </Button>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {divisions.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  Clique em &ldquo;Adicionar&rdquo; para inserir divisões com as respetivas áreas.
+                </p>
+              ) : (
+                divisions.map((division, index) => (
+                  <div key={index} className="flex gap-3 items-center">
+                    <Input
+                      value={division.name}
+                      onChange={(e) => updateDivision(index, 'name', e.target.value)}
+                      placeholder="Ex: Quarto, Sala, Cozinha..."
+                      className="flex-1"
+                    />
+                    <div className="flex items-center gap-2">
+                      <Input
+                        value={division.area}
+                        onChange={(e) => updateDivision(index, 'area', e.target.value)}
+                        placeholder="0"
+                        type="number"
+                        className="w-24"
+                      />
+                      <span className="text-sm text-muted-foreground">m²</span>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeDivision(index)}
+                      className="text-destructive hover:text-destructive"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Zona Envolvente */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <TreePine className="mr-2 h-5 w-5" />
+                Zona Envolvente
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex flex-wrap gap-2">
+                {allZonaEnvolventeOptions.map((item) => {
+                  const isCustom = customZonaEnvolvente.includes(item);
+                  const isSelected = selectedZonaEnvolvente.includes(item);
+                  return (
+                    <div key={item} className="relative group">
+                      <button
+                        type="button"
+                        onClick={() => toggleZonaEnvolvente(item)}
+                        className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                          isSelected
+                            ? 'bg-yellow-500 text-white border-yellow-500 pr-7'
+                            : 'bg-background border-input hover:border-yellow-300'
+                        }`}
+                      >
+                        {item}
+                      </button>
+                      {isSelected && (
+                        <button
+                          type="button"
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            deleteZonaPill(item);
+                          }}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                          }}
+                          className="absolute -top-1 -right-1 w-5 h-5 rounded-full text-white flex items-center justify-center transition-all z-10 cursor-pointer bg-red-600 hover:bg-red-700"
+                          title="Eliminar opção"
+                        >
+                          <X className="h-3 w-3 pointer-events-none" />
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              {/* Add custom option */}
+              <div className="flex gap-2">
+                <Input
+                  value={newZonaInput}
+                  onChange={(e) => setNewZonaInput(e.target.value)}
+                  placeholder="Adicionar nova opção..."
+                  className="flex-1"
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomZona())}
+                />
+                <Button type="button" variant="outline" onClick={addCustomZona}>
+                  <Plus className="h-4 w-4" />
+                </Button>
+                {selectedZonaEnvolvente.length > 0 && (
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={deleteAllSelectedZona}
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    title="Eliminar selecionados"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+              {selectedZonaEnvolvente.length > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  {selectedZonaEnvolvente.length} selecionado(s)
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Equipamentos */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Settings className="mr-2 h-5 w-5" />
+                Equipamentos
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex flex-wrap gap-2">
+                {allEquipamentosOptions.map((item) => {
+                  const isCustom = customEquipamentos.includes(item);
+                  const isSelected = selectedEquipamentos.includes(item);
+                  return (
+                    <div key={item} className="relative group">
+                      <button
+                        type="button"
+                        onClick={() => toggleEquipamento(item)}
+                        className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                          isSelected
+                            ? 'bg-yellow-500 text-white border-yellow-500 pr-7'
+                            : 'bg-background border-input hover:border-yellow-300'
+                        }`}
+                      >
+                        {item}
+                      </button>
+                      {isSelected && (
+                        <button
+                          type="button"
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            deleteEquipamentoPill(item);
+                          }}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                          }}
+                          className="absolute -top-1 -right-1 w-5 h-5 rounded-full text-white flex items-center justify-center transition-all z-10 cursor-pointer bg-red-600 hover:bg-red-700"
+                          title="Eliminar opção"
+                        >
+                          <X className="h-3 w-3 pointer-events-none" />
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              {/* Add custom option */}
+              <div className="flex gap-2">
+                <Input
+                  value={newEquipamentoInput}
+                  onChange={(e) => setNewEquipamentoInput(e.target.value)}
+                  placeholder="Adicionar novo equipamento..."
+                  className="flex-1"
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomEquipamento())}
+                />
+                <Button type="button" variant="outline" onClick={addCustomEquipamento}>
+                  <Plus className="h-4 w-4" />
+                </Button>
+                {selectedEquipamentos.length > 0 && (
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={deleteAllSelectedEquipamentos}
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    title="Eliminar selecionados"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+              {selectedEquipamentos.length > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  {selectedEquipamentos.length} selecionado(s)
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Extras */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Sparkles className="mr-2 h-5 w-5" />
+                Extras
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex flex-wrap gap-2">
+                {allExtrasOptions.map((item) => {
+                  const isCustom = customExtras.includes(item);
+                  const isSelected = selectedExtras.includes(item);
+                  return (
+                    <div key={item} className="relative group">
+                      <button
+                        type="button"
+                        onClick={() => toggleExtra(item)}
+                        className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                          isSelected
+                            ? 'bg-yellow-500 text-white border-yellow-500 pr-7'
+                            : 'bg-background border-input hover:border-yellow-300'
+                        }`}
+                      >
+                        {item}
+                      </button>
+                      {isSelected && (
+                        <button
+                          type="button"
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            deleteExtraPill(item);
+                          }}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                          }}
+                          className="absolute -top-1 -right-1 w-5 h-5 rounded-full text-white flex items-center justify-center transition-all z-10 cursor-pointer bg-red-600 hover:bg-red-700"
+                          title="Eliminar opção"
+                        >
+                          <X className="h-3 w-3 pointer-events-none" />
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              {/* Add custom option */}
+              <div className="flex gap-2">
+                <Input
+                  value={newExtraInput}
+                  onChange={(e) => setNewExtraInput(e.target.value)}
+                  placeholder="Adicionar novo extra..."
+                  className="flex-1"
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomExtra())}
+                />
+                <Button type="button" variant="outline" onClick={addCustomExtra}>
+                  <Plus className="h-4 w-4" />
+                </Button>
+                {selectedExtras.length > 0 && (
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={deleteAllSelectedExtras}
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    title="Eliminar selecionados"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+              {selectedExtras.length > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  {selectedExtras.length} selecionado(s)
+                </p>
+              )}
             </CardContent>
           </Card>
 
@@ -768,135 +1238,68 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                   onChange={handleImageUpload}
                   className="hidden"
                   id="image-upload"
-                  disabled={isUploading}
                 />
                 <label htmlFor="image-upload" className="cursor-pointer">
-                  {isUploading ? (
-                    <>
-                      <Loader2 className="h-10 w-10 mx-auto text-yellow-500 mb-3 animate-spin" />
-                      <p className="text-sm font-medium text-foreground mb-1">
-                        A carregar imagens...
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-                      <p className="text-sm font-medium text-foreground mb-1">
-                        Clique para carregar imagens
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        JPG, PNG, WebP (máx. 10MB cada)
-                      </p>
-                    </>
-                  )}
+                  <Upload className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
+                  <p className="text-sm font-medium text-foreground mb-1">
+                    Clique para carregar imagens
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    JPG, PNG, WebP (máx. 10MB cada)
+                  </p>
                 </label>
               </div>
-
-              {existingImages.length > 0 ? (
-                <>
-                  <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                    {existingImages.map((image) => (
-                      <div 
-                        key={image.id} 
-                        className={`relative group aspect-square rounded-lg overflow-hidden bg-secondary ${image.id === coverImageId ? 'ring-2 ring-yellow-500' : ''}`}
-                      >
-                        <img
-                          src={image.url}
-                          alt="Property"
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setCoverImage(image.id)}
-                            className="text-white hover:text-white hover:bg-yellow-500"
-                            title="Definir como capa"
-                          >
-                            <Home className="h-5 w-5" />
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => deleteImage(image.id)}
-                            className="text-white hover:text-white hover:bg-red-500"
-                            title="Remover"
-                          >
-                            <Trash2 className="h-5 w-5" />
-                          </Button>
-                        </div>
-                        {image.id === coverImageId && (
-                          <span className="absolute top-1 left-1 bg-yellow-500 text-white text-xs px-2 py-0.5 rounded">
-                            Capa
-                          </span>
-                        )}
+              
+              {imagePreviewUrls.length > 0 && (
+                <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                  {imagePreviewUrls.map((url, index) => (
+                    <div key={index} className={`relative group aspect-square rounded-lg overflow-hidden bg-secondary ${index === coverImageIndex ? 'ring-2 ring-yellow-500' : ''}`}>
+                      <img
+                        src={url}
+                        alt={`Preview ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setCoverImage(index)}
+                          className="text-white hover:text-white hover:bg-yellow-500"
+                          title="Definir como capa"
+                        >
+                          <Home className="h-5 w-5" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeImage(index)}
+                          className="text-white hover:text-white hover:bg-red-500"
+                          title="Remover"
+                        >
+                          <X className="h-5 w-5" />
+                        </Button>
                       </div>
-                    ))}
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Clique no ícone da casa para definir a imagem de capa. Clique no ícone do lixo para remover.
-                  </p>
-                </>
-              ) : (
-                <p className="text-xs text-muted-foreground text-center">
-                  Nenhuma imagem adicionada. Use o botão acima para carregar fotografias.
+                      {index === coverImageIndex && (
+                        <span className="absolute top-1 left-1 bg-yellow-500 text-white text-xs px-2 py-0.5 rounded">
+                          Capa
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {propertyImages.length > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  {propertyImages.length} imagem(ns) selecionada(s). Clique no ícone da casa para definir a imagem de capa.
                 </p>
               )}
             </CardContent>
           </Card>
 
-          {/* Floor Plan Upload */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <FileText className="mr-2 h-5 w-5" />
-                Planta do Imóvel
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="border-2 border-dashed border-input rounded-lg p-4 text-center">
-                <input
-                  type="file"
-                  accept=".pdf,image/*"
-                  onChange={handleFloorPlanUpload}
-                  className="hidden"
-                  id="floorplan-upload"
-                  disabled={isUploadingFloorPlan}
-                />
-                <label htmlFor="floorplan-upload" className="cursor-pointer">
-                  {isUploadingFloorPlan ? (
-                    <Loader2 className="h-6 w-6 mx-auto text-yellow-500 animate-spin" />
-                  ) : (
-                    <>
-                      <Upload className="h-6 w-6 mx-auto text-muted-foreground mb-2" />
-                      <p className="text-xs text-muted-foreground">Clique para carregar PDF ou imagem</p>
-                    </>
-                  )}
-                </label>
-              </div>
-              {floorPlanUrl && (
-                <div className="flex items-center justify-between p-3 bg-secondary rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-yellow-500" />
-                    <span className="text-sm">Planta carregada</span>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setFloorPlanUrl(null)}
-                    className="text-destructive hover:text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Brochure Upload */}
+          {/* Video & Virtual Tour */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
@@ -965,7 +1368,131 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
             </CardContent>
           </Card>
 
-          </div>
+          {/* File Uploads */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <FileText className="mr-2 h-5 w-5" />
+                Documentos
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Brochures */}
+              <div className="space-y-3">
+                <Label>Brochuras (PDF)</Label>
+                {existingBrochure && (
+                  <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                    <a href={existingBrochure} target="_blank" rel="noopener noreferrer" className="text-sm text-green-700 hover:underline truncate">
+                      📄 Brochura existente
+                    </a>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setExistingBrochure(null)}
+                      className="h-6 w-6 text-red-500"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+                <div className="border-2 border-dashed border-input rounded-lg p-4 text-center">
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    multiple
+                    onChange={handleBrochureUpload}
+                    className="hidden"
+                    id="brochure-upload"
+                  />
+                  <label htmlFor="brochure-upload" className="cursor-pointer">
+                    <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                    <p className="text-sm text-muted-foreground">
+                      {existingBrochure ? 'Substituir brochura' : 'Clique para carregar brochuras'}
+                    </p>
+                  </label>
+                </div>
+                {brochureFiles.length > 0 && (
+                  <div className="space-y-2">
+                    {brochureFiles.map((file, index) => (
+                      <div key={index} className="flex items-center justify-between bg-secondary/50 rounded-lg px-3 py-2">
+                        <span className="text-sm truncate">{file.name}</span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeBrochure(index)}
+                          className="h-6 w-6"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Floor Plans */}
+              <div className="space-y-3">
+                <Label>Plantas (Imagens ou PDF)</Label>
+                {existingFloorPlans.length > 0 && (
+                  <div className="space-y-2">
+                    {existingFloorPlans.map((plan, index) => (
+                      <div key={plan.id || index} className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                        <a href={plan.url} target="_blank" rel="noopener noreferrer" className="text-sm text-green-700 hover:underline truncate">
+                          📐 Planta {index + 1}
+                        </a>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setExistingFloorPlans(existingFloorPlans.filter((_, i) => i !== index))}
+                          className="h-6 w-6 text-red-500"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="border-2 border-dashed border-input rounded-lg p-4 text-center">
+                  <input
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png,.webp"
+                    multiple
+                    onChange={handleFloorPlanUpload}
+                    className="hidden"
+                    id="floorplan-upload"
+                  />
+                  <label htmlFor="floorplan-upload" className="cursor-pointer">
+                    <Layers className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                    <p className="text-sm text-muted-foreground">
+                      {existingFloorPlans.length > 0 ? 'Adicionar mais plantas' : 'Clique para carregar plantas'}
+                    </p>
+                  </label>
+                </div>
+                {floorPlanFiles.length > 0 && (
+                  <div className="space-y-2">
+                    {floorPlanFiles.map((file, index) => (
+                      <div key={index} className="flex items-center justify-between bg-secondary/50 rounded-lg px-3 py-2">
+                        <span className="text-sm truncate">{file.name}</span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeFloorPlan(index)}
+                          className="h-6 w-6"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Sidebar */}
         <div className="space-y-6">
@@ -1003,31 +1530,6 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                   Preço sob consulta
                 </Label>
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Status */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Estado de Publicação</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Select
-                value={watch('status')}
-                onValueChange={(value) => handleSelectChange('status', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(statusLabels).map(([value, label]) => (
-                    <SelectItem key={value} value={value}>{label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground mt-2">
-                Apenas imóveis publicados são visíveis no site.
-              </p>
             </CardContent>
           </Card>
         </div>

@@ -15,34 +15,12 @@ function AdminLoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(false); // Start as false - show form immediately
 
   const supabase = createClient();
 
-  // Check if already logged in as admin
+  // Check for error param on mount only
   useEffect(() => {
-    async function checkAuth() {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', user.id)
-          .single();
-        
-        if (profile?.role === 'admin' || profile?.role === 'super_admin') {
-          window.location.href = '/admin';
-          return;
-        }
-      }
-      
-      setIsCheckingAuth(false);
-    }
-    
-    checkAuth();
-    
-    // Check for error param
     const errorParam = searchParams.get('error');
     if (errorParam === 'unauthorized') {
       setError('Não tem permissões de administrador. Por favor, inicie sessão com uma conta de administrador.');
@@ -55,10 +33,7 @@ function AdminLoginForm() {
     setIsLoading(true);
 
     try {
-      // Sign out any existing session first
-      await supabase.auth.signOut();
-      
-      // Sign in
+      // Sign in directly (don't sign out first - causes race conditions)
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -76,14 +51,23 @@ function AdminLoginForm() {
         return;
       }
 
-      // Check if user is admin
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', data.user.id)
-        .single();
+      // Check if user is admin - first try JWT, then database
+      let role = data.user.app_metadata?.role || data.user.user_metadata?.role;
+      
+      // If no role in JWT, fetch from database
+      if (!role || role === 'user') {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', data.user.id)
+          .single();
+        
+        role = profile?.role || 'user';
+      }
+      
+      const isAdmin = role === 'admin' || role === 'super_admin';
 
-      if (!profile || (profile.role !== 'admin' && profile.role !== 'super_admin')) {
+      if (!isAdmin) {
         await supabase.auth.signOut();
         setError('Esta conta não tem permissões de administrador.');
         setIsLoading(false);
@@ -91,7 +75,13 @@ function AdminLoginForm() {
       }
 
       // Success - redirect to admin dashboard
-      window.location.href = '/admin';
+      console.log('[Admin Login] Login successful, redirecting to /admin');
+      
+      // Wait a moment for cookies to be set
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Use window.location.replace to force a full page navigation
+      window.location.replace('/admin');
     } catch (err) {
       setError('Ocorreu um erro. Por favor, tente novamente.');
       setIsLoading(false);

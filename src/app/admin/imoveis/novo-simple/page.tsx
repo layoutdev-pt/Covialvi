@@ -46,7 +46,7 @@ const propertySchema = z.object({
   description: z.string().optional(),
   business_type: z.enum(['sale', 'rent', 'transfer']),
   nature: z.enum(['apartment', 'house', 'land', 'commercial', 'warehouse', 'office', 'garage', 'shop']),
-  status: z.enum(['draft', 'published', 'archived']).default('draft'),
+  status: z.enum(['draft', 'published', 'archived']).default('published'),
   price: z.string().optional(),
   price_on_request: z.boolean().default(false),
   district: z.string().optional(),
@@ -265,7 +265,7 @@ export default function SimpleNewPropertyPage() {
   } = useForm<PropertyFormData>({
     resolver: zodResolver(propertySchema),
     defaultValues: {
-      status: 'draft',
+      status: 'published',
       business_type: 'sale',
       nature: 'apartment',
       price_on_request: false,
@@ -523,6 +523,58 @@ export default function SimpleNewPropertyPage() {
       }
 
       console.log('Property saved:', result);
+      
+      // Upload images
+      const propertyId = result.id;
+      for (let i = 0; i < propertyImages.length; i++) {
+        const file = propertyImages[i];
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('is_cover', (i === coverImageIndex).toString());
+        formData.append('order', i.toString());
+
+        const uploadRes = await fetch(`/api/properties/${propertyId}/upload`, {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!uploadRes.ok) {
+          console.error('Image upload failed:', await uploadRes.text());
+        }
+      }
+
+      // Upload brochures
+      for (const file of brochureFiles) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('type', 'brochure');
+
+        const uploadRes = await fetch(`/api/properties/${propertyId}/documents`, {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!uploadRes.ok) {
+          console.error('Brochure upload failed:', await uploadRes.text());
+        }
+      }
+
+      // Upload floor plans
+      for (const file of floorPlanFiles) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('type', 'floor_plan');
+
+        const uploadRes = await fetch(`/api/properties/${propertyId}/documents`, {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!uploadRes.ok) {
+          console.error('Floor plan upload failed:', await uploadRes.text());
+        }
+      }
+
       toast.success('Imóvel criado com sucesso!');
       router.push('/admin/imoveis');
     } catch (error: any) {
@@ -1278,31 +1330,6 @@ export default function SimpleNewPropertyPage() {
                   Preço sob consulta
                 </Label>
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Status */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Estado de Publicação</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Select
-                defaultValue="draft"
-                onValueChange={(value) => setValue('status', value as any)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(statusLabels).map(([value, label]) => (
-                    <SelectItem key={value} value={value}>{label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground mt-2">
-                Apenas imóveis publicados são visíveis no site.
-              </p>
             </CardContent>
           </Card>
         </div>

@@ -1,4 +1,5 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import type { Database } from '@/lib/database.types';
 
@@ -85,34 +86,15 @@ export function createClient(): any {
 
 export function createServiceClient(): any {
   if (!supabaseUrl || !supabaseServiceKey) {
+    console.warn('Service client: Missing URL or service key');
     return createMockClient();
   }
 
-  const cookieStore = cookies();
-
-  return createServerClient<Database>(
-    supabaseUrl,
-    supabaseServiceKey,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value, ...options });
-          } catch {
-            // Handle cookies in Server Components
-          }
-        },
-        remove(name: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value: '', ...options });
-          } catch {
-            // Handle cookies in Server Components
-          }
-        },
-      },
-    }
-  );
+  // Use direct client with service role key to bypass RLS
+  return createSupabaseClient<Database>(supabaseUrl, supabaseServiceKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
 }

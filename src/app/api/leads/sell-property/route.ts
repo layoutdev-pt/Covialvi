@@ -88,6 +88,8 @@ function getClientIp(request: NextRequest): string | null {
 /**
  * POST handler - Create seller lead
  */
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     // Parse request body

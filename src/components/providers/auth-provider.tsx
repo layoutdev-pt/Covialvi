@@ -32,19 +32,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const supabase = createClient();
 
   const fetchProfile = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-    
-    if (error) {
-      console.error('Error fetching profile:', error);
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      
+      if (error) {
+        console.error('Error fetching profile:', error);
+        // Don't block auth - just set profile to null
+        setProfile(null);
+        return null;
+      }
+      
+      setProfile(data);
+      return data;
+    } catch (err) {
+      console.error('Exception fetching profile:', err);
+      setProfile(null);
       return null;
     }
-    
-    setProfile(data);
-    return data;
   };
 
   const refreshProfile = async () => {
@@ -164,7 +172,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error: error as Error | null };
   };
 
-  const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
+  // Check role from JWT first (faster), fallback to profile
+  const jwtRole = user?.app_metadata?.role || user?.user_metadata?.role;
+  const profileRole = profile?.role;
+  const role = jwtRole || profileRole || 'user';
+  const isAdmin = role === 'admin' || role === 'super_admin';
 
   return (
     <AuthContext.Provider

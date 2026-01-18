@@ -31,11 +31,6 @@ export async function updateSession(request: NextRequest) {
             value,
             ...options,
           });
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          });
           response.cookies.set({
             name,
             value,
@@ -48,11 +43,6 @@ export async function updateSession(request: NextRequest) {
             value: '',
             ...options,
           });
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          });
           response.cookies.set({
             name,
             value: '',
@@ -63,16 +53,27 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
+  // Get session - this refreshes the token if needed
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const user = session?.user ?? null;
 
   // Protected routes
   const isAdminRoute = request.nextUrl.pathname.startsWith('/admin');
   const isAccountRoute = request.nextUrl.pathname.startsWith('/conta');
   const isAuthRoute = request.nextUrl.pathname.startsWith('/auth');
 
-  if (!user && (isAdminRoute || isAccountRoute)) {
+  // Skip middleware for ALL admin routes - let the admin layout handle auth
+  // This avoids cookie sync issues between client and server
+  if (isAdminRoute) {
+    console.log('[Middleware] Admin route, skipping middleware auth check');
+    return response;
+  }
+
+  if (!user && isAccountRoute) {
+    console.log('[Middleware] No user on account route, redirecting to /auth/login');
     const redirectUrl = new URL('/auth/login', request.url);
     redirectUrl.searchParams.set('redirect', request.nextUrl.pathname);
     return NextResponse.redirect(redirectUrl);
@@ -80,19 +81,6 @@ export async function updateSession(request: NextRequest) {
 
   if (user && isAuthRoute) {
     return NextResponse.redirect(new URL('/', request.url));
-  }
-
-  // Check admin role for admin routes
-  if (user && isAdminRoute) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single() as { data: { role: string } | null };
-
-    if (!profile || (profile.role !== 'admin' && profile.role !== 'super_admin')) {
-      return NextResponse.redirect(new URL('/', request.url));
-    }
   }
 
   return response;

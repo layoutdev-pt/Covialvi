@@ -96,6 +96,8 @@ function getClientIp(request: NextRequest): string | null {
 /**
  * POST handler - Create complete evaluation lead
  */
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const body: CompleteEvaluationRequest = await request.json();

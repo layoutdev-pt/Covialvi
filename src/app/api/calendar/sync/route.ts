@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server';
 import { createServiceClient } from '@/lib/supabase/server';
 import { createVisitCalendarEvent, hasGoogleCalendarConnected } from '@/lib/google-calendar';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST() {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
