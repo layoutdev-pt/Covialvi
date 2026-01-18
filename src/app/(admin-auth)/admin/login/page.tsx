@@ -21,14 +21,25 @@ function AdminLoginForm() {
 
   // Check if already logged in as admin
   useEffect(() => {
+    let mounted = true;
+
     async function checkAuth() {
       try {
         console.log('[Admin Login] Checking auth...');
-        const { data: { user }, error } = await supabase.auth.getUser();
         
-        console.log('[Admin Login] User:', user?.email, 'Error:', error);
+        // Refresh session to ensure we have the latest token
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
-        if (user) {
+        if (sessionError) {
+          console.error('[Admin Login] Session error:', sessionError);
+          if (mounted) setIsCheckingAuth(false);
+          return;
+        }
+
+        const user = session?.user;
+        console.log('[Admin Login] User:', user?.email, 'Session:', !!session);
+        
+        if (user && session) {
           // Check role from JWT (consistent with middleware)
           const role = user.app_metadata?.role || user.user_metadata?.role || 'user';
           const isAdmin = role === 'admin' || role === 'super_admin';
@@ -36,17 +47,20 @@ function AdminLoginForm() {
           console.log('[Admin Login] Role:', role, 'IsAdmin:', isAdmin);
           
           if (isAdmin) {
-            console.log('[Admin Login] Redirecting to /admin...');
-            window.location.href = '/admin';
+            console.log('[Admin Login] Admin detected, redirecting to /admin...');
+            // Use router.replace to avoid adding to history
+            router.replace('/admin');
             return;
+          } else {
+            console.log('[Admin Login] User is not admin, showing login form');
           }
         }
         
-        console.log('[Admin Login] Not admin or not logged in, showing login form');
-        setIsCheckingAuth(false);
+        console.log('[Admin Login] No admin session, showing login form');
+        if (mounted) setIsCheckingAuth(false);
       } catch (err) {
         console.error('[Admin Login] Error checking auth:', err);
-        setIsCheckingAuth(false);
+        if (mounted) setIsCheckingAuth(false);
       }
     }
     
@@ -57,7 +71,11 @@ function AdminLoginForm() {
     if (errorParam === 'unauthorized') {
       setError('Não tem permissões de administrador. Por favor, inicie sessão com uma conta de administrador.');
     }
-  }, [searchParams]);
+
+    return () => {
+      mounted = false;
+    };
+  }, [router, searchParams, supabase.auth]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,7 +116,13 @@ function AdminLoginForm() {
       }
 
       // Success - redirect to admin dashboard
-      window.location.href = '/admin';
+      console.log('[Admin Login] Login successful, redirecting to /admin');
+      
+      // Wait a moment for cookies to be set
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Use router.replace to avoid adding to history
+      router.replace('/admin');
     } catch (err) {
       setError('Ocorreu um erro. Por favor, tente novamente.');
       setIsLoading(false);

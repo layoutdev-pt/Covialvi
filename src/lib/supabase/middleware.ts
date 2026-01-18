@@ -71,8 +71,14 @@ export async function updateSession(request: NextRequest) {
     return response;
   }
 
-  if (!user && (isAdminRoute || isAccountRoute)) {
-    console.log('[Middleware] No user, redirecting to /auth/login');
+  // Redirect unauthenticated users
+  if (!user && isAdminRoute) {
+    console.log('[Middleware] No user on admin route, redirecting to /admin/login');
+    return NextResponse.redirect(new URL('/admin/login', request.url));
+  }
+
+  if (!user && isAccountRoute) {
+    console.log('[Middleware] No user on account route, redirecting to /auth/login');
     const redirectUrl = new URL('/auth/login', request.url);
     redirectUrl.searchParams.set('redirect', request.nextUrl.pathname);
     return NextResponse.redirect(redirectUrl);
