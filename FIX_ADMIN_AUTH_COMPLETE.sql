@@ -183,11 +183,135 @@ ALTER TABLE properties ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "properties_select_published" ON properties FOR SELECT
 USING (status = 'published');
 
--- Admins can do anything (via service role key in API)
--- The API uses service role which bypasses RLS anyway
+-- Admins can view all properties
+CREATE POLICY "properties_select_admin" ON properties FOR SELECT
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM profiles 
+    WHERE profiles.id = auth.uid() 
+    AND profiles.role IN ('admin', 'super_admin')
+  )
+);
+
+-- Admins can insert properties
+CREATE POLICY "properties_insert_admin" ON properties FOR INSERT
+TO authenticated
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM profiles 
+    WHERE profiles.id = auth.uid() 
+    AND profiles.role IN ('admin', 'super_admin')
+  )
+);
+
+-- Admins can update properties
+CREATE POLICY "properties_update_admin" ON properties FOR UPDATE
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM profiles 
+    WHERE profiles.id = auth.uid() 
+    AND profiles.role IN ('admin', 'super_admin')
+  )
+);
+
+-- Admins can delete properties
+CREATE POLICY "properties_delete_admin" ON properties FOR DELETE
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM profiles 
+    WHERE profiles.id = auth.uid() 
+    AND profiles.role IN ('admin', 'super_admin')
+  )
+);
 
 -- ============================================
--- STEP 6: FIX FAVORITES RLS POLICIES
+-- STEP 6: FIX PROPERTY_IMAGES RLS POLICIES
+-- ============================================
+
+ALTER TABLE property_images DISABLE ROW LEVEL SECURITY;
+
+DO $$ 
+DECLARE pol RECORD;
+BEGIN
+    FOR pol IN SELECT policyname FROM pg_policies WHERE tablename = 'property_images'
+    LOOP
+        EXECUTE format('DROP POLICY IF EXISTS %I ON property_images', pol.policyname);
+    END LOOP;
+END $$;
+
+ALTER TABLE property_images ENABLE ROW LEVEL SECURITY;
+
+-- Anyone can view images
+CREATE POLICY "property_images_select_all" ON property_images FOR SELECT USING (true);
+
+-- Admins can insert images
+CREATE POLICY "property_images_insert_admin" ON property_images FOR INSERT
+TO authenticated
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM profiles 
+    WHERE profiles.id = auth.uid() 
+    AND profiles.role IN ('admin', 'super_admin')
+  )
+);
+
+-- Admins can update/delete images
+CREATE POLICY "property_images_update_admin" ON property_images FOR UPDATE
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM profiles 
+    WHERE profiles.id = auth.uid() 
+    AND profiles.role IN ('admin', 'super_admin')
+  )
+);
+
+CREATE POLICY "property_images_delete_admin" ON property_images FOR DELETE
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM profiles 
+    WHERE profiles.id = auth.uid() 
+    AND profiles.role IN ('admin', 'super_admin')
+  )
+);
+
+-- ============================================
+-- STEP 7: FIX PROPERTY_FLOOR_PLANS RLS POLICIES
+-- ============================================
+
+ALTER TABLE property_floor_plans DISABLE ROW LEVEL SECURITY;
+
+DO $$ 
+DECLARE pol RECORD;
+BEGIN
+    FOR pol IN SELECT policyname FROM pg_policies WHERE tablename = 'property_floor_plans'
+    LOOP
+        EXECUTE format('DROP POLICY IF EXISTS %I ON property_floor_plans', pol.policyname);
+    END LOOP;
+END $$;
+
+ALTER TABLE property_floor_plans ENABLE ROW LEVEL SECURITY;
+
+-- Anyone can view floor plans
+CREATE POLICY "property_floor_plans_select_all" ON property_floor_plans FOR SELECT USING (true);
+
+-- Admins can insert floor plans
+CREATE POLICY "property_floor_plans_insert_admin" ON property_floor_plans FOR INSERT
+TO authenticated
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM profiles 
+    WHERE profiles.id = auth.uid() 
+    AND profiles.role IN ('admin', 'super_admin')
+  )
+);
+
+-- ============================================
+-- STEP 8: FIX FAVORITES RLS POLICIES
 -- ============================================
 
 ALTER TABLE favorites DISABLE ROW LEVEL SECURITY;
@@ -208,7 +332,7 @@ CREATE POLICY "favorites_insert_own" ON favorites FOR INSERT TO authenticated WI
 CREATE POLICY "favorites_delete_own" ON favorites FOR DELETE TO authenticated USING (auth.uid() = user_id);
 
 -- ============================================
--- STEP 7: CREATE STORAGE BUCKET FOR DOCUMENTS
+-- STEP 9: CREATE STORAGE BUCKET FOR DOCUMENTS
 -- ============================================
 
 INSERT INTO storage.buckets (id, name, public)

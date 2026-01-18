@@ -1,4 +1,4 @@
-import { createClient, createServiceClient } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
@@ -6,7 +6,6 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: NextRequest) {
   try {
     const supabase = createClient();
-    const serviceClient = createServiceClient();
     const body = await request.json();
 
     console.log('API: Creating property with data:', body);
@@ -23,28 +22,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if user is admin or super_admin using service client
-    const { data: profile, error: profileError } = await serviceClient
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
-
-    console.log('API: Profile:', profile, 'Profile error:', profileError?.message);
-
-    if (!profile || (profile.role !== 'admin' && profile.role !== 'super_admin')) {
-      return NextResponse.json(
-        { error: 'Acesso negado - apenas administradores podem criar imóveis' },
-        { status: 403 }
-      );
-    }
-
-    // Check if reference already exists using service client
-    const { data: existingProperty } = await serviceClient
+    // Check if reference already exists
+    const { data: existingProperty } = await supabase
       .from('properties')
       .select('id')
       .eq('reference', body.reference)
-      .single();
+      .maybeSingle();
 
     if (existingProperty) {
       return NextResponse.json(
@@ -53,8 +36,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create the property using service client (bypasses RLS)
-    const { data: property, error } = await serviceClient
+    // Create the property (RLS policies will verify admin role)
+    const { data: property, error } = await supabase
       .from('properties')
       .insert({
         ...body,
@@ -73,9 +56,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create audit log
+    // Create audit log (ignore errors)
     try {
-      await serviceClient.from('audit_logs').insert({
+      await supabase.from('audit_logs').insert({
         user_id: user.id,
         action: 'create',
         entity_type: 'property',
