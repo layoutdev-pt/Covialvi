@@ -160,11 +160,82 @@ FROM information_schema.triggers
 WHERE event_object_table = 'profiles';
 
 -- ============================================
+-- STEP 5: FIX PROPERTIES RLS POLICIES
+-- ============================================
+
+-- Disable RLS temporarily
+ALTER TABLE properties DISABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies
+DO $$ 
+DECLARE pol RECORD;
+BEGIN
+    FOR pol IN SELECT policyname FROM pg_policies WHERE tablename = 'properties'
+    LOOP
+        EXECUTE format('DROP POLICY IF EXISTS %I ON properties', pol.policyname);
+    END LOOP;
+END $$;
+
+-- Re-enable RLS
+ALTER TABLE properties ENABLE ROW LEVEL SECURITY;
+
+-- Anyone can view published properties
+CREATE POLICY "properties_select_published" ON properties FOR SELECT
+USING (status = 'published' OR status = 'sold' OR status = 'reserved');
+
+-- Admins can do anything (via service role key in API)
+-- The API uses service role which bypasses RLS anyway
+
+-- ============================================
+-- STEP 6: FIX FAVORITES RLS POLICIES
+-- ============================================
+
+ALTER TABLE favorites DISABLE ROW LEVEL SECURITY;
+
+DO $$ 
+DECLARE pol RECORD;
+BEGIN
+    FOR pol IN SELECT policyname FROM pg_policies WHERE tablename = 'favorites'
+    LOOP
+        EXECUTE format('DROP POLICY IF EXISTS %I ON favorites', pol.policyname);
+    END LOOP;
+END $$;
+
+ALTER TABLE favorites ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "favorites_select_own" ON favorites FOR SELECT TO authenticated USING (auth.uid() = user_id);
+CREATE POLICY "favorites_insert_own" ON favorites FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "favorites_delete_own" ON favorites FOR DELETE TO authenticated USING (auth.uid() = user_id);
+
+-- ============================================
+-- STEP 7: CREATE STORAGE BUCKET FOR DOCUMENTS
+-- ============================================
+
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('property-documents', 'property-documents', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Allow authenticated users to upload
+CREATE POLICY "Allow authenticated uploads to property-documents"
+ON storage.objects FOR INSERT
+TO authenticated
+WITH CHECK (bucket_id = 'property-documents');
+
+-- Allow public read
+CREATE POLICY "Allow public read from property-documents"
+ON storage.objects FOR SELECT
+TO public
+USING (bucket_id = 'property-documents');
+
+-- ============================================
 -- EXPECTED RESULTS AFTER RUNNING THIS SCRIPT:
 -- ============================================
 -- 1. profiles table has 3 simple RLS policies (select, update, insert)
 -- 2. Your user shows jwt_role = 'super_admin' and profile_role = 'super_admin'
 -- 3. Triggers sync_role_to_jwt_on_insert and sync_role_to_jwt_on_update exist
+-- 4. properties table has proper RLS for public viewing
+-- 5. favorites table has proper RLS for user operations
+-- 6. property-documents storage bucket exists
 --
 -- After running this, you MUST:
 -- 1. Clear your browser cookies (or logout and login again)
