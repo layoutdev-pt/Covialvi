@@ -164,7 +164,7 @@ export default function NewPropertyPage() {
     try {
       const slug = generateSlug(data.title) + '-' + Date.now();
       
-      // Simplified property data
+      // Complete property data with all fields
       const propertyData = {
         title: data.title,
         reference: data.reference,
@@ -177,11 +177,15 @@ export default function NewPropertyPage() {
         price_on_request: data.price_on_request,
         district: data.district || '',
         municipality: data.municipality || '',
+        parish: data.parish || '',
         address: data.address || '',
+        postal_code: data.postal_code || '',
         gross_area: data.gross_area ? parseFloat(data.gross_area) : null,
         useful_area: data.useful_area ? parseFloat(data.useful_area) : null,
+        land_area: data.land_area ? parseFloat(data.land_area) : null,
         bedrooms: data.bedrooms ? parseInt(data.bedrooms) : null,
         bathrooms: data.bathrooms ? parseInt(data.bathrooms) : null,
+        floors: data.floors ? parseInt(data.floors) : null,
         typology: data.typology || '',
         construction_status: data.construction_status || 'used',
         construction_year: data.construction_year ? parseInt(data.construction_year) : null,
@@ -468,6 +472,10 @@ export default function NewPropertyPage() {
                 <div className="space-y-2">
                   <Label>Área Útil (m²)</Label>
                   <Input {...register('useful_area')} type="number" placeholder="0" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Área Terreno (m²)</Label>
+                  <Input {...register('land_area')} type="number" placeholder="0" />
                 </div>
               </div>
               <div className="grid gap-4 md:grid-cols-4">
