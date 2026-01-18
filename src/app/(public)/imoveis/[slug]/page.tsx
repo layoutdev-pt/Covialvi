@@ -253,11 +253,9 @@ export default async function PropertyDetailPage({ params }: PageProps) {
               <DetailRow label="Distrito" value={property.district || '-'} />
               <DetailRow label="Concelho" value={property.municipality || '-'} />
               <DetailRow label="Freguesia" value={property.parish || '-'} />
-              <DetailRow label="Estado do imóvel" value={constructionStatusLabels[property.construction_status] || '-'} />
+              <DetailRow label="Estado do imóvel" value={property.construction_status ? (constructionStatusLabels[property.construction_status] || property.construction_status) : '-'} />
               <DetailRow label="Natureza" value={natureLabels[property.nature] || '-'} />
               <DetailRow label="Área Bruta" value={property.gross_area ? `${property.gross_area} m²` : '-'} />
-              <DetailRow label="Área Útil" value={property.useful_area ? `${property.useful_area} m²` : '-'} />
-              <DetailRow label="Área Terreno" value={property.land_area ? `${property.land_area} m²` : '-'} />
               <DetailRow label="Tipologia" value={property.typology || '-'} />
               <DetailRow label="Pisos" value={property.floors ? String(property.floors) : '-'} />
               <DetailRow label="Ano Construção" value={property.construction_year ? String(property.construction_year) : '-'} />
