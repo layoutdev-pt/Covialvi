@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Loader2 } from 'lucide-react';
@@ -17,84 +17,90 @@ export function AdminAuthWrapper({ children }: AdminAuthWrapperProps) {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  const checkAuth = useCallback(async () => {
-    const supabase = createClient();
-    
-    try {
-      console.log('[AdminAuthWrapper] Starting auth check...');
-      
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      console.log('[AdminAuthWrapper] Session result:', { 
-        hasSession: !!session, 
-        hasUser: !!session?.user,
-        email: session?.user?.email,
-        error: sessionError?.message
-      });
-      
-      if (sessionError) {
-        console.error('[AdminAuthWrapper] Session error:', sessionError);
-        setIsLoading(false);
-        router.replace('/');
-        return;
-      }
-      
-      if (!session?.user) {
-        console.log('[AdminAuthWrapper] No session, redirecting to homepage');
-        setIsLoading(false);
-        router.replace('/');
-        return;
-      }
-
-      // Fetch full profile from database
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', session.user.id)
-        .single();
-
-      console.log('[AdminAuthWrapper] Profile result:', { 
-        hasProfile: !!profileData, 
-        role: profileData?.role,
-        error: profileError?.message
-      });
-
-      if (profileError) {
-        console.error('[AdminAuthWrapper] Profile error:', profileError);
-        setIsLoading(false);
-        router.replace('/');
-        return;
-      }
-
-      const role = profileData?.role || 'user';
-      const isAdmin = role === 'admin' || role === 'super_admin';
-
-      console.log('[AdminAuthWrapper] Auth check complete:', { 
-        email: session.user.email, 
-        role, 
-        isAdmin 
-      });
-
-      if (!isAdmin) {
-        console.log('[AdminAuthWrapper] Not admin, redirecting to homepage');
-        setIsLoading(false);
-        router.replace('/');
-        return;
-      }
-
-      setProfile(profileData);
-      setIsAuthorized(true);
-      setIsLoading(false);
-    } catch (error) {
-      console.error('[AdminAuthWrapper] Error:', error);
-      setIsLoading(false);
-      router.replace('/');
-    }
-  }, [router]);
-
   useEffect(() => {
+    let isMounted = true;
+    const supabase = createClient();
+
+    async function checkAuth() {
+      try {
+        console.log('[AdminAuthWrapper] Starting auth check...');
+        
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        console.log('[AdminAuthWrapper] Session result:', { 
+          hasSession: !!session, 
+          hasUser: !!session?.user,
+          email: session?.user?.email,
+          error: sessionError?.message
+        });
+        
+        if (!isMounted) return;
+        
+        if (sessionError || !session?.user) {
+          console.log('[AdminAuthWrapper] No valid session, redirecting to homepage');
+          setIsLoading(false);
+          router.replace('/');
+          return;
+        }
+
+        // Fetch full profile from database
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+
+        console.log('[AdminAuthWrapper] Profile result:', { 
+          hasProfile: !!profileData, 
+          role: profileData?.role,
+          error: profileError?.message
+        });
+
+        if (!isMounted) return;
+
+        if (profileError || !profileData) {
+          console.log('[AdminAuthWrapper] No profile, redirecting to homepage');
+          setIsLoading(false);
+          router.replace('/');
+          return;
+        }
+
+        const role = profileData.role || 'user';
+        const isAdmin = role === 'admin' || role === 'super_admin';
+
+        console.log('[AdminAuthWrapper] Auth check complete:', { 
+          email: session.user.email, 
+          role, 
+          isAdmin 
+        });
+
+        if (!isAdmin) {
+          console.log('[AdminAuthWrapper] Not admin, redirecting to homepage');
+          setIsLoading(false);
+          router.replace('/');
+          return;
+        }
+
+        if (isMounted) {
+          setProfile(profileData);
+          setIsAuthorized(true);
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error('[AdminAuthWrapper] Error:', error);
+        if (isMounted) {
+          setIsLoading(false);
+          router.replace('/');
+        }
+      }
+    }
+
     checkAuth();
-  }, [checkAuth]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [router]);
 
   if (isLoading) {
     return (
