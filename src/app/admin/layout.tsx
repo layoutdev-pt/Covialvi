@@ -48,8 +48,14 @@ export default async function AdminLayout({
     redirect('/admin/login?error=unauthorized');
   }
 
-  // Still fetch profile for display purposes (name, avatar, etc.)
+  // Fetch profile for display purposes (name, avatar, etc.)
   const profile = await getProfile();
+  
+  // If profile fetch failed, redirect to login
+  if (!profile) {
+    redirect('/admin/login');
+  }
+  
   const isSuperAdmin = role === 'super_admin';
 
   return (
