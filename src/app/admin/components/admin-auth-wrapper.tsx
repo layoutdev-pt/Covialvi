@@ -21,25 +21,55 @@ export function AdminAuthWrapper({ children }: AdminAuthWrapperProps) {
     const supabase = createClient();
     
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      console.log('[AdminAuthWrapper] Starting auth check...');
+      
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      console.log('[AdminAuthWrapper] Session result:', { 
+        hasSession: !!session, 
+        hasUser: !!session?.user,
+        email: session?.user?.email,
+        error: sessionError?.message
+      });
+      
+      if (sessionError) {
+        console.error('[AdminAuthWrapper] Session error:', sessionError);
+        setIsLoading(false);
+        router.replace('/');
+        return;
+      }
       
       if (!session?.user) {
         console.log('[AdminAuthWrapper] No session, redirecting to homepage');
+        setIsLoading(false);
         router.replace('/');
         return;
       }
 
       // Fetch full profile from database
-      const { data: profileData } = await supabase
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', session.user.id)
         .single();
 
+      console.log('[AdminAuthWrapper] Profile result:', { 
+        hasProfile: !!profileData, 
+        role: profileData?.role,
+        error: profileError?.message
+      });
+
+      if (profileError) {
+        console.error('[AdminAuthWrapper] Profile error:', profileError);
+        setIsLoading(false);
+        router.replace('/');
+        return;
+      }
+
       const role = profileData?.role || 'user';
       const isAdmin = role === 'admin' || role === 'super_admin';
 
-      console.log('[AdminAuthWrapper] Auth check:', { 
+      console.log('[AdminAuthWrapper] Auth check complete:', { 
         email: session.user.email, 
         role, 
         isAdmin 
@@ -47,6 +77,7 @@ export function AdminAuthWrapper({ children }: AdminAuthWrapperProps) {
 
       if (!isAdmin) {
         console.log('[AdminAuthWrapper] Not admin, redirecting to homepage');
+        setIsLoading(false);
         router.replace('/');
         return;
       }
@@ -56,6 +87,7 @@ export function AdminAuthWrapper({ children }: AdminAuthWrapperProps) {
       setIsLoading(false);
     } catch (error) {
       console.error('[AdminAuthWrapper] Error:', error);
+      setIsLoading(false);
       router.replace('/');
     }
   }, [router]);
