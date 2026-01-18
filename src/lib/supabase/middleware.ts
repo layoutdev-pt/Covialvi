@@ -53,12 +53,16 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  // CRITICAL: Refresh the session to ensure we have the latest auth state
+  // CRITICAL: Use getUser() to validate the token with Supabase servers
+  // This is more reliable than getSession() which only reads from cookies
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
 
-  const user = session?.user ?? null;
+  if (userError) {
+    console.log('[Middleware] Auth error:', userError.message);
+  }
 
   // Protected routes
   const isAdminRoute = request.nextUrl.pathname.startsWith('/admin');

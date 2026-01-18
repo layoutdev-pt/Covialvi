@@ -48,8 +48,8 @@ function AdminLoginForm() {
           
           if (isAdmin) {
             console.log('[Admin Login] Admin detected, redirecting to /admin...');
-            // Use router.replace to avoid adding to history
-            router.replace('/admin');
+            // Use window.location.replace to force a full page navigation
+            window.location.replace('/admin');
             return;
           } else {
             console.log('[Admin Login] User is not admin, showing login form');
@@ -121,8 +121,8 @@ function AdminLoginForm() {
       // Wait a moment for cookies to be set
       await new Promise(resolve => setTimeout(resolve, 100));
       
-      // Use router.replace to avoid adding to history
-      router.replace('/admin');
+      // Use window.location.replace to force a full page navigation
+      window.location.replace('/admin');
     } catch (err) {
       setError('Ocorreu um erro. Por favor, tente novamente.');
       setIsLoading(false);
