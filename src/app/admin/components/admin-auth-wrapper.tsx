@@ -23,8 +23,8 @@ export function AdminAuthWrapper({ children }: AdminAuthWrapperProps) {
         const { data: { session } } = await supabase.auth.getSession();
         
         if (!session?.user) {
-          console.log('[AdminAuthWrapper] No session, redirecting to login');
-          router.replace('/admin/login');
+          console.log('[AdminAuthWrapper] No session, redirecting to homepage');
+          router.replace('/');
           return;
         }
 
@@ -45,8 +45,8 @@ export function AdminAuthWrapper({ children }: AdminAuthWrapperProps) {
         });
 
         if (!isAdmin) {
-          console.log('[AdminAuthWrapper] Not admin, redirecting to login');
-          router.replace('/admin/login?error=unauthorized');
+          console.log('[AdminAuthWrapper] Not admin, redirecting to homepage');
+          router.replace('/');
           return;
         }
 
@@ -57,7 +57,7 @@ export function AdminAuthWrapper({ children }: AdminAuthWrapperProps) {
       } catch (error) {
         console.error('[AdminAuthWrapper] Error:', error);
         if (mounted) {
-          router.replace('/admin/login');
+          router.replace('/');
         }
       }
     }
