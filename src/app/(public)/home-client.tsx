@@ -330,63 +330,14 @@ export function HomeClient({ properties, stats, heroProperty }: HomeClientProps)
         >
           {heroProperties.length > 0 ? (
             <div className="grid md:grid-cols-3 gap-6">
-              {heroProperties.map((property: any) => {
-                const coverImage = property.property_images?.find((img: any) => img.is_cover) ||
-                  property.property_images?.[0];
-                return (
-                  <Link key={property.id} href={`/imoveis/${property.slug}`}>
-                    <motion.div
-                      whileHover={{ y: -5, scale: 1.02 }}
-                      className="group relative bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all"
-                    >
-                      <div className="relative aspect-[16/10]">
-                        {coverImage ? (
-                          <Image
-                            src={coverImage.url}
-                            alt={property.title}
-                            fill
-                            className="object-cover transition-transform duration-500 group-hover:scale-105"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                            <Building2 className="h-8 w-8 text-gray-300" />
-                          </div>
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                        
-                        {/* Badge */}
-                        <span className="absolute top-3 left-3 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-xs font-medium text-gray-900">
-                          {businessTypeLabels[property.business_type] || 'Venda'}
-                        </span>
-                        
-                        {/* Heart/Save Button */}
-                        <button 
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                          }}
-                          className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-yellow-500 hover:text-white transition-colors"
-                        >
-                          <Heart className="h-4 w-4 text-gray-700" />
-                        </button>
-                      </div>
-                      
-                      <div className="absolute bottom-0 left-0 right-0 p-4">
-                        <div className="flex items-center gap-1 text-white/80 text-xs mb-1">
-                          <MapPin className="h-3 w-3" />
-                          {property.municipality || property.district || 'Portugal'}
-                        </div>
-                        <h3 className="font-semibold text-white text-sm line-clamp-1 mb-1">
-                          {property.title}
-                        </h3>
-                        <p className="text-white font-bold text-lg">
-                          {property.price_on_request ? 'Sob Consulta' : formatPrice(property.price)}
-                        </p>
-                      </div>
-                    </motion.div>
-                  </Link>
-                );
-              })}
+              {heroProperties.map((property: any) => (
+                <HeroPropertyCard 
+                  key={property.id} 
+                  property={property} 
+                  formatPrice={formatPrice}
+                  businessTypeLabels={businessTypeLabels}
+                />
+              ))}
             </div>
           ) : (
             <div className="text-center py-8 bg-white/10 backdrop-blur-sm rounded-2xl">
@@ -888,5 +839,119 @@ function PropertyCard({
         </p>
       </div>
     </motion.article>
+  );
+}
+
+// Hero Property Card Component - With Video Hover
+function HeroPropertyCard({ 
+  property, 
+  formatPrice, 
+  businessTypeLabels 
+}: { 
+  property: any; 
+  formatPrice: (price: number | null) => string;
+  businessTypeLabels: Record<string, string>;
+}) {
+  const [isHovered, setIsHovered] = useState(false);
+  
+  const coverImage = property.property_images?.find((img: any) => img.is_cover) ||
+    property.property_images?.[0];
+  
+  const hasVideo = property.video_url;
+  
+  // Extract YouTube video ID if it's a YouTube URL
+  const getYouTubeEmbedUrl = (url: string) => {
+    if (!url) return null;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    if (match && match[2].length === 11) {
+      return `https://www.youtube.com/embed/${match[2]}?autoplay=1&mute=1&loop=1&playlist=${match[2]}&controls=0&showinfo=0`;
+    }
+    return url;
+  };
+  
+  const videoEmbedUrl = hasVideo ? getYouTubeEmbedUrl(property.video_url) : null;
+
+  return (
+    <Link href={`/imoveis/${property.slug}`}>
+      <motion.div
+        whileHover={{ y: -5, scale: 1.02 }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        className="group relative bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all"
+      >
+        <div className="relative aspect-[16/10]">
+          {/* Image - shown when not hovered or no video */}
+          <div className={`absolute inset-0 transition-opacity duration-500 ${isHovered && hasVideo ? 'opacity-0' : 'opacity-100'}`}>
+            {coverImage ? (
+              <Image
+                src={coverImage.url}
+                alt={property.title}
+                fill
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+            ) : (
+              <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                <Building2 className="h-8 w-8 text-gray-300" />
+              </div>
+            )}
+          </div>
+          
+          {/* Video - shown on hover if property has video */}
+          {hasVideo && isHovered && (
+            <div className="absolute inset-0 z-10">
+              <iframe
+                src={videoEmbedUrl || ''}
+                className="w-full h-full object-cover"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                style={{ border: 'none', pointerEvents: 'none' }}
+              />
+            </div>
+          )}
+          
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-20 pointer-events-none" />
+          
+          {/* Video indicator badge */}
+          {hasVideo && !isHovered && (
+            <div className="absolute top-3 left-3 z-20">
+              <span className="inline-flex items-center gap-1 px-2 py-1 bg-black/70 backdrop-blur-sm rounded-full text-xs font-medium text-white">
+                <Play className="h-3 w-3 fill-white" />
+                Vídeo
+              </span>
+            </div>
+          )}
+          
+          {/* Badge */}
+          <span className="absolute top-3 right-3 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-xs font-medium text-gray-900 z-20">
+            {businessTypeLabels[property.business_type] || 'Venda'}
+          </span>
+          
+          {/* Heart/Save Button */}
+          <button 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+            className="absolute top-10 left-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-yellow-500 hover:text-white transition-colors z-20 opacity-0 group-hover:opacity-100"
+          >
+            <Heart className="h-4 w-4 text-gray-700" />
+          </button>
+        </div>
+        
+        <div className="absolute bottom-0 left-0 right-0 p-4 z-20">
+          <div className="flex items-center gap-1 text-white/80 text-xs mb-1">
+            <MapPin className="h-3 w-3" />
+            {property.municipality || property.district || 'Portugal'}
+          </div>
+          <h3 className="font-semibold text-white text-sm line-clamp-1 mb-1">
+            {property.title}
+          </h3>
+          <p className="text-white font-bold text-lg">
+            {property.price_on_request ? 'Sob Consulta' : formatPrice(property.price)}
+          </p>
+        </div>
+      </motion.div>
+    </Link>
   );
 }
