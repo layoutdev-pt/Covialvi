@@ -22,20 +22,32 @@ function AdminLoginForm() {
   // Check if already logged in as admin
   useEffect(() => {
     async function checkAuth() {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (user) {
-        // Check role from JWT (consistent with middleware)
-        const role = user.app_metadata?.role || user.user_metadata?.role || 'user';
-        const isAdmin = role === 'admin' || role === 'super_admin';
+      try {
+        console.log('[Admin Login] Checking auth...');
+        const { data: { user }, error } = await supabase.auth.getUser();
         
-        if (isAdmin) {
-          window.location.href = '/admin';
-          return;
+        console.log('[Admin Login] User:', user?.email, 'Error:', error);
+        
+        if (user) {
+          // Check role from JWT (consistent with middleware)
+          const role = user.app_metadata?.role || user.user_metadata?.role || 'user';
+          const isAdmin = role === 'admin' || role === 'super_admin';
+          
+          console.log('[Admin Login] Role:', role, 'IsAdmin:', isAdmin);
+          
+          if (isAdmin) {
+            console.log('[Admin Login] Redirecting to /admin...');
+            window.location.href = '/admin';
+            return;
+          }
         }
+        
+        console.log('[Admin Login] Not admin or not logged in, showing login form');
+        setIsCheckingAuth(false);
+      } catch (err) {
+        console.error('[Admin Login] Error checking auth:', err);
+        setIsCheckingAuth(false);
       }
-      
-      setIsCheckingAuth(false);
     }
     
     checkAuth();
