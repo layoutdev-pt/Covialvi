@@ -245,6 +245,8 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
   const [propertyImages, setPropertyImages] = useState<File[]>([]);
   const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
   const [coverImageIndex, setCoverImageIndex] = useState<number>(0);
+  const [existingBrochure, setExistingBrochure] = useState<string | null>(null);
+  const [existingFloorPlans, setExistingFloorPlans] = useState<any[]>([]);
   
   // Custom options state
   const [customZonaEnvolvente, setCustomZonaEnvolvente] = useState<string[]>([]);
@@ -339,6 +341,14 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
           setImagePreviewUrls(urls);
           const coverIdx = data.property_images.findIndex((img: any) => img.is_cover);
           if (coverIdx >= 0) setCoverImageIndex(coverIdx);
+        }
+        
+        // Load existing brochure and floor plans
+        if (data.brochure_url) {
+          setExistingBrochure(data.brochure_url);
+        }
+        if (data.property_floor_plans && data.property_floor_plans.length > 0) {
+          setExistingFloorPlans(data.property_floor_plans);
         }
         
         setIsLoading(false);
@@ -1304,6 +1314,22 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
               {/* Brochures */}
               <div className="space-y-3">
                 <Label>Brochuras (PDF)</Label>
+                {existingBrochure && (
+                  <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                    <a href={existingBrochure} target="_blank" rel="noopener noreferrer" className="text-sm text-green-700 hover:underline truncate">
+                      📄 Brochura existente
+                    </a>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setExistingBrochure(null)}
+                      className="h-6 w-6 text-red-500"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
                 <div className="border-2 border-dashed border-input rounded-lg p-4 text-center">
                   <input
                     type="file"
@@ -1316,7 +1342,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                   <label htmlFor="brochure-upload" className="cursor-pointer">
                     <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">
-                      Clique para carregar brochuras
+                      {existingBrochure ? 'Substituir brochura' : 'Clique para carregar brochuras'}
                     </p>
                   </label>
                 </div>
@@ -1343,6 +1369,26 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
               {/* Floor Plans */}
               <div className="space-y-3">
                 <Label>Plantas (Imagens ou PDF)</Label>
+                {existingFloorPlans.length > 0 && (
+                  <div className="space-y-2">
+                    {existingFloorPlans.map((plan, index) => (
+                      <div key={plan.id || index} className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                        <a href={plan.url} target="_blank" rel="noopener noreferrer" className="text-sm text-green-700 hover:underline truncate">
+                          📐 Planta {index + 1}
+                        </a>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setExistingFloorPlans(existingFloorPlans.filter((_, i) => i !== index))}
+                          className="h-6 w-6 text-red-500"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
                 <div className="border-2 border-dashed border-input rounded-lg p-4 text-center">
                   <input
                     type="file"
@@ -1355,7 +1401,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                   <label htmlFor="floorplan-upload" className="cursor-pointer">
                     <Layers className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">
-                      Clique para carregar plantas
+                      {existingFloorPlans.length > 0 ? 'Adicionar mais plantas' : 'Clique para carregar plantas'}
                     </p>
                   </label>
                 </div>
