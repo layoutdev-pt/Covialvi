@@ -215,6 +215,10 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('property-documents', 'property-documents', true)
 ON CONFLICT (id) DO NOTHING;
 
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Allow authenticated uploads to property-documents" ON storage.objects;
+DROP POLICY IF EXISTS "Allow public read from property-documents" ON storage.objects;
+
 -- Allow authenticated users to upload
 CREATE POLICY "Allow authenticated uploads to property-documents"
 ON storage.objects FOR INSERT
