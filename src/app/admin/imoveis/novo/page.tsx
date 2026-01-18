@@ -58,6 +58,8 @@ const propertySchema = z.object({
   construction_status: z.string().optional(),
   construction_year: z.string().optional(),
   energy_certificate: z.string().optional(),
+  video_url: z.string().optional(),
+  virtual_tour_url: z.string().optional(),
 });
 
 type PropertyFormData = z.infer<typeof propertySchema>;
@@ -127,6 +129,9 @@ export default function NewPropertyPage() {
   const [brochure, setBrochure] = useState<File | null>(null);
   const [floorPlans, setFloorPlans] = useState<File[]>([]);
   const [floorPlansPreviews, setFloorPlansPreviews] = useState<string[]>([]);
+  const [equipment, setEquipment] = useState<string[]>([]);
+  const [extras, setExtras] = useState<string[]>([]);
+  const [surroundingArea, setSurroundingArea] = useState<string[]>([]);
 
   const {
     register,
@@ -218,6 +223,11 @@ export default function NewPropertyPage() {
         construction_status: data.construction_status || 'used',
         construction_year: data.construction_year ? parseInt(data.construction_year) : null,
         energy_certificate: data.energy_certificate || '',
+        video_url: data.video_url || '',
+        virtual_tour_url: data.virtual_tour_url || '',
+        equipment: equipment.length > 0 ? equipment : null,
+        extras: extras.length > 0 ? extras : null,
+        surrounding_area: surroundingArea.length > 0 ? surroundingArea : null,
       };
 
       console.log('Creating property:', propertyData);
@@ -741,6 +751,107 @@ export default function NewPropertyPage() {
                     ))}
                   </div>
                 )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Video & Virtual Tour */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Vídeo e Tour Virtual</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Link do Vídeo (YouTube, Vimeo)</Label>
+                <Input {...register('video_url')} placeholder="https://youtube.com/watch?v=..." />
+              </div>
+              <div className="space-y-2">
+                <Label>Link do Tour Virtual 360º</Label>
+                <Input {...register('virtual_tour_url')} placeholder="https://..." />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Zona Envolvente */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Zona Envolvente</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto">
+                {['Ampla Oferta de Serviços', 'Biblioteca', 'Centro Comercial', 'Condomínio Fechado', 'Escola', 'Espaços Verdes', 'Estação Ferroviária', 'Estação Rodoviária', 'Excelentes Acessos', 'Hipermercado', 'Hospital', 'Polícia', 'Praça Táxis', 'Praia', 'Transportes Públicos', 'Universidade', 'Vista para Cidade', 'Vista para Mar', 'Vista para Montanha', 'Vista para Rio', 'Zona Comercial', 'Zona Histórica', 'Zona Residencial'].map((item) => (
+                  <label key={item} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-secondary p-1 rounded">
+                    <input
+                      type="checkbox"
+                      checked={surroundingArea.includes(item)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSurroundingArea([...surroundingArea, item]);
+                        } else {
+                          setSurroundingArea(surroundingArea.filter((i) => i !== item));
+                        }
+                      }}
+                      className="h-4 w-4 rounded border-gray-300"
+                    />
+                    {item}
+                  </label>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Equipamentos */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Equipamentos</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto">
+                {['Ar Condicionado', 'Aquecimento Central', 'Aspiração Central', 'Bomba de Calor', 'Caldeira', 'Carregamento Eléctrico', 'Domótica', 'Elevador', 'Estores Eléctricos', 'Exaustor', 'Fogão', 'Forno', 'Frigorífico', 'Gás Canalizado', 'Lareira', 'Máquina Lavar Louça', 'Máquina Lavar Roupa', 'Máquina Secar Roupa', 'Microondas', 'Painéis Solares', 'Piso Radiante', 'Placa Vitrocerâmica', 'Poliban', 'Porta Blindada', 'Recuperador de Calor', 'Roupeiros', 'Termoacumulador', 'Vídeo Porteiro', 'Vidros Duplos'].map((item) => (
+                  <label key={item} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-secondary p-1 rounded">
+                    <input
+                      type="checkbox"
+                      checked={equipment.includes(item)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setEquipment([...equipment, item]);
+                        } else {
+                          setEquipment(equipment.filter((i) => i !== item));
+                        }
+                      }}
+                      className="h-4 w-4 rounded border-gray-300"
+                    />
+                    {item}
+                  </label>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Extras */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Extras</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto">
+                {['Alarme', 'Arrecadação', 'Barbecue', 'Box', 'Churrasqueira', 'Despensa', 'Garagem', 'Jardim', 'Lugar de Estacionamento', 'Luz Natural', 'Piscina', 'Quintal', 'Sotão', 'Suite', 'Terraço', 'Varanda', 'Vista Desafogada'].map((item) => (
+                  <label key={item} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-secondary p-1 rounded">
+                    <input
+                      type="checkbox"
+                      checked={extras.includes(item)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setExtras([...extras, item]);
+                        } else {
+                          setExtras(extras.filter((i) => i !== item));
+                        }
+                      }}
+                      className="h-4 w-4 rounded border-gray-300"
+                    />
+                    {item}
+                  </label>
+                ))}
               </div>
             </CardContent>
           </Card>
