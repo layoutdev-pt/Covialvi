@@ -31,11 +31,6 @@ export async function updateSession(request: NextRequest) {
             value,
             ...options,
           });
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          });
           response.cookies.set({
             name,
             value,
@@ -48,11 +43,6 @@ export async function updateSession(request: NextRequest) {
             value: '',
             ...options,
           });
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          });
           response.cookies.set({
             name,
             value: '',
@@ -63,9 +53,12 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
+  // CRITICAL: Refresh the session to ensure we have the latest auth state
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const user = session?.user ?? null;
 
   // Protected routes
   const isAdminRoute = request.nextUrl.pathname.startsWith('/admin');
@@ -96,14 +89,28 @@ export async function updateSession(request: NextRequest) {
       .eq('id', user.id)
       .single() as { data: { role: string } | null; error: any };
 
-    console.log('[Middleware] Admin route check:', { 
-      userId: user.id, 
-      profile: profile?.role,
-      error: error?.message 
+    if (error) {
+      console.error('[Middleware] Error fetching profile:', error);
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+
+    if (!profile) {
+      console.error('[Middleware] No profile found for user:', user.id);
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+
+    const isAdmin = profile.role === 'admin' || profile.role === 'super_admin';
+    
+    console.log('[Middleware] Admin check:', { 
+      userId: user.id,
+      email: user.email,
+      role: profile.role,
+      isAdmin,
+      path: request.nextUrl.pathname
     });
 
-    if (!profile || (profile.role !== 'admin' && profile.role !== 'super_admin')) {
-      console.log('[Middleware] Not admin, redirecting to /');
+    if (!isAdmin) {
+      console.log('[Middleware] Access denied - not admin, redirecting to /');
       return NextResponse.redirect(new URL('/', request.url));
     }
   }

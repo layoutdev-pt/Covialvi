@@ -5,15 +5,23 @@ import { AdminTopbar } from './components/admin-topbar';
 
 async function getProfile(): Promise<any | null> {
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
   
-  if (!user) return null;
+  if (userError || !user) {
+    console.error('[Admin Layout] Error getting user:', userError);
+    return null;
+  }
   
-  const { data: profile } = await supabase
+  const { data: profile, error: profileError } = await supabase
     .from('profiles')
     .select('*')
     .eq('id', user.id)
     .single();
+  
+  if (profileError) {
+    console.error('[Admin Layout] Error getting profile:', profileError);
+    return null;
+  }
     
   return profile;
 }
