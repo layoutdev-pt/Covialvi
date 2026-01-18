@@ -31,19 +31,26 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const profile = await getProfile();
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
   
   // If not logged in, redirect to admin login
-  if (!profile) {
+  if (!user) {
     redirect('/admin/login');
   }
   
+  // Get role from JWT (consistent with middleware)
+  const role = user.app_metadata?.role || user.user_metadata?.role || 'user';
+  const isAdmin = role === 'admin' || role === 'super_admin';
+  
   // If logged in but not admin, redirect to admin login with error
-  if (profile.role !== 'admin' && profile.role !== 'super_admin') {
+  if (!isAdmin) {
     redirect('/admin/login?error=unauthorized');
   }
 
-  const isSuperAdmin = profile.role === 'super_admin';
+  // Still fetch profile for display purposes (name, avatar, etc.)
+  const profile = await getProfile();
+  const isSuperAdmin = role === 'super_admin';
 
   return (
     <div className="min-h-screen bg-background text-foreground">

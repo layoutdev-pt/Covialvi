@@ -83,30 +83,17 @@ export async function updateSession(request: NextRequest) {
 
   // Check admin role for admin routes
   if (user && isAdminRoute) {
-    const { data: profile, error } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single() as { data: { role: string } | null; error: any };
-
-    if (error) {
-      console.error('[Middleware] Error fetching profile:', error);
-      return NextResponse.redirect(new URL('/', request.url));
-    }
-
-    if (!profile) {
-      console.error('[Middleware] No profile found for user:', user.id);
-      return NextResponse.redirect(new URL('/', request.url));
-    }
-
-    const isAdmin = profile.role === 'admin' || profile.role === 'super_admin';
+    // Get role from JWT app_metadata (faster than database lookup)
+    const role = user.app_metadata?.role || user.user_metadata?.role || 'user';
+    const isAdmin = role === 'admin' || role === 'super_admin';
     
     console.log('[Middleware] Admin check:', { 
       userId: user.id,
       email: user.email,
-      role: profile.role,
+      role,
       isAdmin,
-      path: request.nextUrl.pathname
+      path: request.nextUrl.pathname,
+      source: 'JWT'
     });
 
     if (!isAdmin) {
