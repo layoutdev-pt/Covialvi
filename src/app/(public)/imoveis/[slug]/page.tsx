@@ -249,15 +249,20 @@ export default async function PropertyDetailPage({ params }: PageProps) {
           <div className="lg:col-span-2 space-y-8">
             {/* Property Details Table */}
             <div className="space-y-4">
-              <DetailRow label={businessTypeLabels[property.business_type] || 'Venda'} value={property.price ? formatPrice(property.price) : 'NaN'} />
+              <DetailRow label={businessTypeLabels[property.business_type] || 'Venda'} value={property.price ? formatPrice(property.price) : 'Sob Consulta'} />
               <DetailRow label="Distrito" value={property.district || '-'} />
-              <DetailRow label="cidade" value={property.municipality || '-'} />
+              <DetailRow label="Concelho" value={property.municipality || '-'} />
+              <DetailRow label="Freguesia" value={property.parish || '-'} />
               <DetailRow label="Estado do imóvel" value={constructionStatusLabels[property.construction_status] || '-'} />
               <DetailRow label="Natureza" value={natureLabels[property.nature] || '-'} />
-              <DetailRow label="Área bruta" value={property.gross_area ? `Área Bruta ${property.gross_area}` : '-'} />
+              <DetailRow label="Área Bruta" value={property.gross_area ? `${property.gross_area} m²` : '-'} />
+              <DetailRow label="Área Útil" value={property.useful_area ? `${property.useful_area} m²` : '-'} />
+              <DetailRow label="Área Terreno" value={property.land_area ? `${property.land_area} m²` : '-'} />
               <DetailRow label="Tipologia" value={property.typology || '-'} />
+              <DetailRow label="Pisos" value={property.floors ? String(property.floors) : '-'} />
+              <DetailRow label="Ano Construção" value={property.construction_year ? String(property.construction_year) : '-'} />
               <DetailRow label="Categoria Energética" value={property.energy_certificate || '-'} />
-              <DetailRow label="Referencia" value={property.reference || '-'} />
+              <DetailRow label="Referência" value={property.reference || '-'} />
             </div>
 
             {/* Description */}
@@ -398,6 +403,35 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                 />
               </div>
             </div>
+
+            {/* Video & Virtual Tour */}
+            {(property.video_url || property.virtual_tour_url) && (
+              <div className="pt-8 border-t border-border">
+                <h2 className="text-xl font-bold text-foreground mb-4">Vídeo e Tour Virtual</h2>
+                <div className="space-y-4">
+                  {property.video_url && (
+                    <div className="aspect-video rounded-2xl overflow-hidden bg-gray-100">
+                      <iframe
+                        src={property.video_url.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')}
+                        className="w-full h-full border-0"
+                        allowFullScreen
+                        loading="lazy"
+                      />
+                    </div>
+                  )}
+                  {property.virtual_tour_url && (
+                    <a
+                      href={property.virtual_tour_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-yellow-500 text-white font-medium hover:bg-yellow-600 transition-colors"
+                    >
+                      Ver Tour Virtual 360º
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Right Column - Contact Form */}
