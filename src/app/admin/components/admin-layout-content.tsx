@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { AdminSidebar } from './admin-sidebar';
 import { AdminTopbar } from './admin-topbar';
@@ -13,31 +13,31 @@ interface AdminLayoutContentProps {
 export function AdminLayoutContent({ children }: AdminLayoutContentProps) {
   const [profile, setProfile] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const supabase = createClient();
+
+  const fetchProfile = useCallback(async () => {
+    const supabase = createClient();
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session?.user) {
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+        
+        setProfile(profileData);
+      }
+    } catch (error) {
+      console.error('[AdminLayoutContent] Error fetching profile:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    async function fetchProfile() {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        if (session?.user) {
-          const { data: profileData } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single();
-          
-          setProfile(profileData);
-        }
-      } catch (error) {
-        console.error('[AdminLayoutContent] Error fetching profile:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
     fetchProfile();
-  }, [supabase]);
+  }, [fetchProfile]);
 
   if (isLoading) {
     return (

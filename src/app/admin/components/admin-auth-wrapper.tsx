@@ -1,9 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Loader2 } from 'lucide-react';
+import { AdminSidebar } from './admin-sidebar';
+import { AdminTopbar } from './admin-topbar';
 
 interface AdminAuthWrapperProps {
   children: React.ReactNode;
@@ -11,63 +13,56 @@ interface AdminAuthWrapperProps {
 
 export function AdminAuthWrapper({ children }: AdminAuthWrapperProps) {
   const router = useRouter();
+  const [profile, setProfile] = useState<any>(null);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const supabase = createClient();
+
+  const checkAuth = useCallback(async () => {
+    const supabase = createClient();
+    
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.user) {
+        console.log('[AdminAuthWrapper] No session, redirecting to homepage');
+        router.replace('/');
+        return;
+      }
+
+      // Fetch full profile from database
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
+
+      const role = profileData?.role || 'user';
+      const isAdmin = role === 'admin' || role === 'super_admin';
+
+      console.log('[AdminAuthWrapper] Auth check:', { 
+        email: session.user.email, 
+        role, 
+        isAdmin 
+      });
+
+      if (!isAdmin) {
+        console.log('[AdminAuthWrapper] Not admin, redirecting to homepage');
+        router.replace('/');
+        return;
+      }
+
+      setProfile(profileData);
+      setIsAuthorized(true);
+      setIsLoading(false);
+    } catch (error) {
+      console.error('[AdminAuthWrapper] Error:', error);
+      router.replace('/');
+    }
+  }, [router]);
 
   useEffect(() => {
-    let mounted = true;
-
-    async function checkAuth() {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        if (!session?.user) {
-          console.log('[AdminAuthWrapper] No session, redirecting to homepage');
-          router.replace('/');
-          return;
-        }
-
-        // Check role from database
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', session.user.id)
-          .single();
-
-        const role = profile?.role || 'user';
-        const isAdmin = role === 'admin' || role === 'super_admin';
-
-        console.log('[AdminAuthWrapper] Auth check:', { 
-          email: session.user.email, 
-          role, 
-          isAdmin 
-        });
-
-        if (!isAdmin) {
-          console.log('[AdminAuthWrapper] Not admin, redirecting to homepage');
-          router.replace('/');
-          return;
-        }
-
-        if (mounted) {
-          setIsAuthorized(true);
-          setIsLoading(false);
-        }
-      } catch (error) {
-        console.error('[AdminAuthWrapper] Error:', error);
-        if (mounted) {
-          router.replace('/');
-        }
-      }
-    }
-
     checkAuth();
-
-    return () => {
-      mounted = false;
-    };
-  }, [router, supabase]);
+  }, [checkAuth]);
 
   if (isLoading) {
     return (
@@ -77,9 +72,19 @@ export function AdminAuthWrapper({ children }: AdminAuthWrapperProps) {
     );
   }
 
-  if (!isAuthorized) {
+  if (!isAuthorized || !profile) {
     return null;
   }
 
-  return <>{children}</>;
+  const isSuperAdmin = profile.role === 'super_admin';
+
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      <AdminSidebar profile={profile} isSuperAdmin={isSuperAdmin} />
+      <div className="pl-72">
+        <AdminTopbar profile={profile} />
+        <main className="p-8">{children}</main>
+      </div>
+    </div>
+  );
 }
