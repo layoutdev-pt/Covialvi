@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     // Create the property (RLS policies will verify admin role)
     const { data: property, error } = await supabase
       .from('properties')
-      .insert(createPayload)
+      .insert(body)
       .select()
       .single();
 

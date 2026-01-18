@@ -41,7 +41,6 @@ import {
   Upload,
   Trash2,
   Image as ImageIcon,
-  FileText,
 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -253,6 +252,8 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
   const [coverImageIndex, setCoverImageIndex] = useState<number>(0);
   const [existingBrochure, setExistingBrochure] = useState<string | null>(null);
   const [existingFloorPlans, setExistingFloorPlans] = useState<any[]>([]);
+  const [brochureUrl, setBrochureUrl] = useState<string | null>(null);
+  const [isUploadingBrochure, setIsUploadingBrochure] = useState(false);
   
   // Custom options state
   const [customZonaEnvolvente, setCustomZonaEnvolvente] = useState<string[]>([]);
@@ -424,6 +425,15 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
     setSelectedEstado(prev => 
       prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]
     );
+  };
+
+  // Auto-save placeholder functions (not used but referenced in JSX)
+  const handleFieldBlur = (field: string, value: any) => {
+    // Auto-save not implemented for edit page - saves on submit
+  };
+
+  const saveField = (field: string, value: any) => {
+    // Auto-save not implemented for edit page - saves on submit
   };
 
   // File handlers

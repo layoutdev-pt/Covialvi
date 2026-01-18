@@ -149,6 +149,7 @@ export default function NewPropertyPage() {
   const [equipment, setEquipment] = useState<string[]>([]);
   const [extras, setExtras] = useState<string[]>([]);
   const [surroundingArea, setSurroundingArea] = useState<string[]>([]);
+  const [uploadedImages, setUploadedImages] = useState<{id: string; url: string; order: number}[]>([]);
 
   const {
     register,
@@ -239,7 +240,6 @@ export default function NewPropertyPage() {
             .order('order');
           
           if (existingImages) {
-            setUploadedImages(existingImages);
             setImagesPreviews(existingImages.map((img: { url: string }) => img.url));
           }
           
@@ -404,6 +404,9 @@ export default function NewPropertyPage() {
       // Force save any pending changes
       await forceSave();
       
+      // Generate slug from title
+      const slug = generateSlugFromTitle(data.title);
+      
       // Complete property data with all fields
       const propertyData = {
         title: data.title,
@@ -439,7 +442,7 @@ export default function NewPropertyPage() {
 
       const { error: updateError } = await supabase
         .from('properties')
-        .update(finalData)
+        .update(propertyData)
         .eq('id', draftId);
 
       if (updateError) {
@@ -450,11 +453,11 @@ export default function NewPropertyPage() {
       localStorage.removeItem(DRAFT_STORAGE_KEY);
 
       // Upload images
-      if (images.length > 0 && property) {
+      if (images.length > 0 && draftId) {
         for (let i = 0; i < images.length; i++) {
           const file = images[i];
           const fileExt = file.name.split('.').pop();
-          const fileName = `${property.id}/${Date.now()}-${i}.${fileExt}`;
+          const fileName = `${draftId}/${Date.now()}-${i}.${fileExt}`;
 
           const { error: uploadError } = await supabase.storage
             .from('property-images')
@@ -466,7 +469,7 @@ export default function NewPropertyPage() {
               .getPublicUrl(fileName);
 
             await supabase.from('property_images').insert({
-              property_id: property.id,
+              property_id: draftId,
               url: publicUrl,
               order: i,
               is_cover: i === 0,
@@ -476,9 +479,9 @@ export default function NewPropertyPage() {
       }
 
       // Upload brochure
-      if (brochure && property) {
+      if (brochure && draftId) {
         const fileExt = brochure.name.split('.').pop();
-        const fileName = `${property.id}/brochure-${Date.now()}.${fileExt}`;
+        const fileName = `${draftId}/brochure-${Date.now()}.${fileExt}`;
 
         const { error: uploadError } = await supabase.storage
           .from('property-documents')
@@ -493,16 +496,16 @@ export default function NewPropertyPage() {
           await supabase
             .from('properties')
             .update({ brochure_url: publicUrl })
-            .eq('id', property.id);
+            .eq('id', draftId);
         }
       }
 
       // Upload floor plans
-      if (floorPlans.length > 0 && property) {
+      if (floorPlans.length > 0 && draftId) {
         for (let i = 0; i < floorPlans.length; i++) {
           const file = floorPlans[i];
           const fileExt = file.name.split('.').pop();
-          const fileName = `${property.id}/floorplan-${Date.now()}-${i}.${fileExt}`;
+          const fileName = `${draftId}/floorplan-${Date.now()}-${i}.${fileExt}`;
 
           const { error: uploadError } = await supabase.storage
             .from('property-documents')
@@ -514,7 +517,7 @@ export default function NewPropertyPage() {
               .getPublicUrl(fileName);
 
             await supabase.from('property_floor_plans').insert({
-              property_id: property.id,
+              property_id: draftId,
               url: publicUrl,
               title: file.name,
               order: i,
