@@ -124,6 +124,9 @@ export default function NewPropertyPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [images, setImages] = useState<File[]>([]);
   const [imagesPreviews, setImagesPreviews] = useState<string[]>([]);
+  const [brochure, setBrochure] = useState<File | null>(null);
+  const [floorPlans, setFloorPlans] = useState<File[]>([]);
+  const [floorPlansPreviews, setFloorPlansPreviews] = useState<string[]>([]);
 
   const {
     register,
@@ -157,6 +160,31 @@ export default function NewPropertyPage() {
   const removeImage = (index: number) => {
     setImages((prev) => prev.filter((_, i) => i !== index));
     setImagesPreviews((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleBrochureUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setBrochure(file);
+    }
+  };
+
+  const handleFloorPlansUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    setFloorPlans((prev) => [...prev, ...files]);
+    
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFloorPlansPreviews((prev) => [...prev, reader.result as string]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removeFloorPlan = (index: number) => {
+    setFloorPlans((prev) => prev.filter((_, i) => i !== index));
+    setFloorPlansPreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
   const onSubmit = async (data: PropertyFormData) => {
@@ -213,7 +241,7 @@ export default function NewPropertyPage() {
       const property = await response.json();
       console.log('Property created:', property);
 
-      // Upload images (simplified)
+      // Upload images
       if (images.length > 0 && property) {
         for (let i = 0; i < images.length; i++) {
           const file = images[i];
@@ -234,6 +262,54 @@ export default function NewPropertyPage() {
               url: publicUrl,
               order: i,
               is_cover: i === 0,
+            });
+          }
+        }
+      }
+
+      // Upload brochure
+      if (brochure && property) {
+        const fileExt = brochure.name.split('.').pop();
+        const fileName = `${property.id}/brochure-${Date.now()}.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('property-documents')
+          .upload(fileName, brochure);
+
+        if (!uploadError) {
+          const { data: { publicUrl } } = supabase.storage
+            .from('property-documents')
+            .getPublicUrl(fileName);
+
+          // Update property with brochure URL
+          await supabase
+            .from('properties')
+            .update({ brochure_url: publicUrl })
+            .eq('id', property.id);
+        }
+      }
+
+      // Upload floor plans
+      if (floorPlans.length > 0 && property) {
+        for (let i = 0; i < floorPlans.length; i++) {
+          const file = floorPlans[i];
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${property.id}/floorplan-${Date.now()}-${i}.${fileExt}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from('property-documents')
+            .upload(fileName, file);
+
+          if (!uploadError) {
+            const { data: { publicUrl } } = supabase.storage
+              .from('property-documents')
+              .getPublicUrl(fileName);
+
+            await supabase.from('property_floor_plans').insert({
+              property_id: property.id,
+              url: publicUrl,
+              title: file.name,
+              order: i,
             });
           }
         }
@@ -578,6 +654,89 @@ export default function NewPropertyPage() {
                             Capa
                           </span>
                         )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Documents */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Upload className="mr-2 h-5 w-5" />
+                Documentos
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Brochure */}
+              <div className="space-y-2">
+                <Label>Brochura (PDF)</Label>
+                <div className="border-2 border-dashed border-border rounded-lg p-4 text-center">
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    onChange={handleBrochureUpload}
+                    className="hidden"
+                    id="brochure-upload"
+                  />
+                  <label htmlFor="brochure-upload" className="cursor-pointer">
+                    {brochure ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <span className="text-sm text-foreground">{brochure.name}</span>
+                        <button
+                          type="button"
+                          onClick={(e) => { e.preventDefault(); setBrochure(null); }}
+                          className="p-1 bg-yellow-500 text-white rounded-full"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <Upload className="h-6 w-6 mx-auto text-muted-foreground mb-2" />
+                        <p className="text-sm text-muted-foreground">Carregar brochura</p>
+                      </>
+                    )}
+                  </label>
+                </div>
+              </div>
+
+              {/* Floor Plans */}
+              <div className="space-y-2">
+                <Label>Plantas</Label>
+                <div className="border-2 border-dashed border-border rounded-lg p-4 text-center">
+                  <input
+                    type="file"
+                    accept="image/*,.pdf"
+                    multiple
+                    onChange={handleFloorPlansUpload}
+                    className="hidden"
+                    id="floorplans-upload"
+                  />
+                  <label htmlFor="floorplans-upload" className="cursor-pointer">
+                    <Upload className="h-6 w-6 mx-auto text-muted-foreground mb-2" />
+                    <p className="text-sm text-muted-foreground">Carregar plantas</p>
+                  </label>
+                </div>
+                {floorPlansPreviews.length > 0 && (
+                  <div className="grid grid-cols-3 gap-2 mt-2">
+                    {floorPlansPreviews.map((preview, index) => (
+                      <div key={index} className="relative group">
+                        <img
+                          src={preview}
+                          alt={`Planta ${index + 1}`}
+                          className="w-full h-16 object-cover rounded-lg"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeFloorPlan(index)}
+                          className="absolute top-1 right-1 p-1 bg-yellow-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
                       </div>
                     ))}
                   </div>
