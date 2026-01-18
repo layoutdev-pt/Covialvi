@@ -62,19 +62,14 @@ export async function updateSession(request: NextRequest) {
 
   // Protected routes
   const isAdminRoute = request.nextUrl.pathname.startsWith('/admin');
-  const isAdminLoginPage = request.nextUrl.pathname === '/admin/login';
   const isAccountRoute = request.nextUrl.pathname.startsWith('/conta');
   const isAuthRoute = request.nextUrl.pathname.startsWith('/auth');
 
-  // Allow /admin/login for everyone (it handles its own auth logic)
-  if (isAdminLoginPage) {
+  // Skip middleware for ALL admin routes - let the admin layout handle auth
+  // This avoids cookie sync issues between client and server
+  if (isAdminRoute) {
+    console.log('[Middleware] Admin route, skipping middleware auth check');
     return response;
-  }
-
-  // Redirect unauthenticated users
-  if (!user && isAdminRoute) {
-    console.log('[Middleware] No user on admin route, redirecting to /admin/login');
-    return NextResponse.redirect(new URL('/admin/login', request.url));
   }
 
   if (!user && isAccountRoute) {
@@ -86,37 +81,6 @@ export async function updateSession(request: NextRequest) {
 
   if (user && isAuthRoute) {
     return NextResponse.redirect(new URL('/', request.url));
-  }
-
-  // Check admin role for admin routes (excluding /admin/login)
-  if (user && isAdminRoute) {
-    // First try JWT, then fallback to database lookup
-    let role = user.app_metadata?.role || user.user_metadata?.role;
-    
-    // If no role in JWT, fetch from database
-    if (!role || role === 'user') {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single() as { data: { role: string } | null };
-      
-      role = profile?.role || 'user';
-    }
-    
-    const isAdmin = role === 'admin' || role === 'super_admin';
-    
-    console.log('[Middleware] Admin check:', { 
-      email: user.email,
-      role,
-      isAdmin,
-      path: request.nextUrl.pathname
-    });
-
-    if (!isAdmin) {
-      console.log('[Middleware] Access denied - not admin, redirecting to /');
-      return NextResponse.redirect(new URL('/', request.url));
-    }
   }
 
   return response;
