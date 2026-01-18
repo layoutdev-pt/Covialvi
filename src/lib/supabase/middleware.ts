@@ -62,11 +62,12 @@ export async function updateSession(request: NextRequest) {
 
   // Protected routes
   const isAdminRoute = request.nextUrl.pathname.startsWith('/admin');
+  const isAdminLoginPage = request.nextUrl.pathname === '/admin/login';
   const isAccountRoute = request.nextUrl.pathname.startsWith('/conta');
   const isAuthRoute = request.nextUrl.pathname.startsWith('/auth');
 
-  // Skip admin login page from admin route protection
-  if (isAdminRoute && request.nextUrl.pathname === '/admin/login') {
+  // Allow /admin/login for everyone (it handles its own auth logic)
+  if (isAdminLoginPage) {
     return response;
   }
 
@@ -81,7 +82,7 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 
-  // Check admin role for admin routes
+  // Check admin role for admin routes (excluding /admin/login)
   if (user && isAdminRoute) {
     // Get role from JWT app_metadata (faster than database lookup)
     const role = user.app_metadata?.role || user.user_metadata?.role || 'user';
