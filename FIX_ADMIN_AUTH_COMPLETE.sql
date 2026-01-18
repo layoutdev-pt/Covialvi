@@ -142,9 +142,9 @@ WHERE tablename = 'profiles';
 SELECT 
   u.email,
   u.raw_app_meta_data->>'role' as jwt_role,
-  p.role as profile_role,
+  p.role::text as profile_role,
   CASE 
-    WHEN u.raw_app_meta_data->>'role' = p.role THEN '✓ SYNCED'
+    WHEN u.raw_app_meta_data->>'role' = p.role::text THEN '✓ SYNCED'
     ELSE '✗ NOT SYNCED'
   END as status
 FROM auth.users u
