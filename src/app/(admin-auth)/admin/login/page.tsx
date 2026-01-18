@@ -40,8 +40,20 @@ function AdminLoginForm() {
         console.log('[Admin Login] User:', user?.email, 'Session:', !!session);
         
         if (user && session) {
-          // Check role from JWT (consistent with middleware)
-          const role = user.app_metadata?.role || user.user_metadata?.role || 'user';
+          // First try JWT, then fallback to database lookup
+          let role = user.app_metadata?.role || user.user_metadata?.role;
+          
+          // If no role in JWT, fetch from database
+          if (!role || role === 'user') {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('role')
+              .eq('id', user.id)
+              .single();
+            
+            role = profile?.role || 'user';
+          }
+          
           const isAdmin = role === 'admin' || role === 'super_admin';
           
           console.log('[Admin Login] Role:', role, 'IsAdmin:', isAdmin);
@@ -104,8 +116,20 @@ function AdminLoginForm() {
         return;
       }
 
-      // Check if user is admin from JWT
-      const role = data.user.app_metadata?.role || data.user.user_metadata?.role || 'user';
+      // Check if user is admin - first try JWT, then database
+      let role = data.user.app_metadata?.role || data.user.user_metadata?.role;
+      
+      // If no role in JWT, fetch from database
+      if (!role || role === 'user') {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', data.user.id)
+          .single();
+        
+        role = profile?.role || 'user';
+      }
+      
       const isAdmin = role === 'admin' || role === 'super_admin';
 
       if (!isAdmin) {

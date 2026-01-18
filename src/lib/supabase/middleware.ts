@@ -53,20 +53,12 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  // Log all cookies for debugging
-  const allCookies = request.cookies.getAll();
-  const sbCookies = allCookies.filter(c => c.name.startsWith('sb-'));
-  console.log('[Middleware] Path:', request.nextUrl.pathname);
-  console.log('[Middleware] Supabase cookies found:', sbCookies.length);
-
-  // CRITICAL: Use getUser() to validate the token with Supabase servers
-  // This is more reliable than getSession() which only reads from cookies
+  // Get session - this refreshes the token if needed
   const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  console.log('[Middleware] User:', user?.email || 'null', 'Error:', userError?.message || 'none');
+  const user = session?.user ?? null;
 
   // Protected routes
   const isAdminRoute = request.nextUrl.pathname.startsWith('/admin');
@@ -98,17 +90,27 @@ export async function updateSession(request: NextRequest) {
 
   // Check admin role for admin routes (excluding /admin/login)
   if (user && isAdminRoute) {
-    // Get role from JWT app_metadata (faster than database lookup)
-    const role = user.app_metadata?.role || user.user_metadata?.role || 'user';
+    // First try JWT, then fallback to database lookup
+    let role = user.app_metadata?.role || user.user_metadata?.role;
+    
+    // If no role in JWT, fetch from database
+    if (!role || role === 'user') {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single() as { data: { role: string } | null };
+      
+      role = profile?.role || 'user';
+    }
+    
     const isAdmin = role === 'admin' || role === 'super_admin';
     
     console.log('[Middleware] Admin check:', { 
-      userId: user.id,
       email: user.email,
       role,
       isAdmin,
-      path: request.nextUrl.pathname,
-      source: 'JWT'
+      path: request.nextUrl.pathname
     });
 
     if (!isAdmin) {
