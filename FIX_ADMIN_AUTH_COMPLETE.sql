@@ -181,7 +181,7 @@ ALTER TABLE properties ENABLE ROW LEVEL SECURITY;
 
 -- Anyone can view published properties
 CREATE POLICY "properties_select_published" ON properties FOR SELECT
-USING (status = 'published' OR status = 'sold' OR status = 'reserved');
+USING (status = 'published');
 
 -- Admins can do anything (via service role key in API)
 -- The API uses service role which bypasses RLS anyway
