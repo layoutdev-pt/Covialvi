@@ -53,6 +53,12 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
+  // Log all cookies for debugging
+  const allCookies = request.cookies.getAll();
+  const sbCookies = allCookies.filter(c => c.name.startsWith('sb-'));
+  console.log('[Middleware] Path:', request.nextUrl.pathname);
+  console.log('[Middleware] Supabase cookies found:', sbCookies.length);
+
   // CRITICAL: Use getUser() to validate the token with Supabase servers
   // This is more reliable than getSession() which only reads from cookies
   const {
@@ -60,9 +66,7 @@ export async function updateSession(request: NextRequest) {
     error: userError,
   } = await supabase.auth.getUser();
 
-  if (userError) {
-    console.log('[Middleware] Auth error:', userError.message);
-  }
+  console.log('[Middleware] User:', user?.email || 'null', 'Error:', userError?.message || 'none');
 
   // Protected routes
   const isAdminRoute = request.nextUrl.pathname.startsWith('/admin');
