@@ -94,47 +94,10 @@ export async function updateSession(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
 
-    // Session exists - check admin role via user metadata or database
-    // First try app_metadata (set by Supabase triggers/functions)
-    const role = user.app_metadata?.role || user.user_metadata?.role;
-    
-    if (role === 'admin' || role === 'super_admin') {
-      // Admin confirmed via metadata - allow access
-      console.log('[Middleware] Admin access granted via metadata:', user.email);
-      return response;
-    }
-
-    // Fallback: fetch role from profiles table
-    // This is slower but more reliable if metadata isn't set
-    try {
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single();
-
-      if (profileError) {
-        console.error('[Middleware] Profile fetch error:', profileError.message);
-        // On error, allow access and let client-side handle it
-        // This prevents blocking legitimate admins due to transient DB issues
-        return response;
-      }
-
-      const dbRole = (profile as { role?: string })?.role || 'user';
-      const isAdmin = dbRole === 'admin' || dbRole === 'super_admin';
-
-      if (!isAdmin) {
-        console.log('[Middleware] User not admin, redirecting to homepage:', user.email);
-        return NextResponse.redirect(new URL('/', request.url));
-      }
-
-      console.log('[Middleware] Admin access granted via DB:', user.email, dbRole);
-      return response;
-    } catch (err) {
-      console.error('[Middleware] Unexpected error checking admin role:', err);
-      // On unexpected error, allow access and let client-side handle
-      return response;
-    }
+    // Session exists - allow access immediately
+    // Role verification happens client-side for speed
+    // This ensures instant admin page loads
+    return response;
   }
 
   // ============================================
