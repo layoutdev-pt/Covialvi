@@ -646,37 +646,46 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
         }
       }
 
-      // Upload brochures
+      // Upload brochures and floor plans in parallel
+      const uploadPromises: Promise<void>[] = [];
+
       for (const file of brochureFiles) {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('type', 'brochure');
+        const promise = (async () => {
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('type', 'brochure');
 
-        const uploadRes = await fetch(`/api/properties/${params.id}/documents`, {
-          method: 'POST',
-          body: formData,
-        });
+          const uploadRes = await fetch(`/api/properties/${params.id}/documents`, {
+            method: 'POST',
+            body: formData,
+          });
 
-        if (!uploadRes.ok) {
-          console.error('Brochure upload failed:', await uploadRes.text());
-        }
+          if (!uploadRes.ok) {
+            console.error('Brochure upload failed:', await uploadRes.text());
+          }
+        })();
+        uploadPromises.push(promise);
       }
 
-      // Upload floor plans
       for (const file of floorPlanFiles) {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('type', 'floor_plan');
+        const promise = (async () => {
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('type', 'floor_plan');
 
-        const uploadRes = await fetch(`/api/properties/${params.id}/documents`, {
-          method: 'POST',
-          body: formData,
-        });
+          const uploadRes = await fetch(`/api/properties/${params.id}/documents`, {
+            method: 'POST',
+            body: formData,
+          });
 
-        if (!uploadRes.ok) {
-          console.error('Floor plan upload failed:', await uploadRes.text());
-        }
+          if (!uploadRes.ok) {
+            console.error('Floor plan upload failed:', await uploadRes.text());
+          }
+        })();
+        uploadPromises.push(promise);
       }
+
+      await Promise.all(uploadPromises);
 
       console.log('Property updated:', result);
       toast.success('Imóvel atualizado com sucesso!');

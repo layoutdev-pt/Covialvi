@@ -457,12 +457,14 @@ export default function NewPropertyPage() {
       // Clear draft from localStorage
       localStorage.removeItem(DRAFT_STORAGE_KEY);
 
-      // Upload images
+      // Upload all files in parallel for better performance
+      const uploadPromises: Promise<void>[] = [];
+
+      // Upload images in parallel
       if (images.length > 0 && draftId) {
-        for (let i = 0; i < images.length; i++) {
-          const file = images[i];
+        const imagePromises = images.map(async (file, i) => {
           const fileExt = file.name.split('.').pop();
-          const fileName = `${draftId}/${Date.now()}-${i}.${fileExt}`;
+          const fileName = `${draftId}/${Date.now()}-${i}-${Math.random().toString(36).slice(2)}.${fileExt}`;
 
           const { error: uploadError } = await supabase.storage
             .from('property-images')
@@ -480,37 +482,39 @@ export default function NewPropertyPage() {
               is_cover: i === 0,
             });
           }
-        }
+        });
+        uploadPromises.push(...imagePromises);
       }
 
       // Upload brochure
       if (brochure && draftId) {
-        const fileExt = brochure.name.split('.').pop();
-        const fileName = `${draftId}/brochure-${Date.now()}.${fileExt}`;
+        const brochurePromise = (async () => {
+          const fileExt = brochure.name.split('.').pop();
+          const fileName = `${draftId}/brochure-${Date.now()}.${fileExt}`;
 
-        const { error: uploadError } = await supabase.storage
-          .from('property-documents')
-          .upload(fileName, brochure);
-
-        if (!uploadError) {
-          const { data: { publicUrl } } = supabase.storage
+          const { error: uploadError } = await supabase.storage
             .from('property-documents')
-            .getPublicUrl(fileName);
+            .upload(fileName, brochure);
 
-          // Update property with brochure URL
-          await supabase
-            .from('properties')
-            .update({ brochure_url: publicUrl })
-            .eq('id', draftId);
-        }
+          if (!uploadError) {
+            const { data: { publicUrl } } = supabase.storage
+              .from('property-documents')
+              .getPublicUrl(fileName);
+
+            await supabase
+              .from('properties')
+              .update({ brochure_url: publicUrl })
+              .eq('id', draftId);
+          }
+        })();
+        uploadPromises.push(brochurePromise);
       }
 
-      // Upload floor plans
+      // Upload floor plans in parallel
       if (floorPlans.length > 0 && draftId) {
-        for (let i = 0; i < floorPlans.length; i++) {
-          const file = floorPlans[i];
+        const floorPlanPromises = floorPlans.map(async (file, i) => {
           const fileExt = file.name.split('.').pop();
-          const fileName = `${draftId}/floorplan-${Date.now()}-${i}.${fileExt}`;
+          const fileName = `${draftId}/floorplan-${Date.now()}-${i}-${Math.random().toString(36).slice(2)}.${fileExt}`;
 
           const { error: uploadError } = await supabase.storage
             .from('property-documents')
@@ -528,8 +532,12 @@ export default function NewPropertyPage() {
               order: i,
             });
           }
-        }
+        });
+        uploadPromises.push(...floorPlanPromises);
       }
+
+      // Wait for all uploads to complete
+      await Promise.all(uploadPromises);
 
       toast.success('Imóvel criado com sucesso!');
       router.push('/admin/imoveis');
