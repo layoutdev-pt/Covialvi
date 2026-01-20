@@ -603,11 +603,11 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
         energy_certificate: data.energy_certificate || null,
         video_url: data.video_url || null,
         virtual_tour_url: data.virtual_tour_url || null,
-        // Array fields
-        equipment: selectedEquipamentos.length > 0 ? selectedEquipamentos : null,
-        extras: selectedExtras.length > 0 ? selectedExtras : null,
-        surrounding_area: selectedZonaEnvolvente.length > 0 ? selectedZonaEnvolvente : null,
-        divisions: Object.keys(divisionsData).length > 0 ? divisionsData : null,
+        // Array fields - always save (empty arrays/objects if nothing selected)
+        equipment: selectedEquipamentos.length > 0 ? selectedEquipamentos : [],
+        extras: selectedExtras.length > 0 ? selectedExtras : [],
+        surrounding_area: selectedZonaEnvolvente.length > 0 ? selectedZonaEnvolvente : [],
+        divisions: divisionsData,
       };
 
       console.log('Updating property:', propertyData);

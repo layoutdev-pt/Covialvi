@@ -365,18 +365,45 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                   </span>
                 )}
                 
-                {/* Planta */}
+                {/* Plantas */}
                 {property.property_floor_plans?.length > 0 ? (
-                  <a
-                    href={property.property_floor_plans[0].url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    download
-                    className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-border bg-background hover:bg-secondary transition-colors text-sm font-medium text-foreground"
-                  >
-                    <LayoutGrid className="h-4 w-4" />
-                    Planta
-                  </a>
+                  property.property_floor_plans.length === 1 ? (
+                    <a
+                      href={property.property_floor_plans[0].url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      download
+                      className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-border bg-background hover:bg-secondary transition-colors text-sm font-medium text-foreground"
+                    >
+                      <LayoutGrid className="h-4 w-4" />
+                      Planta
+                    </a>
+                  ) : (
+                    <div className="relative group">
+                      <button
+                        className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-border bg-background hover:bg-secondary transition-colors text-sm font-medium text-foreground w-full"
+                      >
+                        <LayoutGrid className="h-4 w-4" />
+                        Plantas ({property.property_floor_plans.length})
+                        <ChevronDown className="h-3 w-3" />
+                      </button>
+                      <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                        {property.property_floor_plans.map((plan: any, index: number) => (
+                          <a
+                            key={plan.id || index}
+                            href={plan.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            download={`Planta_${index + 1}.pdf`}
+                            className="flex items-center gap-2 px-4 py-2 hover:bg-secondary transition-colors text-sm text-foreground first:rounded-t-xl last:rounded-b-xl"
+                          >
+                            <FileDown className="h-4 w-4" />
+                            {plan.title || `Planta ${index + 1}`}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )
                 ) : (
                   <span className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-border bg-background text-sm font-medium text-muted-foreground cursor-not-allowed opacity-50">
                     <LayoutGrid className="h-4 w-4" />

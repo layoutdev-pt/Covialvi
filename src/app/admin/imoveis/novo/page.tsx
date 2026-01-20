@@ -149,6 +149,7 @@ export default function NewPropertyPage() {
   const [equipment, setEquipment] = useState<string[]>([]);
   const [extras, setExtras] = useState<string[]>([]);
   const [surroundingArea, setSurroundingArea] = useState<string[]>([]);
+  const [divisions, setDivisions] = useState<{name: string; area: string}[]>([]);
   const [uploadedImages, setUploadedImages] = useState<{id: string; url: string; order: number}[]>([]);
 
   const {
@@ -435,9 +436,13 @@ export default function NewPropertyPage() {
         energy_certificate: data.energy_certificate || '',
         video_url: data.video_url || '',
         virtual_tour_url: data.virtual_tour_url || '',
-        equipment: equipment.length > 0 ? equipment : null,
-        extras: extras.length > 0 ? extras : null,
-        surrounding_area: surroundingArea.length > 0 ? surroundingArea : null,
+        equipment: equipment.length > 0 ? equipment : [],
+        extras: extras.length > 0 ? extras : [],
+        surrounding_area: surroundingArea.length > 0 ? surroundingArea : [],
+        divisions: divisions.filter(d => d.name && d.area).reduce((acc, d) => {
+          acc[d.name] = parseFloat(d.area);
+          return acc;
+        }, {} as Record<string, number>),
       };
 
       const { error: updateError } = await supabase
