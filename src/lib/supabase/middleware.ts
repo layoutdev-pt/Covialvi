@@ -6,6 +6,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 export async function updateSession(request: NextRequest) {
+  // Create initial response that forwards the request
   let response = NextResponse.next({
     request: {
       headers: request.headers,
@@ -17,6 +18,7 @@ export async function updateSession(request: NextRequest) {
     return response;
   }
 
+  // Create Supabase client with cookie handling
   const supabase = createServerClient<Database>(
     supabaseUrl,
     supabaseAnonKey,
@@ -31,6 +33,11 @@ export async function updateSession(request: NextRequest) {
             value,
             ...options,
           });
+          response = NextResponse.next({
+            request: {
+              headers: request.headers,
+            },
+          });
           response.cookies.set({
             name,
             value,
@@ -43,6 +50,11 @@ export async function updateSession(request: NextRequest) {
             value: '',
             ...options,
           });
+          response = NextResponse.next({
+            request: {
+              headers: request.headers,
+            },
+          });
           response.cookies.set({
             name,
             value: '',
@@ -53,33 +65,97 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
+  // Route classification
+  const pathname = request.nextUrl.pathname;
+  const isAdminRoute = pathname.startsWith('/admin');
+  const isAccountRoute = pathname.startsWith('/conta');
+  const isAuthRoute = pathname.startsWith('/auth');
+
   // Get session - this refreshes the token if needed
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+  // IMPORTANT: Always await this before any redirect decisions
+  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+  
+  if (sessionError) {
+    console.error('[Middleware] Session error:', sessionError.message);
+  }
 
   const user = session?.user ?? null;
 
-  // Protected routes
-  const isAdminRoute = request.nextUrl.pathname.startsWith('/admin');
-  const isAccountRoute = request.nextUrl.pathname.startsWith('/conta');
-  const isAuthRoute = request.nextUrl.pathname.startsWith('/auth');
-
-  // Skip middleware for ALL admin routes - let the admin layout handle auth
-  // This avoids cookie sync issues between client and server
+  // ============================================
+  // ADMIN ROUTE PROTECTION (SERVER-SIDE)
+  // ============================================
   if (isAdminRoute) {
-    console.log('[Middleware] Admin route, skipping middleware auth check');
-    return response;
+    // No session = redirect to login
+    if (!user) {
+      console.log('[Middleware] Admin route, no session - redirecting to login');
+      const loginUrl = new URL('/auth/login', request.url);
+      loginUrl.searchParams.set('admin', 'true');
+      loginUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+
+    // Session exists - check admin role via user metadata or database
+    // First try app_metadata (set by Supabase triggers/functions)
+    const role = user.app_metadata?.role || user.user_metadata?.role;
+    
+    if (role === 'admin' || role === 'super_admin') {
+      // Admin confirmed via metadata - allow access
+      console.log('[Middleware] Admin access granted via metadata:', user.email);
+      return response;
+    }
+
+    // Fallback: fetch role from profiles table
+    // This is slower but more reliable if metadata isn't set
+    try {
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError) {
+        console.error('[Middleware] Profile fetch error:', profileError.message);
+        // On error, allow access and let client-side handle it
+        // This prevents blocking legitimate admins due to transient DB issues
+        return response;
+      }
+
+      const dbRole = (profile as { role?: string })?.role || 'user';
+      const isAdmin = dbRole === 'admin' || dbRole === 'super_admin';
+
+      if (!isAdmin) {
+        console.log('[Middleware] User not admin, redirecting to homepage:', user.email);
+        return NextResponse.redirect(new URL('/', request.url));
+      }
+
+      console.log('[Middleware] Admin access granted via DB:', user.email, dbRole);
+      return response;
+    } catch (err) {
+      console.error('[Middleware] Unexpected error checking admin role:', err);
+      // On unexpected error, allow access and let client-side handle
+      return response;
+    }
   }
 
+  // ============================================
+  // ACCOUNT ROUTE PROTECTION
+  // ============================================
   if (!user && isAccountRoute) {
-    console.log('[Middleware] No user on account route, redirecting to /auth/login');
+    console.log('[Middleware] Account route, no session - redirecting to login');
     const redirectUrl = new URL('/auth/login', request.url);
-    redirectUrl.searchParams.set('redirect', request.nextUrl.pathname);
+    redirectUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(redirectUrl);
   }
 
+  // ============================================
+  // AUTH ROUTE - REDIRECT IF ALREADY LOGGED IN
+  // ============================================
   if (user && isAuthRoute) {
+    // Check if they were trying to access admin
+    const redirectParam = request.nextUrl.searchParams.get('redirect');
+    if (redirectParam?.startsWith('/admin')) {
+      return NextResponse.redirect(new URL(redirectParam, request.url));
+    }
     return NextResponse.redirect(new URL('/', request.url));
   }
 
