@@ -291,11 +291,11 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                     {property.bathrooms && <li>Casa(s) de Banho: {property.bathrooms}</li>}
                     {property.bedrooms && <li>Quarto(s): {property.bedrooms}</li>}
                     {property.divisions && typeof property.divisions === 'object' && 
-                      Object.entries(property.divisions)
-                        .filter(([_, area]) => Number(area) > 0)
-                        .map(([name, area]) => (
-                          <li key={name}>{name}: {String(area)} m²</li>
-                        ))
+                      Object.entries(property.divisions).map(([name, area]) => (
+                        <li key={name}>
+                          {name}{Number(area) > 0 ? `: ${String(area)} m²` : ''}
+                        </li>
+                      ))
                     }
                   </ul>
                 </div>
