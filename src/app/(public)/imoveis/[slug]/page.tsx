@@ -266,7 +266,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
               <DetailRow label="Natureza" value={natureLabels[property.nature] || '-'} />
               <DetailRow label="Área Bruta" value={property.gross_area ? `${property.gross_area} m²` : '-'} />
               <DetailRow label="Tipologia" value={property.typology || '-'} />
-              <DetailRow label="Pisos" value={property.floors ? String(property.floors) : '-'} />
+              <DetailRow label="Piso" value={property.floors ? String(property.floors) : '-'} />
               <DetailRow label="Ano Construção" value={property.construction_year ? String(property.construction_year) : '-'} />
               <DetailRow label="Categoria Energética" value={property.energy_certificate || '-'} />
               <DetailRow label="Referência" value={property.reference || '-'} />
@@ -291,9 +291,11 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                     {property.bathrooms && <li>Casa(s) de Banho: {property.bathrooms}</li>}
                     {property.bedrooms && <li>Quarto(s): {property.bedrooms}</li>}
                     {property.divisions && typeof property.divisions === 'object' && 
-                      Object.entries(property.divisions).map(([name, area]) => (
-                        <li key={name}>{name}: {String(area)} m²</li>
-                      ))
+                      Object.entries(property.divisions)
+                        .filter(([_, area]) => Number(area) > 0)
+                        .map(([name, area]) => (
+                          <li key={name}>{name}: {String(area)} m²</li>
+                        ))
                     }
                   </ul>
                 </div>
