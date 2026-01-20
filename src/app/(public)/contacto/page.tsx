@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -23,7 +22,6 @@ const contactSchema = z.object({
 type ContactFormData = z.infer<typeof contactSchema>;
 
 export default function ContactPage() {
-  const t = useTranslations('contact');
   const [isLoading, setIsLoading] = useState(false);
 
   const {
@@ -83,8 +81,8 @@ export default function ContactPage() {
       {/* Header */}
       <div className="bg-gray-900 dark:bg-gray-800 text-white py-16">
         <div className="container-wide">
-          <h1 className="font-display text-display-lg mb-4 text-white">{t('title')}</h1>
-          <p className="text-gray-300 max-w-2xl">{t('subtitle')}</p>
+          <h1 className="font-display text-display-lg mb-4 text-white">Contacte-nos</h1>
+          <p className="text-gray-300 max-w-2xl">Estamos aqui para ajudar. Entre em contacto connosco.</p>
         </div>
       </div>
 
@@ -93,12 +91,12 @@ export default function ContactPage() {
           {/* Contact Form */}
           <div>
             <h2 className="font-display text-2xl font-semibold mb-6">
-              {t('form.title')}
+              Envie-nos uma Mensagem
             </h2>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName">{t('form.firstName')}</Label>
+                  <Label htmlFor="firstName">Nome</Label>
                   <Input
                     id="firstName"
                     {...register('firstName')}
@@ -109,7 +107,7 @@ export default function ContactPage() {
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lastName">{t('form.lastName')}</Label>
+                  <Label htmlFor="lastName">Apelido</Label>
                   <Input
                     id="lastName"
                     {...register('lastName')}
@@ -122,7 +120,7 @@ export default function ContactPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">{t('form.email')}</Label>
+                <Label htmlFor="email">E-mail</Label>
                 <Input
                   id="email"
                   type="email"
@@ -135,7 +133,7 @@ export default function ContactPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phone">{t('form.phone')}</Label>
+                <Label htmlFor="phone">Telefone</Label>
                 <Input
                   id="phone"
                   type="tel"
@@ -144,7 +142,7 @@ export default function ContactPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="message">{t('form.message')}</Label>
+                <Label htmlFor="message">Mensagem</Label>
                 <textarea
                   id="message"
                   rows={5}
@@ -167,7 +165,7 @@ export default function ContactPage() {
                 ) : (
                   <>
                     <Send className="mr-2 h-4 w-4" />
-                    {t('form.submit')}
+                    Enviar Mensagem
                   </>
                 )}
               </Button>
