@@ -594,9 +594,9 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
         gross_area: data.gross_area ? parseFloat(data.gross_area) : null,
         useful_area: data.useful_area ? parseFloat(data.useful_area) : null,
         land_area: data.land_area ? parseFloat(data.land_area) : null,
-        bedrooms: data.bedrooms ? parseInt(data.bedrooms) : null,
-        bathrooms: data.bathrooms ? parseInt(data.bathrooms) : null,
-        floors: data.floors ? parseInt(data.floors) : null,
+        bedrooms: data.bedrooms !== undefined && data.bedrooms !== '' ? parseInt(data.bedrooms) : null,
+        bathrooms: data.bathrooms !== undefined && data.bathrooms !== '' ? parseInt(data.bathrooms) : null,
+        floors: data.floors !== undefined && data.floors !== '' ? parseInt(data.floors) : null,
         typology: data.typology || null,
         construction_status: data.construction_status || null,
         construction_year: data.construction_year ? parseInt(data.construction_year) : null,
@@ -803,8 +803,14 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label>Estado</Label>
-                  <Select onValueChange={(value) => setSelectedEstado([value])}>
+                  <Label>Estado do Imóvel</Label>
+                  <Select 
+                    value={watch('construction_status') || ''}
+                    onValueChange={(value) => {
+                      setValue('construction_status', value);
+                      saveField('construction_status', value);
+                    }}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecionar..." />
                     </SelectTrigger>

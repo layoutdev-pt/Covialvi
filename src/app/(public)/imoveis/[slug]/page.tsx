@@ -270,7 +270,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
               <DetailRow label="Natureza" value={natureLabels[property.nature] || '-'} />
               <DetailRow label="Área Bruta" value={property.gross_area ? `${property.gross_area} m²` : '-'} />
               <DetailRow label="Tipologia" value={property.typology || '-'} />
-              <DetailRow label="Piso" value={property.floors ? String(property.floors) : '-'} />
+              <DetailRow label="Piso" value={property.floors !== null && property.floors !== undefined ? String(property.floors) : '-'} />
               <DetailRow label="Ano Construção" value={property.construction_year ? String(property.construction_year) : '-'} />
               <DetailRow label="Categoria Energética" value={property.energy_certificate || '-'} />
               <DetailRow label="Referência" value={property.reference || '-'} />
@@ -292,8 +292,8 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                 <div>
                   <h2 className="text-xl font-bold text-foreground mb-4">Divisões</h2>
                   <ul className="space-y-2 text-muted-foreground">
-                    {property.bathrooms && <li>Casa(s) de Banho: {property.bathrooms}</li>}
-                    {property.bedrooms && <li>Quarto(s): {property.bedrooms}</li>}
+                    {(property.bathrooms !== null && property.bathrooms !== undefined) && <li>Casa(s) de Banho: {property.bathrooms}</li>}
+                    {(property.bedrooms !== null && property.bedrooms !== undefined) && <li>Quarto(s): {property.bedrooms}</li>}
                     {property.divisions && typeof property.divisions === 'object' && 
                       Object.entries(property.divisions).map(([name, area]) => (
                         <li key={name}>

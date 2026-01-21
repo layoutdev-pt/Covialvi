@@ -430,11 +430,11 @@ export default function NewPropertyPage() {
         gross_area: data.gross_area ? parseFloat(data.gross_area) : null,
         useful_area: data.useful_area ? parseFloat(data.useful_area) : null,
         land_area: data.land_area ? parseFloat(data.land_area) : null,
-        bedrooms: data.bedrooms ? parseInt(data.bedrooms) : null,
-        bathrooms: data.bathrooms ? parseInt(data.bathrooms) : null,
-        floors: data.floors ? parseInt(data.floors) : null,
+        bedrooms: data.bedrooms !== undefined && data.bedrooms !== '' ? parseInt(data.bedrooms) : null,
+        bathrooms: data.bathrooms !== undefined && data.bathrooms !== '' ? parseInt(data.bathrooms) : null,
+        floors: data.floors !== undefined && data.floors !== '' ? parseInt(data.floors) : null,
         typology: data.typology || '',
-        construction_status: data.construction_status || 'used',
+        construction_status: data.construction_status || null,
         construction_year: data.construction_year ? parseInt(data.construction_year) : null,
         energy_certificate: data.energy_certificate || '',
         video_url: data.video_url || '',
@@ -712,22 +712,6 @@ export default function NewPropertyPage() {
 
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label>Estado do Imóvel</Label>
-                  <Select
-                    value={watch('construction_status') || ''}
-                    onValueChange={(value) => handleSelectChange('construction_status', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecionar..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(constructionStatusLabels).map(([value, label]) => (
-                        <SelectItem key={value} value={value}>{label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
                   <Label>Tipologia</Label>
                   <Input
                     {...register('typology')}
@@ -812,15 +796,15 @@ export default function NewPropertyPage() {
               <div className="grid gap-4 md:grid-cols-4">
                 <div className="space-y-2">
                   <Label>Quartos</Label>
-                  <Input {...register('bedrooms')} type="number" placeholder="0" onBlur={(e) => handleFieldBlur('bedrooms', e.target.value ? parseInt(e.target.value) : null)} />
+                  <Input {...register('bedrooms')} type="number" placeholder="0" onBlur={(e) => handleFieldBlur('bedrooms', e.target.value !== '' ? parseInt(e.target.value) : null)} />
                 </div>
                 <div className="space-y-2">
                   <Label>Casas de Banho</Label>
-                  <Input {...register('bathrooms')} type="number" placeholder="0" onBlur={(e) => handleFieldBlur('bathrooms', e.target.value ? parseInt(e.target.value) : null)} />
+                  <Input {...register('bathrooms')} type="number" placeholder="0" onBlur={(e) => handleFieldBlur('bathrooms', e.target.value !== '' ? parseInt(e.target.value) : null)} />
                 </div>
                 <div className="space-y-2">
                   <Label>Piso</Label>
-                  <Input {...register('floors')} type="number" placeholder="0" onBlur={(e) => handleFieldBlur('floors', e.target.value ? parseInt(e.target.value) : null)} />
+                  <Input {...register('floors')} type="number" placeholder="0" onBlur={(e) => handleFieldBlur('floors', e.target.value !== '' ? parseInt(e.target.value) : null)} />
                 </div>
                 <div className="space-y-2">
                   <Label>Ano Construção</Label>

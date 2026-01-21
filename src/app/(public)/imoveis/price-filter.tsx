@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Search } from 'lucide-react';
 
 interface PriceFilterProps {
@@ -54,12 +55,35 @@ export function PriceFilter({
   defaultBedrooms = '',
   defaultShowSobConsulta = 'true',
 }: PriceFilterProps) {
+  const router = useRouter();
   const [minPrice, setMinPrice] = useState(parseInt(defaultMinPrice) || 0);
   const [maxPrice, setMaxPrice] = useState(parseInt(defaultMaxPrice) || MAX_PRICE);
   const [showSobConsulta, setShowSobConsulta] = useState(defaultShowSobConsulta !== 'false');
+  const [location, setLocation] = useState(defaultLocation);
+  const [nature, setNature] = useState(defaultNature);
+  const [businessType, setBusinessType] = useState(defaultBusinessType);
+  const [constructionStatus, setConstructionStatus] = useState(defaultConstructionStatus);
+  const [bedrooms, setBedrooms] = useState(defaultBedrooms);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('pt-PT').format(price) + '€';
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const params = new URLSearchParams();
+    
+    if (location) params.set('location', location);
+    if (nature) params.set('nature', nature);
+    if (businessType) params.set('business_type', businessType);
+    if (constructionStatus) params.set('construction_status', constructionStatus);
+    if (bedrooms) params.set('bedrooms', bedrooms);
+    if (minPrice > 0) params.set('min_price', minPrice.toString());
+    if (maxPrice < MAX_PRICE) params.set('max_price', maxPrice.toString());
+    if (!showSobConsulta) params.set('show_sob_consulta', 'false');
+    
+    const queryString = params.toString();
+    router.push(`/imoveis${queryString ? `?${queryString}` : ''}`);
   };
 
   const minPercent = (minPrice / MAX_PRICE) * 100;
@@ -73,22 +97,25 @@ export function PriceFilter({
   };
 
   return (
-    <form className="bg-[#0f1419] rounded-3xl p-6 md:p-8 shadow-2xl border border-gray-800/50">
+    <form 
+      onSubmit={handleSubmit}
+      className="bg-[#0f1419] rounded-3xl p-6 md:p-8 shadow-2xl border border-gray-800/50"
+    >
       {/* Filter Pills Row - All in one line */}
       <div className="flex items-center gap-4 mb-8">
         <div className="flex items-center gap-3 flex-1 overflow-x-auto pb-2 md:pb-0">
           {/* Localização */}
           <input
             type="text"
-            name="location"
             placeholder="Localização"
-            defaultValue={defaultLocation}
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
             className="bg-transparent border border-gray-600 hover:border-gray-500 rounded-full px-4 py-2 text-white text-sm placeholder-gray-400 focus:outline-none focus:border-white transition-all w-[120px] flex-shrink-0"
           />
           {/* Natureza */}
           <select
-            name="nature"
-            defaultValue={defaultNature}
+            value={nature}
+            onChange={(e) => setNature(e.target.value)}
             className="bg-transparent border border-gray-600 hover:border-gray-500 rounded-full px-4 py-2 text-white text-sm focus:outline-none focus:border-white appearance-none cursor-pointer transition-all pr-8 flex-shrink-0"
             style={selectStyle}
           >
@@ -99,8 +126,8 @@ export function PriceFilter({
           </select>
           {/* Negócio */}
           <select
-            name="business_type"
-            defaultValue={defaultBusinessType}
+            value={businessType}
+            onChange={(e) => setBusinessType(e.target.value)}
             className="bg-transparent border border-gray-600 hover:border-gray-500 rounded-full px-4 py-2 text-white text-sm focus:outline-none focus:border-white appearance-none cursor-pointer transition-all pr-8 flex-shrink-0"
             style={selectStyle}
           >
@@ -111,8 +138,8 @@ export function PriceFilter({
           </select>
           {/* Estado */}
           <select
-            name="construction_status"
-            defaultValue={defaultConstructionStatus}
+            value={constructionStatus}
+            onChange={(e) => setConstructionStatus(e.target.value)}
             className="bg-transparent border border-gray-600 hover:border-gray-500 rounded-full px-4 py-2 text-white text-sm focus:outline-none focus:border-white appearance-none cursor-pointer transition-all pr-8 flex-shrink-0"
             style={selectStyle}
           >
@@ -123,8 +150,8 @@ export function PriceFilter({
           </select>
           {/* Tipologia */}
           <select
-            name="bedrooms"
-            defaultValue={defaultBedrooms}
+            value={bedrooms}
+            onChange={(e) => setBedrooms(e.target.value)}
             className="bg-transparent border border-gray-600 hover:border-gray-500 rounded-full px-4 py-2 text-white text-sm focus:outline-none focus:border-white appearance-none cursor-pointer transition-all pr-8 flex-shrink-0"
             style={selectStyle}
           >
@@ -189,9 +216,6 @@ export function PriceFilter({
           className="absolute top-0 left-0 w-full h-1 appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-4 [&::-webkit-slider-thumb]:border-yellow-500 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:hover:scale-110 [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-4 [&::-moz-range-thumb]:border-yellow-500 [&::-moz-range-thumb]:cursor-pointer"
         />
 
-        {/* Hidden inputs for form submission */}
-        <input type="hidden" name="min_price" value={minPrice} />
-        <input type="hidden" name="max_price" value={maxPrice} />
       </div>
 
       {/* Price Labels and Toggle */}
@@ -218,7 +242,6 @@ export function PriceFilter({
               }`}
             />
           </button>
-          <input type="hidden" name="show_sob_consulta" value={showSobConsulta ? 'true' : 'false'} />
         </label>
         
         <span className="text-white font-medium">{formatPrice(maxPrice)}</span>
