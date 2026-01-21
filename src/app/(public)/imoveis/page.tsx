@@ -39,6 +39,7 @@ interface SearchParams {
   municipality?: string;
   business_type?: string;
   nature?: string;
+  construction_status?: string;
   bedrooms?: string;
   min_price?: string;
   max_price?: string;
@@ -76,6 +77,9 @@ async function getProperties(searchParams: SearchParams) {
   }
   if (searchParams.nature) {
     query = query.eq('nature', searchParams.nature);
+  }
+  if (searchParams.construction_status) {
+    query = query.eq('construction_status', searchParams.construction_status);
   }
   if (searchParams.bedrooms) {
     query = query.eq('bedrooms', parseInt(searchParams.bedrooms));
@@ -159,8 +163,11 @@ const constructionStatuses = [
   { value: 'new', label: 'Novo' },
   { value: 'used', label: 'Usado' },
   { value: 'under_construction', label: 'Em Construção' },
+  { value: 'in_project', label: 'Em Projecto' },
   { value: 'to_recover', label: 'Para Recuperar' },
+  { value: 'recovered', label: 'Recuperado' },
   { value: 'renovated', label: 'Renovado' },
+  { value: 'sold', label: 'Vendido' },
 ];
 
 export default async function PropertiesPage({
@@ -193,6 +200,7 @@ export default async function PropertiesPage({
           defaultLocation={searchParams.location}
           defaultNature={searchParams.nature}
           defaultBusinessType={searchParams.business_type}
+          defaultConstructionStatus={searchParams.construction_status}
           defaultBedrooms={searchParams.bedrooms}
           defaultShowSobConsulta={searchParams.show_sob_consulta}
         />

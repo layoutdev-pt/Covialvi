@@ -35,8 +35,11 @@ const constructionStatuses = [
   { value: 'new', label: 'Novo' },
   { value: 'used', label: 'Usado' },
   { value: 'under_construction', label: 'Em Construção' },
+  { value: 'in_project', label: 'Em Projecto' },
   { value: 'to_recover', label: 'Para Recuperar' },
+  { value: 'recovered', label: 'Recuperado' },
   { value: 'renovated', label: 'Renovado' },
+  { value: 'sold', label: 'Vendido' },
 ];
 
 const MAX_PRICE = 3150000;
