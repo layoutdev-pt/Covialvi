@@ -68,6 +68,7 @@ export async function updateSession(request: NextRequest) {
   // Route classification
   const pathname = request.nextUrl.pathname;
   const isAdminRoute = pathname.startsWith('/admin');
+  const isAdminLoginRoute = pathname === '/admin/login';
   const isAccountRoute = pathname.startsWith('/conta');
   const isAuthRoute = pathname.startsWith('/auth');
 
@@ -82,16 +83,25 @@ export async function updateSession(request: NextRequest) {
   const user = session?.user ?? null;
 
   // ============================================
+  // ADMIN LOGIN PAGE - Special handling
+  // ============================================
+  if (isAdminLoginRoute) {
+    // If user is already logged in, redirect to admin dashboard
+    if (user) {
+      return NextResponse.redirect(new URL('/admin', request.url));
+    }
+    // Otherwise allow access to login page
+    return response;
+  }
+
+  // ============================================
   // ADMIN ROUTE PROTECTION (SERVER-SIDE)
   // ============================================
   if (isAdminRoute) {
-    // No session = redirect to login
+    // No session = redirect to admin login (not /auth/login to prevent loop)
     if (!user) {
-      console.log('[Middleware] Admin route, no session - redirecting to login');
-      const loginUrl = new URL('/auth/login', request.url);
-      loginUrl.searchParams.set('admin', 'true');
-      loginUrl.searchParams.set('redirect', pathname);
-      return NextResponse.redirect(loginUrl);
+      console.log('[Middleware] Admin route, no session - redirecting to admin login');
+      return NextResponse.redirect(new URL('/admin/login', request.url));
     }
 
     // Session exists - allow access immediately
