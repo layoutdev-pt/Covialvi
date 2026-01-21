@@ -78,16 +78,16 @@ interface Division {
   area: string;
 }
 
-// Estado (Property State) options
+// Estado (Property State) options - using standardized English keys
 const estadoOptions = [
-  'Em construção',
-  'Em projecto',
-  'Novo',
-  'Por recuperar',
-  'Recuperado',
-  'Renovado',
-  'Usado',
-  'Vendido',
+  { value: 'under_construction', label: 'Em Construção' },
+  { value: 'in_project', label: 'Em Projecto' },
+  { value: 'new', label: 'Novo' },
+  { value: 'to_recover', label: 'Por Recuperar' },
+  { value: 'recovered', label: 'Recuperado' },
+  { value: 'renovated', label: 'Renovado' },
+  { value: 'used', label: 'Usado' },
+  { value: 'sold', label: 'Vendido' },
 ];
 
 // Zona Envolvente options
@@ -810,7 +810,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                     </SelectTrigger>
                     <SelectContent>
                       {estadoOptions.map((estado) => (
-                        <SelectItem key={estado} value={estado}>{estado}</SelectItem>
+                        <SelectItem key={estado.value} value={estado.value}>{estado.label}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>

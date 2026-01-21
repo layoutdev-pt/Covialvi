@@ -89,8 +89,11 @@ const constructionStatusLabels: Record<string, string> = {
   new: 'Novo',
   used: 'Usado',
   under_construction: 'Em Construção',
+  in_project: 'Em Projecto',
   to_recover: 'Para Recuperar',
+  recovered: 'Recuperado',
   renovated: 'Renovado',
+  sold: 'Vendido',
 };
 
 const statusLabels: Record<string, string> = {

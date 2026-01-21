@@ -186,16 +186,20 @@ export default async function PropertyDetailPage({ params }: PageProps) {
   };
 
   const constructionStatusLabels: Record<string, string> = {
+    // Standardized English keys
     new: 'Novo',
     used: 'Usado',
     under_construction: 'Em Construção',
+    in_project: 'Em Projecto',
     to_recover: 'Para Recuperar',
+    recovered: 'Recuperado',
     renovated: 'Renovado',
-    // Portuguese values from admin estadoOptions
+    sold: 'Vendido',
+    // Legacy Portuguese values (for backwards compatibility)
     'Em construção': 'Em Construção',
     'Em projecto': 'Em Projecto',
     'Novo': 'Novo',
-    'Por recuperar': 'Por Recuperar',
+    'Por recuperar': 'Para Recuperar',
     'Recuperado': 'Recuperado',
     'Renovado': 'Renovado',
     'Usado': 'Usado',
