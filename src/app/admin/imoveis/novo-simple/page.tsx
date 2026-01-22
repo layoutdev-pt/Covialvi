@@ -73,16 +73,16 @@ interface Division {
   area: string;
 }
 
-// Estado (Property State) options
+// Estado (Property State) options - must use English keys for database storage
 const estadoOptions = [
-  'Em construção',
-  'Em projecto',
-  'Novo',
-  'Por recuperar',
-  'Recuperado',
-  'Renovado',
-  'Usado',
-  'Vendido',
+  { value: 'under_construction', label: 'Em Construção' },
+  { value: 'in_project', label: 'Em Projecto' },
+  { value: 'new', label: 'Novo' },
+  { value: 'to_recover', label: 'Por Recuperar' },
+  { value: 'recovered', label: 'Recuperado' },
+  { value: 'renovated', label: 'Renovado' },
+  { value: 'used', label: 'Usado' },
+  { value: 'sold', label: 'Vendido' },
 ];
 
 // Zona Envolvente options
@@ -493,7 +493,7 @@ export default function SimpleNewPropertyPage() {
         bathrooms: data.bathrooms ? parseInt(data.bathrooms) : null,
         floors: data.floors ? parseInt(data.floors) : null,
         typology: data.typology || null,
-        construction_status: data.construction_status || 'usado',
+        construction_status: selectedEstado[0] || data.construction_status || null,
         construction_year: data.construction_year ? parseInt(data.construction_year) : null,
         energy_certificate: data.energy_certificate || null,
         video_url: data.video_url || null,
@@ -681,13 +681,13 @@ export default function SimpleNewPropertyPage() {
                 </div>
                 <div className="space-y-2">
                   <Label>Estado</Label>
-                  <Select onValueChange={(value) => setSelectedEstado([value])}>
+                  <Select onValueChange={(value) => { setSelectedEstado([value]); setValue('construction_status', value); }}>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecionar..." />
                     </SelectTrigger>
                     <SelectContent>
                       {estadoOptions.map((estado) => (
-                        <SelectItem key={estado} value={estado}>{estado}</SelectItem>
+                        <SelectItem key={estado.value} value={estado.value}>{estado.label}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
