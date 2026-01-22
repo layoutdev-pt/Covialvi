@@ -169,6 +169,12 @@ export default function NewPropertyPage() {
       business_type: 'sale',
       nature: 'apartment',
       price_on_request: false,
+      construction_status: '',
+      energy_certificate: '',
+      typology: '',
+      district: '',
+      municipality: '',
+      parish: '',
     },
   });
 
@@ -411,13 +417,26 @@ export default function NewPropertyPage() {
       // Generate slug from title
       const slug = generateSlugFromTitle(data.title);
       
+      // Get current form values to ensure we have the latest
+      const currentConstructionStatus = data.construction_status;
+      const currentNature = data.nature;
+      const currentBusinessType = data.business_type;
+      const currentEnergyCertificate = data.energy_certificate;
+      
+      console.log('Form data on submit:', {
+        construction_status: currentConstructionStatus,
+        nature: currentNature,
+        business_type: currentBusinessType,
+        energy_certificate: currentEnergyCertificate,
+      });
+      
       // Complete property data with all fields
       const propertyData = {
         title: data.title,
         reference: data.reference,
         description: data.description || null,
-        business_type: data.business_type,
-        nature: data.nature,
+        business_type: currentBusinessType,
+        nature: currentNature,
         status: data.status,
         slug,
         price: data.price ? parseFloat(data.price) : null,
@@ -434,9 +453,9 @@ export default function NewPropertyPage() {
         bathrooms: data.bathrooms !== undefined && data.bathrooms !== '' ? parseInt(data.bathrooms) : null,
         floors: data.floors !== undefined && data.floors !== '' ? parseInt(data.floors) : null,
         typology: data.typology || '',
-        construction_status: data.construction_status || null,
+        construction_status: currentConstructionStatus || null,
         construction_year: data.construction_year ? parseInt(data.construction_year) : null,
-        energy_certificate: data.energy_certificate || '',
+        energy_certificate: currentEnergyCertificate || '',
         video_url: data.video_url || '',
         virtual_tour_url: data.virtual_tour_url || '',
         equipment: equipment.length > 0 ? equipment : [],
