@@ -154,6 +154,7 @@ export default function NewPropertyPage() {
   const [surroundingArea, setSurroundingArea] = useState<string[]>([]);
   const [divisions, setDivisions] = useState<{name: string; area: string}[]>([]);
   const [uploadedImages, setUploadedImages] = useState<{id: string; url: string; order: number}[]>([]);
+  const [coverImageIndex, setCoverImageIndex] = useState<number>(0);
 
   const {
     register,
@@ -340,13 +341,14 @@ export default function NewPropertyPage() {
           .getPublicUrl(fileName);
         
         const currentOrder = uploadedImages.length + i;
+        const isFirstImage = uploadedImages.length === 0 && i === 0;
         const { data: imageRecord, error: insertError } = await supabase
           .from('property_images')
           .insert({
             property_id: draftId,
             url: publicUrl,
             order: currentOrder,
-            is_cover: currentOrder === 0,
+            is_cover: isFirstImage, // First image uploaded is cover by default, user can change
           })
           .select()
           .single();
@@ -376,6 +378,28 @@ export default function NewPropertyPage() {
     
     setUploadedImages((prev) => prev.filter((_, i) => i !== index));
     setImagesPreviews((prev) => prev.filter((_, i) => i !== index));
+    
+    // Adjust cover index if needed
+    if (index === coverImageIndex) {
+      setCoverImageIndex(0);
+    } else if (index < coverImageIndex) {
+      setCoverImageIndex((prev) => prev - 1);
+    }
+  };
+
+  const setCoverImage = async (index: number) => {
+    setCoverImageIndex(index);
+    
+    // Update is_cover in database for all images
+    if (uploadedImages.length > 0) {
+      // Set all images to not cover
+      for (let i = 0; i < uploadedImages.length; i++) {
+        await supabase
+          .from('property_images')
+          .update({ is_cover: i === index })
+          .eq('id', uploadedImages[i].id);
+      }
+    }
   };
 
   const handleBrochureUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -501,7 +525,7 @@ export default function NewPropertyPage() {
               property_id: draftId,
               url: publicUrl,
               order: i,
-              is_cover: i === 0,
+              is_cover: i === coverImageIndex,
             });
           }
         });
@@ -900,7 +924,11 @@ export default function NewPropertyPage() {
                 {imagesPreviews.length > 0 && (
                   <div className="grid grid-cols-4 gap-4">
                     {imagesPreviews.map((preview, index) => (
-                      <div key={index} className="relative group">
+                      <div 
+                        key={index} 
+                        className={`relative group cursor-pointer ${index === coverImageIndex ? 'ring-2 ring-yellow-500' : ''}`}
+                        onClick={() => setCoverImage(index)}
+                      >
                         <img
                           src={preview}
                           alt={`Preview ${index + 1}`}
@@ -908,12 +936,12 @@ export default function NewPropertyPage() {
                         />
                         <button
                           type="button"
-                          onClick={() => removeImage(index)}
+                          onClick={(e) => { e.stopPropagation(); removeImage(index); }}
                           className="absolute top-1 right-1 p-1 bg-yellow-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           <X className="h-3 w-3" />
                         </button>
-                        {index === 0 && (
+                        {index === coverImageIndex && (
                           <span className="absolute bottom-1 left-1 text-xs bg-gold-500 text-white px-2 py-0.5 rounded">
                             Capa
                           </span>
@@ -921,6 +949,9 @@ export default function NewPropertyPage() {
                       </div>
                     ))}
                   </div>
+                )}
+                {imagesPreviews.length > 1 && (
+                  <p className="text-xs text-muted-foreground">Clique numa imagem para a definir como capa</p>
                 )}
               </div>
             </CardContent>
