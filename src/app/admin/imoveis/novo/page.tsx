@@ -441,45 +441,48 @@ export default function NewPropertyPage() {
       // Generate slug from title
       const slug = generateSlugFromTitle(data.title);
       
-      // Get current form values to ensure we have the latest
-      const currentConstructionStatus = data.construction_status;
-      const currentNature = data.nature;
-      const currentBusinessType = data.business_type;
-      const currentEnergyCertificate = data.energy_certificate;
+      // Use watch values as they are the most up-to-date
+      const formValues = watch();
       
-      console.log('Form data on submit:', {
-        construction_status: currentConstructionStatus,
-        nature: currentNature,
-        business_type: currentBusinessType,
-        energy_certificate: currentEnergyCertificate,
-      });
+      console.log('=== FORM SUBMIT DEBUG ===');
+      console.log('data from handleSubmit:', data);
+      console.log('formValues from watch():', formValues);
+      console.log('construction_status:', formValues.construction_status || data.construction_status);
+      console.log('floors:', formValues.floors || data.floors);
+      console.log('=========================');
       
-      // Complete property data with all fields
+      // Parse floors value - handle string "0" correctly
+      const floorsValue = formValues.floors ?? data.floors;
+      const parsedFloors = floorsValue !== undefined && floorsValue !== '' && floorsValue !== null
+        ? parseInt(String(floorsValue), 10)
+        : null;
+      
+      // Complete property data with all fields - prefer watch() values
       const propertyData = {
-        title: data.title,
-        reference: data.reference,
-        description: data.description || null,
-        business_type: currentBusinessType,
-        nature: currentNature,
-        status: data.status,
+        title: formValues.title || data.title,
+        reference: formValues.reference || data.reference,
+        description: formValues.description || data.description || null,
+        business_type: formValues.business_type || data.business_type,
+        nature: formValues.nature || data.nature,
+        status: formValues.status || data.status,
         slug,
-        price: data.price ? parseFloat(data.price) : null,
-        price_on_request: data.price_on_request,
-        district: data.district || '',
-        municipality: data.municipality || '',
-        parish: data.parish || '',
-        address: data.address || '',
-        postal_code: data.postal_code || '',
-        gross_area: data.gross_area ? parseFloat(data.gross_area) : null,
-        useful_area: data.useful_area ? parseFloat(data.useful_area) : null,
-        land_area: data.land_area ? parseFloat(data.land_area) : null,
-        bedrooms: data.bedrooms !== undefined && data.bedrooms !== '' ? parseInt(data.bedrooms) : null,
-        bathrooms: data.bathrooms !== undefined && data.bathrooms !== '' ? parseInt(data.bathrooms) : null,
-        floors: data.floors !== undefined && data.floors !== '' ? parseInt(data.floors) : null,
-        typology: data.typology || '',
-        construction_status: currentConstructionStatus || null,
-        construction_year: data.construction_year ? parseInt(data.construction_year) : null,
-        energy_certificate: currentEnergyCertificate || '',
+        price: (formValues.price || data.price) ? parseFloat(String(formValues.price || data.price)) : null,
+        price_on_request: formValues.price_on_request ?? data.price_on_request,
+        district: formValues.district || data.district || '',
+        municipality: formValues.municipality || data.municipality || '',
+        parish: formValues.parish || data.parish || '',
+        address: formValues.address || data.address || '',
+        postal_code: formValues.postal_code || data.postal_code || '',
+        gross_area: (formValues.gross_area || data.gross_area) ? parseFloat(String(formValues.gross_area || data.gross_area)) : null,
+        useful_area: (formValues.useful_area || data.useful_area) ? parseFloat(String(formValues.useful_area || data.useful_area)) : null,
+        land_area: (formValues.land_area || data.land_area) ? parseFloat(String(formValues.land_area || data.land_area)) : null,
+        bedrooms: (formValues.bedrooms ?? data.bedrooms) !== '' ? parseInt(String(formValues.bedrooms ?? data.bedrooms), 10) : null,
+        bathrooms: (formValues.bathrooms ?? data.bathrooms) !== '' ? parseInt(String(formValues.bathrooms ?? data.bathrooms), 10) : null,
+        floors: parsedFloors,
+        typology: formValues.typology || data.typology || '',
+        construction_status: formValues.construction_status || data.construction_status || null,
+        construction_year: (formValues.construction_year || data.construction_year) ? parseInt(String(formValues.construction_year || data.construction_year)) : null,
+        energy_certificate: formValues.energy_certificate || data.energy_certificate || '',
         video_url: data.video_url || '',
         virtual_tour_url: data.virtual_tour_url || '',
         equipment: equipment.length > 0 ? equipment : [],

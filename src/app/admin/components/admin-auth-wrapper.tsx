@@ -75,8 +75,8 @@ export function AdminAuthWrapper({ children }: AdminAuthWrapperProps) {
     // Skip for login page
     if (isLoginPage) return;
     
-    // Already loaded
-    if (isReady || profile) return;
+    // Only load once
+    if (isReady) return;
 
     loadProfile();
 
@@ -91,7 +91,7 @@ export function AdminAuthWrapper({ children }: AdminAuthWrapperProps) {
     return () => {
       subscription.unsubscribe();
     };
-  }, [isLoginPage, isReady, profile, loadProfile, router]);
+  }, [isLoginPage, isReady, loadProfile, router]);
 
   // Skip auth UI for login page - render children directly
   if (isLoginPage) {

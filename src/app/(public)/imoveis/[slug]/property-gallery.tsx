@@ -26,12 +26,19 @@ const businessTypeLabels: Record<string, string> = {
 };
 
 export function PropertyGallery({ images, videoUrl, title, businessType }: PropertyGalleryProps) {
-  const [selectedIndex, setSelectedIndex] = useState(0);
   const [showVideo, setShowVideo] = useState(false);
   const [thumbnailStart, setThumbnailStart] = useState(0);
   
   const visibleThumbnails = 4;
-  const sortedImages = [...images].sort((a, b) => b.order - a.order);
+  // Sort by order ascending, but put cover image first
+  const sortedImages = [...images].sort((a, b) => {
+    if (a.is_cover) return -1;
+    if (b.is_cover) return 1;
+    return a.order - b.order;
+  });
+  
+  // Start with cover image (which is now first after sorting)
+  const [selectedIndex, setSelectedIndex] = useState(0);
   const selectedImage = sortedImages[selectedIndex];
 
   const scrollThumbnails = (direction: 'up' | 'down') => {
