@@ -173,7 +173,6 @@ export default function NewPropertyPage() {
     defaultValues: {
       status: 'published',
       business_type: 'sale',
-      nature: 'apartment',
       price_on_request: false,
       construction_status: '',
       energy_certificate: '',
@@ -227,7 +226,7 @@ export default function NewPropertyPage() {
             reference: existingDraft.reference || '',
             description: existingDraft.description || '',
             business_type: existingDraft.business_type || 'sale',
-            nature: existingDraft.nature || 'apartment',
+            nature: existingDraft.nature || '',
             status: existingDraft.status || 'draft',
             price: existingDraft.price?.toString() || '',
             price_on_request: existingDraft.price_on_request || false,
@@ -277,7 +276,6 @@ export default function NewPropertyPage() {
           slug: tempSlug,
           status: 'published',
           business_type: 'sale',
-          nature: 'apartment',
         })
         .select()
         .single();

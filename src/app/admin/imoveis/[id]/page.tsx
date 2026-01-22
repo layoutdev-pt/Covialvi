@@ -280,7 +280,6 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
     defaultValues: {
       status: 'published',
       business_type: 'sale',
-      nature: 'apartment',
       price_on_request: false,
     },
   });
@@ -305,7 +304,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
           reference: data.reference || '',
           description: data.description || '',
           business_type: data.business_type || 'sale',
-          nature: data.nature || 'apartment',
+          nature: data.nature || '',
           status: data.status || 'published',
           price: data.price?.toString() || '',
           price_on_request: data.price_on_request || false,

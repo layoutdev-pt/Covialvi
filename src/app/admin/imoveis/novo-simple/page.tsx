@@ -267,7 +267,6 @@ export default function SimpleNewPropertyPage() {
     defaultValues: {
       status: 'published',
       business_type: 'sale',
-      nature: 'apartment',
       price_on_request: false,
     },
   });
@@ -714,11 +713,10 @@ export default function SimpleNewPropertyPage() {
                 <div className="space-y-2">
                   <Label>Natureza *</Label>
                   <Select
-                    defaultValue="apartment"
                     onValueChange={(value) => setValue('nature', value as any)}
                   >
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue placeholder="Selecionar natureza..." />
                     </SelectTrigger>
                     <SelectContent>
                       {Object.entries(natureLabels).map(([value, label]) => (
