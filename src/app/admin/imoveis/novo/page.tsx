@@ -155,6 +155,11 @@ export default function NewPropertyPage() {
   const [divisions, setDivisions] = useState<{name: string; area: string}[]>([]);
   const [uploadedImages, setUploadedImages] = useState<{id: string; url: string; order: number}[]>([]);
   const [coverImageIndex, setCoverImageIndex] = useState<number>(0);
+  
+  // Direct state for select fields to ensure they are captured correctly
+  const [selectedConstructionStatus, setSelectedConstructionStatus] = useState<string>('');
+  const [selectedEnergyCertificate, setSelectedEnergyCertificate] = useState<string>('');
+  const [selectedTypology, setSelectedTypology] = useState<string>('');
 
   const {
     register,
@@ -302,6 +307,15 @@ export default function NewPropertyPage() {
   const handleSelectChange = useCallback((field: string, value: any) => {
     setValue(field as any, value);
     saveField(field, value);
+    
+    // Also update direct state for critical select fields
+    if (field === 'construction_status') {
+      setSelectedConstructionStatus(value);
+    } else if (field === 'energy_certificate') {
+      setSelectedEnergyCertificate(value);
+    } else if (field === 'typology') {
+      setSelectedTypology(value);
+    }
   }, [setValue, saveField]);
 
   const handleCheckboxChange = useCallback((field: string, checked: boolean) => {
@@ -444,11 +458,16 @@ export default function NewPropertyPage() {
       // Use watch values as they are the most up-to-date
       const formValues = watch();
       
+      // Use direct state for select fields - these are guaranteed to have the correct value
+      const finalConstructionStatus = selectedConstructionStatus || formValues.construction_status || data.construction_status || null;
+      const finalEnergyCertificate = selectedEnergyCertificate || formValues.energy_certificate || data.energy_certificate || '';
+      const finalTypology = selectedTypology || formValues.typology || data.typology || '';
+      
       console.log('=== FORM SUBMIT DEBUG ===');
-      console.log('data from handleSubmit:', data);
-      console.log('formValues from watch():', formValues);
-      console.log('construction_status:', formValues.construction_status || data.construction_status);
-      console.log('floors:', formValues.floors || data.floors);
+      console.log('selectedConstructionStatus (direct state):', selectedConstructionStatus);
+      console.log('formValues.construction_status:', formValues.construction_status);
+      console.log('data.construction_status:', data.construction_status);
+      console.log('FINAL construction_status being used:', finalConstructionStatus);
       console.log('=========================');
       
       // Parse floors value - handle string "0" correctly
@@ -457,7 +476,7 @@ export default function NewPropertyPage() {
         ? parseInt(String(floorsValue), 10)
         : null;
       
-      // Complete property data with all fields - prefer watch() values
+      // Complete property data with all fields
       const propertyData = {
         title: formValues.title || data.title,
         reference: formValues.reference || data.reference,
@@ -479,10 +498,10 @@ export default function NewPropertyPage() {
         bedrooms: (formValues.bedrooms ?? data.bedrooms) !== '' ? parseInt(String(formValues.bedrooms ?? data.bedrooms), 10) : null,
         bathrooms: (formValues.bathrooms ?? data.bathrooms) !== '' ? parseInt(String(formValues.bathrooms ?? data.bathrooms), 10) : null,
         floors: parsedFloors,
-        typology: formValues.typology || data.typology || '',
-        construction_status: formValues.construction_status || data.construction_status || null,
+        typology: finalTypology,
+        construction_status: finalConstructionStatus,
         construction_year: (formValues.construction_year || data.construction_year) ? parseInt(String(formValues.construction_year || data.construction_year)) : null,
-        energy_certificate: formValues.energy_certificate || data.energy_certificate || '',
+        energy_certificate: finalEnergyCertificate,
         video_url: data.video_url || '',
         virtual_tour_url: data.virtual_tour_url || '',
         equipment: equipment.length > 0 ? equipment : [],
@@ -494,10 +513,21 @@ export default function NewPropertyPage() {
         }, {} as Record<string, number>),
       };
 
-      const { error: updateError } = await supabase
+      console.log('=== SAVING TO DATABASE ===');
+      console.log('Property ID:', draftId);
+      console.log('construction_status being saved:', propertyData.construction_status);
+      console.log('Full propertyData:', JSON.stringify(propertyData, null, 2));
+      console.log('===========================');
+
+      const { data: updateResult, error: updateError } = await supabase
         .from('properties')
         .update(propertyData)
-        .eq('id', draftId);
+        .eq('id', draftId)
+        .select('construction_status')
+        .single();
+
+      console.log('Update result:', updateResult);
+      console.log('Update error:', updateError);
 
       if (updateError) {
         throw new Error(updateError.message);
@@ -861,7 +891,7 @@ export default function NewPropertyPage() {
                 <div className="space-y-2">
                   <Label>Estado de Construção</Label>
                   <Select 
-                    value={watch('construction_status') || ''}
+                    value={selectedConstructionStatus}
                     onValueChange={(value) => handleSelectChange('construction_status', value)}
                   >
                     <SelectTrigger>
@@ -877,7 +907,7 @@ export default function NewPropertyPage() {
                 <div className="space-y-2">
                   <Label>Certificado Energético</Label>
                   <Select 
-                    value={watch('energy_certificate') || ''}
+                    value={selectedEnergyCertificate}
                     onValueChange={(value) => handleSelectChange('energy_certificate', value)}
                   >
                     <SelectTrigger>
