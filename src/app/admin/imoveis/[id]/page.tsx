@@ -570,9 +570,9 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
   const onSubmit = async (data: PropertyFormData) => {
     setIsSaving(true);
     try {
-      // Build divisions data for areas
-      const divisionsData = divisions.filter(d => d.name && d.area).reduce((acc, d) => {
-        acc[d.name] = parseFloat(d.area);
+      // Build divisions data for areas - allow divisions without areas (store as 0)
+      const divisionsData = divisions.filter(d => d.name).reduce((acc, d) => {
+        acc[d.name] = d.area ? parseFloat(d.area) : 0;
         return acc;
       }, {} as Record<string, number>);
 

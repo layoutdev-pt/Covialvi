@@ -46,6 +46,23 @@ export const metadata: Metadata = {
 
 async function getFeaturedProperties(): Promise<any[]> {
   const supabase = createClient();
+  // First try to get featured properties
+  const { data: featuredData } = await supabase
+    .from('properties')
+    .select(`
+      *,
+      property_images (*)
+    `)
+    .eq('status', 'published')
+    .eq('featured', true)
+    .order('created_at', { ascending: false })
+    .limit(6);
+  
+  // If no featured properties, fall back to latest published
+  if (featuredData && featuredData.length > 0) {
+    return featuredData;
+  }
+  
   const { data } = await supabase
     .from('properties')
     .select(`
