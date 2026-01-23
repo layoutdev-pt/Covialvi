@@ -406,7 +406,9 @@ export function AboutClient() {
                   <Phone className="h-6 w-6 text-yellow-600" />
                 </div>
                 <h3 className="font-semibold text-foreground mb-2">Telefone</h3>
-                <p className="text-muted-foreground">+351 275 XXX XXX</p>
+                <p className="text-muted-foreground">
+                  <a href="tel:+351967138116" className="hover:text-yellow-600 transition-colors">+351 967 138 116</a>
+                </p>
               </motion.div>
             </StaggerItem>
             
@@ -419,7 +421,9 @@ export function AboutClient() {
                   <Mail className="h-6 w-6 text-yellow-600" />
                 </div>
                 <h3 className="font-semibold text-foreground mb-2">Email</h3>
-                <p className="text-muted-foreground">info@covialvi.com</p>
+                <p className="text-muted-foreground">
+                  <a href="mailto:covialvi@gmail.com" className="hover:text-yellow-600 transition-colors">covialvi@gmail.com</a>
+                </p>
               </motion.div>
             </StaggerItem>
             
@@ -432,7 +436,7 @@ export function AboutClient() {
                   <MapPin className="h-6 w-6 text-yellow-600" />
                 </div>
                 <h3 className="font-semibold text-foreground mb-2">Morada</h3>
-                <p className="text-muted-foreground">Fundão, Portugal</p>
+                <p className="text-muted-foreground text-sm">Parque Industrial do Tortosendo,<br />Lote 75 – Rua E,<br />6200-683 Tortosendo</p>
               </motion.div>
             </StaggerItem>
           </StaggerContainer>

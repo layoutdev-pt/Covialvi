@@ -225,11 +225,19 @@ export function AdminTopbar({ profile }: AdminTopbarProps) {
 
   const handleLogout = async () => {
     try {
+      // Clear any local storage items
+      localStorage.removeItem('draft-property-id');
+      localStorage.removeItem('sb-auth-token');
+      
+      // Sign out from Supabase
       await supabase.auth.signOut();
-      window.location.href = '/';
+      
+      // Force full page reload to clear all state
+      window.location.replace('/admin/login');
     } catch (error) {
       console.error('Logout error:', error);
-      window.location.href = '/';
+      // Even on error, force redirect
+      window.location.replace('/admin/login');
     }
   };
 
