@@ -164,6 +164,25 @@ export function PriceFilter({
           </select>
         </div>
 
+        {/* Clear Filters Button */}
+        <button
+          type="button"
+          onClick={() => {
+            setLocation('');
+            setNature('');
+            setBusinessType('');
+            setConstructionStatus('');
+            setBedrooms('');
+            setMinPrice(0);
+            setMaxPrice(MAX_PRICE);
+            setShowSobConsulta(true);
+            router.push('/imoveis');
+          }}
+          className="px-4 py-2 rounded-full border border-gray-600 hover:border-white text-gray-400 hover:text-white text-sm transition-all flex-shrink-0"
+        >
+          Limpar
+        </button>
+
         {/* Search Button - Improved */}
         <button
           type="submit"
