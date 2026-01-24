@@ -15,7 +15,6 @@ import {
   Home,
   Clock,
   MoreHorizontal,
-  Loader2,
 } from 'lucide-react';
 
 function getRelativeTime(dateString: string): string {
@@ -48,10 +47,21 @@ interface Stats {
 }
 
 export function AdminDashboardClient() {
-  const [stats, setStats] = useState<Stats | null>(null);
+  const [stats, setStats] = useState<Stats>({
+    totalProperties: 0,
+    activeProperties: 0,
+    newLeads: 0,
+    scheduledVisits: 0,
+    pendingLeads: 0,
+    changes: {
+      properties: { value: 0, type: 'neutral' },
+      active: { value: 0, type: 'neutral' },
+      leads: { value: 0, type: 'neutral' },
+      visits: { value: 0, type: 'neutral' },
+    }
+  });
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
   const [recentLeads, setRecentLeads] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
@@ -64,31 +74,65 @@ export function AdminDashboardClient() {
         const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
         const sixtyDaysAgo = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
 
+        // Fetch properties data (most reliable)
         const [
-          { count: totalProperties },
-          { count: activeProperties },
-          { count: newLeadsThisWeek },
-          { count: newLeadsLastWeek },
-          { count: scheduledVisits },
-          { count: visitsLastWeek },
-          { count: propertiesThisMonth },
-          { count: propertiesLastMonth },
-          { count: pendingLeads },
-          { data: activityData },
-          { data: leadsData },
+          propertiesResult,
+          activePropertiesResult,
+          propertiesThisMonthResult,
+          propertiesLastMonthResult,
         ] = await Promise.all([
           supabase.from('properties').select('*', { count: 'exact', head: true }),
           supabase.from('properties').select('*', { count: 'exact', head: true }).eq('status', 'published'),
-          supabase.from('leads').select('*', { count: 'exact', head: true }).gte('created_at', sevenDaysAgo.toISOString()),
-          supabase.from('leads').select('*', { count: 'exact', head: true }).gte('created_at', fourteenDaysAgo.toISOString()).lt('created_at', sevenDaysAgo.toISOString()),
-          supabase.from('visits').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
-          supabase.from('visits').select('*', { count: 'exact', head: true }).gte('scheduled_at', sevenDaysAgo.toISOString()).lt('scheduled_at', now.toISOString()),
           supabase.from('properties').select('*', { count: 'exact', head: true }).gte('created_at', thirtyDaysAgo.toISOString()),
           supabase.from('properties').select('*', { count: 'exact', head: true }).gte('created_at', sixtyDaysAgo.toISOString()).lt('created_at', thirtyDaysAgo.toISOString()),
-          supabase.from('leads').select('*', { count: 'exact', head: true }).eq('status', 'new'),
-          supabase.from('audit_logs').select('*, profiles:user_id (first_name, last_name)').order('created_at', { ascending: false }).limit(5),
-          supabase.from('leads').select('*, properties:property_id (title, reference)').order('created_at', { ascending: false }).limit(5),
         ]);
+
+        const totalProperties = propertiesResult.count || 0;
+        const activeProperties = activePropertiesResult.count || 0;
+        const propertiesThisMonth = propertiesThisMonthResult.count || 0;
+        const propertiesLastMonth = propertiesLastMonthResult.count || 0;
+
+        // Try to fetch leads/visits data (may fail due to RLS)
+        let newLeadsThisWeek = 0;
+        let newLeadsLastWeek = 0;
+        let scheduledVisits = 0;
+        let visitsLastWeek = 0;
+        let pendingLeads = 0;
+        let activityData: any[] = [];
+        let leadsData: any[] = [];
+
+        try {
+          const leadsResults = await Promise.all([
+            supabase.from('leads').select('*', { count: 'exact', head: true }).gte('created_at', sevenDaysAgo.toISOString()),
+            supabase.from('leads').select('*', { count: 'exact', head: true }).gte('created_at', fourteenDaysAgo.toISOString()).lt('created_at', sevenDaysAgo.toISOString()),
+            supabase.from('leads').select('*', { count: 'exact', head: true }).eq('status', 'new'),
+            supabase.from('leads').select('*, properties:property_id (title, reference)').order('created_at', { ascending: false }).limit(5),
+          ]);
+          newLeadsThisWeek = leadsResults[0].count || 0;
+          newLeadsLastWeek = leadsResults[1].count || 0;
+          pendingLeads = leadsResults[2].count || 0;
+          leadsData = leadsResults[3].data || [];
+        } catch (e) {
+          console.warn('Could not fetch leads data');
+        }
+
+        try {
+          const visitsResults = await Promise.all([
+            supabase.from('visits').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+            supabase.from('visits').select('*', { count: 'exact', head: true }).gte('scheduled_at', sevenDaysAgo.toISOString()).lt('scheduled_at', now.toISOString()),
+          ]);
+          scheduledVisits = visitsResults[0].count || 0;
+          visitsLastWeek = visitsResults[1].count || 0;
+        } catch (e) {
+          console.warn('Could not fetch visits data');
+        }
+
+        try {
+          const activityResult = await supabase.from('audit_logs').select('*, profiles:user_id (first_name, last_name)').order('created_at', { ascending: false }).limit(5);
+          activityData = activityResult.data || [];
+        } catch (e) {
+          console.warn('Could not fetch activity data');
+        }
 
         const calcChange = (current: number, previous: number) => {
           if (previous === 0) {
@@ -101,30 +145,28 @@ export function AdminDashboardClient() {
           };
         };
 
-        const propertiesChange = calcChange(propertiesThisMonth || 0, propertiesLastMonth || 0);
-        const leadsChange = calcChange(newLeadsThisWeek || 0, newLeadsLastWeek || 0);
-        const activePercentage = totalProperties ? Math.round((activeProperties || 0) / totalProperties * 100) : 0;
+        const propertiesChange = calcChange(propertiesThisMonth, propertiesLastMonth);
+        const leadsChange = calcChange(newLeadsThisWeek, newLeadsLastWeek);
+        const activePercentage = totalProperties ? Math.round(activeProperties / totalProperties * 100) : 0;
 
         setStats({
-          totalProperties: totalProperties || 0,
-          activeProperties: activeProperties || 0,
-          newLeads: newLeadsThisWeek || 0,
-          scheduledVisits: scheduledVisits || 0,
-          pendingLeads: pendingLeads || 0,
+          totalProperties,
+          activeProperties,
+          newLeads: newLeadsThisWeek,
+          scheduledVisits,
+          pendingLeads,
           changes: {
             properties: propertiesChange,
             active: { value: activePercentage, type: 'neutral' },
             leads: leadsChange,
-            visits: { value: visitsLastWeek || 0, type: 'neutral' },
+            visits: { value: visitsLastWeek, type: 'neutral' },
           }
         });
 
-        setRecentActivity(activityData || []);
-        setRecentLeads(leadsData || []);
+        setRecentActivity(activityData);
+        setRecentLeads(leadsData);
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
-      } finally {
-        setIsLoading(false);
       }
     }
 
@@ -148,14 +190,6 @@ export function AdminDashboardClient() {
     closed: 'bg-green-100 text-green-700',
     lost: 'bg-yellow-100 text-yellow-700',
   };
-
-  if (isLoading || !stats) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-yellow-500" />
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-8">

@@ -34,7 +34,6 @@ const navigation = [
   { name: 'Visitas', href: '/admin/visitas', icon: Calendar },
   { name: 'Utilizadores', href: '/admin/utilizadores', icon: Users },
   { name: 'Relatórios', href: '/admin/relatorios', icon: TrendingUp },
-  { name: 'Auditoria', href: '/admin/auditoria', icon: FileText },
   { name: 'Definições', href: '/admin/definicoes', icon: Settings },
 ];
 
@@ -44,7 +43,7 @@ export function AdminSidebar({ profile, isSuperAdmin }: AdminSidebarProps) {
   const pathname = usePathname();
 
   const navItems = isSuperAdmin 
-    ? [...navigation.slice(0, 7), superAdminNav, navigation[7]]
+    ? [...navigation.slice(0, 6), superAdminNav, navigation[6]]
     : navigation;
 
   return (
