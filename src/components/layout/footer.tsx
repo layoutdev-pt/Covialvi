@@ -133,9 +133,20 @@ export function Footer() {
             <p className="text-gray-500 text-sm">
               © {currentYear} Covialvi - Construções, Lda. Todos os direitos reservados.
             </p>
-            <p className="text-gray-500 text-sm">
-              Mediação Imobiliária
-            </p>
+            <div className="flex items-center gap-4">
+              <p className="text-gray-500 text-sm">
+                Mediação Imobiliária
+              </p>
+              <span className="text-gray-700">|</span>
+              <a
+                href="https://www.layoutagency.pt"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-500 hover:text-yellow-500 text-sm transition-colors"
+              >
+                Desenvolvido por: Layout Agency
+              </a>
+            </div>
           </div>
         </div>
       </div>

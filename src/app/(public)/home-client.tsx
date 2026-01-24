@@ -638,6 +638,29 @@ export function HomeClient({ properties, stats, heroProperty, availableLocations
         </div>
       </section>
 
+      {/* Build Your House CTA Section */}
+      <section className="py-20 px-6 md:px-12 lg:px-20 bg-gradient-to-r from-yellow-500 to-yellow-600">
+        <div className="max-w-4xl mx-auto text-center">
+          <FadeInUp>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+              Quer construir a sua casa?
+            </h2>
+            <p className="text-white/90 text-lg mb-8 max-w-2xl mx-auto">
+              Conheça os nossos parceiros especializados em construção e torne o seu sonho realidade.
+            </p>
+            <a
+              href="https://www.virgilioroque.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-3 bg-white text-gray-900 rounded-full px-8 py-4 font-semibold hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl"
+            >
+              Quer construir a sua casa?
+              <ArrowUpRight className="h-5 w-5" />
+            </a>
+          </FadeInUp>
+        </div>
+      </section>
+
       {/* Contact CTA Section */}
       <section className="relative py-32 overflow-hidden">
         {/* Background Image with Parallax */}
