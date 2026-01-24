@@ -38,6 +38,7 @@ import {
   X,
   Upload,
   Trash2,
+  Star,
 } from 'lucide-react';
 
 const propertySchema = z.object({
@@ -49,6 +50,7 @@ const propertySchema = z.object({
   status: z.enum(['draft', 'published', 'archived']).default('published'),
   price: z.string().optional(),
   price_on_request: z.boolean().default(false),
+  featured: z.boolean().default(false),
   district: z.string().optional(),
   municipality: z.string().optional(),
   parish: z.string().optional(),
@@ -268,6 +270,7 @@ export default function SimpleNewPropertyPage() {
       status: 'published',
       business_type: 'sale',
       price_on_request: false,
+      featured: false,
     },
   });
 
@@ -481,6 +484,7 @@ export default function SimpleNewPropertyPage() {
         slug,
         price: data.price ? parseFloat(data.price) : null,
         price_on_request: data.price_on_request,
+        featured: data.featured || false,
         district: data.district || null,
         municipality: data.municipality || null,
         parish: data.parish || null,
@@ -1326,6 +1330,19 @@ export default function SimpleNewPropertyPage() {
                 />
                 <Label htmlFor="price_on_request" className="text-sm font-normal">
                   Preço sob consulta
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2 pt-4 border-t">
+                <input
+                  type="checkbox"
+                  id="featured"
+                  {...register('featured')}
+                  className="h-4 w-4 rounded border-gray-300 text-yellow-500 focus:ring-yellow-500"
+                />
+                <Label htmlFor="featured" className="text-sm font-normal flex items-center gap-2">
+                  <Star className="h-4 w-4 text-yellow-500" />
+                  Imóvel em Destaque
+                  <span className="text-xs text-muted-foreground">(máx. 6)</span>
                 </Label>
               </div>
             </CardContent>

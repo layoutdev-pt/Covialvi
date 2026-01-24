@@ -77,22 +77,29 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       {/* Header */}
-      <div className="bg-gray-900 dark:bg-gray-800 text-white py-16">
-        <div className="container-wide">
-          <h1 className="font-display text-display-lg mb-4 text-white">Contacte-nos</h1>
-          <p className="text-gray-300 max-w-2xl">Estamos aqui para ajudar. Entre em contacto connosco.</p>
+      <div className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white py-24 overflow-hidden">
+        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10"></div>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-yellow-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+        <div className="container-wide relative z-10">
+          <div className="inline-flex items-center gap-2 bg-yellow-500/20 text-yellow-400 px-4 py-2 rounded-full text-sm font-medium mb-6">
+            <Mail className="h-4 w-4" />
+            Fale Connosco
+          </div>
+          <h1 className="font-display text-4xl md:text-5xl font-bold mb-4 text-white">Contacte-nos</h1>
+          <p className="text-gray-300 text-lg max-w-2xl">Estamos aqui para ajudar. A nossa equipa está pronta para responder às suas questões e acompanhá-lo em cada passo.</p>
         </div>
       </div>
 
-      <div className="container-wide section-padding">
-        <div className="grid lg:grid-cols-2 gap-16">
+      <div className="container-wide py-16">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
           {/* Contact Form */}
-          <div>
-            <h2 className="font-display text-2xl font-semibold mb-6">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-xl border border-gray-100 dark:border-gray-800">
+            <h2 className="font-display text-2xl font-bold mb-2 text-gray-900 dark:text-white">
               Envie-nos uma Mensagem
             </h2>
+            <p className="text-gray-500 dark:text-gray-400 mb-8">Preencha o formulário e entraremos em contacto em breve.</p>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -156,7 +163,7 @@ export default function ContactPage() {
                 )}
               </div>
 
-              <Button type="submit" variant="gold" size="lg" disabled={isLoading}>
+              <Button type="submit" variant="gold" size="lg" className="w-full" disabled={isLoading}>
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -173,95 +180,78 @@ export default function ContactPage() {
           </div>
 
           {/* Contact Info */}
-          <div>
-            <h2 className="font-display text-2xl font-semibold mb-6">
-              Covialvi - Construções, Lda.
-            </h2>
+          <div className="space-y-8">
+            <div>
+              <h2 className="font-display text-2xl font-bold mb-2 text-gray-900 dark:text-white">
+                Covialvi - Construções, Lda.
+              </h2>
+              <p className="text-gray-500 dark:text-gray-400">Empresa especializada em construção e mediação imobiliária.</p>
+            </div>
 
-            <div className="space-y-6">
+            <div className="grid gap-3">
               {/* Address */}
-              <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center flex-shrink-0">
-                  <MapPin className="h-6 w-6 text-yellow-600" />
+              <div className="flex items-start space-x-4 p-4 rounded-xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 hover:border-yellow-200 dark:hover:border-yellow-900/50 transition-colors">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-500 flex items-center justify-center flex-shrink-0 shadow-lg shadow-yellow-500/20">
+                  <MapPin className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-1">Morada</h3>
-                  <p className="text-muted-foreground">
+                  <h3 className="font-semibold mb-1 text-gray-900 dark:text-white">Morada</h3>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm">
                     Parque Industrial do Tortosendo,<br />
-                    Lote 75 - Rua E,<br />
-                    6200-683 Tortosendo
+                    Lote 75 - Rua E, 6200-683 Tortosendo
                   </p>
                 </div>
               </div>
 
-              {/* Phone */}
-              <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center flex-shrink-0">
-                  <Phone className="h-6 w-6 text-yellow-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-1">Telefone</h3>
-                  <p className="text-muted-foreground">
-                    <a href="tel:+351275971394" className="hover:text-yellow-600 transition-colors">
+              {/* Phone & Mobile in a row */}
+              <div className="grid sm:grid-cols-2 gap-3">
+                <div className="flex items-start space-x-4 p-4 rounded-xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 hover:border-yellow-200 dark:hover:border-yellow-900/50 transition-colors">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-500 flex items-center justify-center flex-shrink-0 shadow-lg shadow-yellow-500/20">
+                    <Phone className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-1 text-gray-900 dark:text-white">Telefone</h3>
+                    <a href="tel:+351275971394" className="text-gray-600 dark:text-gray-400 text-sm hover:text-yellow-600 transition-colors">
                       +351 275 971 394
                     </a>
-                  </p>
+                  </div>
                 </div>
-              </div>
 
-              {/* Mobile */}
-              <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center flex-shrink-0">
-                  <Smartphone className="h-6 w-6 text-yellow-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-1">Telemóvel</h3>
-                  <p className="text-muted-foreground">
-                    <a href="tel:+351967138116" className="hover:text-yellow-600 transition-colors">
+                <div className="flex items-start space-x-4 p-4 rounded-xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 hover:border-yellow-200 dark:hover:border-yellow-900/50 transition-colors">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-500 flex items-center justify-center flex-shrink-0 shadow-lg shadow-yellow-500/20">
+                    <Smartphone className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-1 text-gray-900 dark:text-white">Telemóvel</h3>
+                    <a href="tel:+351967138116" className="text-gray-600 dark:text-gray-400 text-sm hover:text-yellow-600 transition-colors">
                       +351 967 138 116
                     </a>
-                  </p>
+                  </div>
                 </div>
               </div>
 
               {/* Email */}
-              <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center flex-shrink-0">
-                  <Mail className="h-6 w-6 text-yellow-600" />
+              <div className="flex items-start space-x-4 p-4 rounded-xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 hover:border-yellow-200 dark:hover:border-yellow-900/50 transition-colors">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-500 flex items-center justify-center flex-shrink-0 shadow-lg shadow-yellow-500/20">
+                  <Mail className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-1">E-mail</h3>
-                  <p className="text-muted-foreground">
-                    <a href="mailto:covialvi@gmail.com" className="hover:text-yellow-600 transition-colors">
-                      covialvi@gmail.com
-                    </a>
-                  </p>
+                  <h3 className="font-semibold mb-1 text-gray-900 dark:text-white">E-mail</h3>
+                  <a href="mailto:covialvi@gmail.com" className="text-gray-600 dark:text-gray-400 text-sm hover:text-yellow-600 transition-colors">
+                    covialvi@gmail.com
+                  </a>
                 </div>
               </div>
 
               {/* Hours */}
-              <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center flex-shrink-0">
-                  <Clock className="h-6 w-6 text-yellow-600" />
+              <div className="flex items-start space-x-4 p-4 rounded-xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 hover:border-yellow-200 dark:hover:border-yellow-900/50 transition-colors">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-500 flex items-center justify-center flex-shrink-0 shadow-lg shadow-yellow-500/20">
+                  <Clock className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-1">Horário</h3>
-                  <p className="text-muted-foreground">
-                    Segunda a Sexta:<br />
-                    9h às 13h e das 14h às 18h
-                  </p>
-                </div>
-              </div>
-
-              {/* Observations */}
-              <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center flex-shrink-0">
-                  <MessageSquare className="h-6 w-6 text-yellow-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-1">Observações</h3>
-                  <p className="text-muted-foreground text-sm">
-                    Temos uma estrutura flexível que permite adequar-nos às necessidades de cada cliente em função das solicitações do mercado.
+                  <h3 className="font-semibold mb-1 text-gray-900 dark:text-white">Horário</h3>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm">
+                    Segunda a Sexta: 9h às 13h e das 14h às 18h
                   </p>
                 </div>
               </div>

@@ -82,7 +82,10 @@ async function getProperties(searchParams: SearchParams) {
     query = query.eq('construction_status', searchParams.construction_status);
   }
   if (searchParams.bedrooms) {
-    query = query.eq('bedrooms', parseInt(searchParams.bedrooms));
+    const bedroomNum = parseInt(searchParams.bedrooms);
+    // For typology filter: T1 should include T1, T1 Duplex, etc.
+    // Match by bedrooms number OR by typology starting with T{num}
+    query = query.or(`bedrooms.eq.${bedroomNum},typology.ilike.T${bedroomNum}%`);
   }
   if (searchParams.min_price) {
     query = query.gte('price', parseInt(searchParams.min_price));
@@ -117,12 +120,14 @@ async function getProperties(searchParams: SearchParams) {
       query = query.order('created_at', { ascending: false });
   }
 
-  // Pagination
+  // Pagination - show 9 initially, then load more
   const page = parseInt(searchParams.page || '1');
-  const limit = 12;
+  const limit = 9;
   const offset = (page - 1) * limit;
   
-  query = query.range(offset, offset + limit - 1);
+  // For "View more", calculate how many to show based on page
+  const showCount = page * limit;
+  query = query.range(0, showCount - 1);
 
   const { data, count } = await query;
   
@@ -291,52 +296,19 @@ export default async function PropertiesPage({
           </div>
         )}
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex justify-center mt-12 gap-2">
-            {page > 1 && (
-              <Link
-                href={{
-                  pathname: '/imoveis',
-                  query: { ...searchParams, page: page - 1 },
-                }}
-                className="px-4 py-2 rounded-full border border-border text-foreground hover:bg-secondary transition-colors"
-              >
-                Anterior
-              </Link>
-            )}
-            
-            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              const pageNum = i + 1;
-              return (
-                <Link
-                  key={pageNum}
-                  href={{
-                    pathname: '/imoveis',
-                    query: { ...searchParams, page: pageNum },
-                  }}
-                  className={`px-4 py-2 rounded-full transition-colors ${
-                    pageNum === page
-                      ? 'bg-yellow-500 text-white'
-                      : 'border border-border text-foreground hover:bg-secondary'
-                  }`}
-                >
-                  {pageNum}
-                </Link>
-              );
-            })}
-
-            {page < totalPages && (
-              <Link
-                href={{
-                  pathname: '/imoveis',
-                  query: { ...searchParams, page: page + 1 },
-                }}
-                className="px-4 py-2 rounded-full border border-border text-foreground hover:bg-secondary transition-colors"
-              >
-                Seguinte
-              </Link>
-            )}
+        {/* View More Button */}
+        {properties.length < total && (
+          <div className="flex justify-center mt-12">
+            <Link
+              href={{
+                pathname: '/imoveis',
+                query: { ...searchParams, page: page + 1 },
+              }}
+              className="inline-flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-8 py-4 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl"
+            >
+              Ver mais imóveis
+              <span className="text-sm opacity-80">({total - properties.length} restantes)</span>
+            </Link>
           </div>
         )}
       </section>

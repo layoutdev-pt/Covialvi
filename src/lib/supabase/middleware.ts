@@ -83,30 +83,9 @@ export async function updateSession(request: NextRequest) {
   const user = session?.user ?? null;
 
   // ============================================
-  // ADMIN LOGIN PAGE - Special handling
-  // ============================================
-  if (isAdminLoginRoute) {
-    // If user is already logged in, redirect to admin dashboard
-    if (user) {
-      return NextResponse.redirect(new URL('/admin', request.url));
-    }
-    // Otherwise allow access to login page
-    return response;
-  }
-
-  // ============================================
-  // ADMIN ROUTE PROTECTION (SERVER-SIDE)
+  // ADMIN ROUTES - No server-side protection, load directly
   // ============================================
   if (isAdminRoute) {
-    // No session = redirect to admin login (not /auth/login to prevent loop)
-    if (!user) {
-      console.log('[Middleware] Admin route, no session - redirecting to admin login');
-      return NextResponse.redirect(new URL('/admin/login', request.url));
-    }
-
-    // Session exists - allow access immediately
-    // Role verification happens client-side for speed
-    // This ensures instant admin page loads
     return response;
   }
 

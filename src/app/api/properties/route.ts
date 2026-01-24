@@ -37,6 +37,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Check featured limit (max 6)
+    if (body.featured === true) {
+      const { count: featuredCount } = await supabase
+        .from('properties')
+        .select('*', { count: 'exact', head: true })
+        .eq('featured', true)
+        .eq('status', 'published');
+      
+      if (featuredCount && featuredCount >= 6) {
+        return NextResponse.json(
+          { error: 'Limite máximo de 6 imóveis em destaque atingido. Remova um imóvel em destaque antes de adicionar outro.' },
+          { status: 400 }
+        );
+      }
+    }
+
     // Create the property (RLS policies will verify admin role)
     const { data: property, error } = await supabase
       .from('properties')

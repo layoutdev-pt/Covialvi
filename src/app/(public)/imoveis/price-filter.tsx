@@ -1,8 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search } from 'lucide-react';
 
 interface PriceFilterProps {
   defaultMinPrice?: string;
@@ -69,8 +68,8 @@ export function PriceFilter({
     return new Intl.NumberFormat('pt-PT').format(price) + '€';
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  // Apply filters automatically when any filter changes
+  const applyFilters = useCallback(() => {
     const params = new URLSearchParams();
     
     if (location) params.set('location', location);
@@ -83,8 +82,17 @@ export function PriceFilter({
     if (!showSobConsulta) params.set('show_sob_consulta', 'false');
     
     const queryString = params.toString();
-    router.push(`/imoveis${queryString ? `?${queryString}` : ''}`);
-  };
+    router.push(`/imoveis${queryString ? `?${queryString}` : ''}`, { scroll: false });
+  }, [router, location, nature, businessType, constructionStatus, bedrooms, minPrice, maxPrice, showSobConsulta]);
+
+  // Auto-apply filters when select fields change (immediate)
+  useEffect(() => {
+    // Debounce for text input and price sliders
+    const timeout = setTimeout(() => {
+      applyFilters();
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [location, nature, businessType, constructionStatus, bedrooms, minPrice, maxPrice, showSobConsulta, applyFilters]);
 
   const minPercent = (minPrice / MAX_PRICE) * 100;
   const maxPercent = (maxPrice / MAX_PRICE) * 100;
@@ -97,8 +105,7 @@ export function PriceFilter({
   };
 
   return (
-    <form 
-      onSubmit={handleSubmit}
+    <div 
       className="bg-[#0f1419] rounded-3xl p-6 md:p-8 shadow-2xl border border-gray-800/50"
     >
       {/* Filter Pills Row - All in one line */}
@@ -182,15 +189,6 @@ export function PriceFilter({
         >
           Limpar
         </button>
-
-        {/* Search Button - Improved */}
-        <button
-          type="submit"
-          className="w-16 h-16 rounded-full border-2 border-white flex items-center justify-center hover:bg-white hover:text-[#0f1419] transition-all duration-300 flex-shrink-0 group"
-          aria-label="Pesquisar"
-        >
-          <Search className="w-7 h-7 text-white group-hover:text-[#0f1419] transition-colors" />
-        </button>
       </div>
 
       {/* Price Range Slider */}
@@ -265,6 +263,6 @@ export function PriceFilter({
         
         <span className="text-white font-medium">{formatPrice(maxPrice)}</span>
       </div>
-    </form>
+    </div>
   );
 }

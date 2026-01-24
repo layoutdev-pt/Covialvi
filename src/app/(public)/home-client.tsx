@@ -55,6 +55,10 @@ interface HomeClientProps {
     value: string;
   };
   heroProperty: any | null;
+  availableLocations: {
+    districts: string[];
+    municipalities: string[];
+  };
 }
 
 // Animated Counter Component
@@ -80,7 +84,7 @@ function AnimatedCounter({ value, suffix = '', duration = 2 }: { value: number; 
   return <span ref={ref}>{count}{suffix}</span>;
 }
 
-export function HomeClient({ properties, stats, heroProperty }: HomeClientProps) {
+export function HomeClient({ properties, stats, heroProperty, availableLocations }: HomeClientProps) {
   const router = useRouter();
   const [activeService, setActiveService] = useState(0);
   const [heroExpanded, setHeroExpanded] = useState(false);
@@ -247,14 +251,34 @@ export function HomeClient({ properties, stats, heroProperty }: HomeClientProps)
             >
               <div className="bg-white/95 backdrop-blur-sm rounded-2xl md:rounded-full p-2 shadow-2xl flex flex-col md:flex-row items-stretch md:items-center gap-2">
                 <div className="flex-1">
-                  <input
-                    type="text"
-                    placeholder="Localização..."
-                    value={searchLocation}
-                    onChange={(e) => setSearchLocation(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                    className="w-full px-4 py-3 bg-transparent text-gray-900 placeholder:text-gray-400 focus:outline-none text-sm"
-                  />
+                  <Select value={searchLocation} onValueChange={setSearchLocation}>
+                    <SelectTrigger className="border-0 bg-transparent shadow-none focus:ring-0 w-full md:min-w-[160px] text-sm text-gray-900 [&>svg]:text-gray-400">
+                      <SelectValue placeholder="Localização" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border border-gray-200 shadow-xl rounded-xl max-h-[300px]">
+                      <SelectItem value="all" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Todas as localizações</SelectItem>
+                      {availableLocations.municipalities.length > 0 && (
+                        <>
+                          <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 bg-gray-50">Concelhos</div>
+                          {availableLocations.municipalities.map((municipality) => (
+                            <SelectItem key={municipality} value={municipality} className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">
+                              {municipality}
+                            </SelectItem>
+                          ))}
+                        </>
+                      )}
+                      {availableLocations.districts.length > 0 && (
+                        <>
+                          <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 bg-gray-50">Distritos</div>
+                          {availableLocations.districts.map((district) => (
+                            <SelectItem key={district} value={district} className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">
+                              {district}
+                            </SelectItem>
+                          ))}
+                        </>
+                      )}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="hidden md:block w-px h-8 bg-gray-200" />
                 <div className="flex gap-2">

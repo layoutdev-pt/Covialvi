@@ -105,18 +105,38 @@ async function getStats() {
   };
 }
 
+async function getAvailableLocations(): Promise<{ districts: string[]; municipalities: string[] }> {
+  const supabase = createClient();
+  const { data } = await supabase
+    .from('properties')
+    .select('district, municipality')
+    .eq('status', 'published');
+  
+  if (!data) return { districts: [], municipalities: [] };
+  
+  const districts = [...new Set(data.map((p: { district: string | null }) => p.district).filter(Boolean))] as string[];
+  const municipalities = [...new Set(data.map((p: { municipality: string | null }) => p.municipality).filter(Boolean))] as string[];
+  
+  return {
+    districts: districts.sort(),
+    municipalities: municipalities.sort(),
+  };
+}
+
 export default async function HomePage() {
-  const [properties, stats, heroProperty] = await Promise.all([
+  const [properties, stats, heroProperty, locations] = await Promise.all([
     getFeaturedProperties(),
     getStats(),
     getMostViewedProperty(),
+    getAvailableLocations(),
   ]);
 
   return (
     <HomeClient 
       properties={properties} 
       stats={stats} 
-      heroProperty={heroProperty} 
+      heroProperty={heroProperty}
+      availableLocations={locations}
     />
   );
 }

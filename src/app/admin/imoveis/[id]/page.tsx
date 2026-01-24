@@ -41,6 +41,7 @@ import {
   Upload,
   Trash2,
   Image as ImageIcon,
+  Star,
 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -70,6 +71,7 @@ const propertySchema = z.object({
   energy_certificate: z.string().optional(),
   video_url: z.string().optional(),
   virtual_tour_url: z.string().optional(),
+  featured: z.boolean().default(false),
 });
 
 // Division type for rooms with areas
@@ -281,6 +283,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
       status: 'published',
       business_type: 'sale',
       price_on_request: false,
+      featured: false,
     },
   });
 
@@ -324,6 +327,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
           energy_certificate: data.energy_certificate || '',
           video_url: data.video_url || '',
           virtual_tour_url: data.virtual_tour_url || '',
+          featured: data.featured || false,
         });
         
         // Load divisions
@@ -1504,6 +1508,23 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                 />
                 <Label htmlFor="price_on_request" className="text-sm font-normal">
                   Preço sob consulta
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2 pt-4 border-t">
+                <input
+                  type="checkbox"
+                  id="featured"
+                  {...register('featured')}
+                  className="h-4 w-4 rounded border-gray-300 text-yellow-500 focus:ring-yellow-500"
+                  onChange={(e) => {
+                    setValue('featured', e.target.checked);
+                    saveField('featured', e.target.checked);
+                  }}
+                />
+                <Label htmlFor="featured" className="text-sm font-normal flex items-center gap-2">
+                  <Star className="h-4 w-4 text-yellow-500" />
+                  Imóvel em Destaque
+                  <span className="text-xs text-muted-foreground">(máx. 6)</span>
                 </Label>
               </div>
             </CardContent>

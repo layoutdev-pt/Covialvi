@@ -97,6 +97,32 @@ export async function PUT(
       );
     }
 
+    // Check featured limit (max 6) when trying to set featured = true
+    if (body.featured === true) {
+      // First check if this property is already featured
+      const { data: currentProperty } = await serviceClient
+        .from('properties')
+        .select('featured')
+        .eq('id', params.id)
+        .single();
+      
+      // Only check limit if property is not already featured
+      if (!currentProperty?.featured) {
+        const { count: featuredCount } = await serviceClient
+          .from('properties')
+          .select('*', { count: 'exact', head: true })
+          .eq('featured', true)
+          .eq('status', 'published');
+        
+        if (featuredCount && featuredCount >= 6) {
+          return NextResponse.json(
+            { error: 'Limite máximo de 6 imóveis em destaque atingido. Remova um imóvel em destaque antes de adicionar outro.' },
+            { status: 400 }
+          );
+        }
+      }
+    }
+
     // CRITICAL: Sanitize payload to prevent unknown fields and null overwrites
     const sanitizedPayload = sanitizePropertyUpdate(body);
     
