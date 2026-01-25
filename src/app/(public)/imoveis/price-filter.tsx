@@ -31,15 +31,12 @@ const natures = [
   { value: 'land', label: 'Terreno' },
   { value: 'commercial', label: 'Comercial' },
   { value: 'warehouse', label: 'Armazém' },
-  { value: 'office', label: 'Escritório' },
-  { value: 'garage', label: 'Garagem' },
   { value: 'shop', label: 'Loja' },
 ];
 
 const businessTypes = [
   { value: 'sale', label: 'Venda' },
   { value: 'rent', label: 'Arrendamento' },
-  { value: 'transfer', label: 'Trespasse' },
 ];
 
 const constructionStatuses = [

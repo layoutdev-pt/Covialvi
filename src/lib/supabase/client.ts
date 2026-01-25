@@ -68,8 +68,14 @@ export function createClient(): any {
     return supabaseInstance;
   }
   
-  console.log('[Supabase] Creating real client');
-  supabaseInstance = createBrowserClient<Database>(supabaseUrl, supabaseAnonKey);
+  supabaseInstance = createBrowserClient<Database>(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      flowType: 'pkce',
+      detectSessionInUrl: true,
+      persistSession: true,
+      autoRefreshToken: true,
+    },
+  });
   
   return supabaseInstance;
 }

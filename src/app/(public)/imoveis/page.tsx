@@ -74,7 +74,7 @@ async function getProperties(searchParams: SearchParams) {
     .select(`
       *,
       property_images (*)
-    `)
+    `, { count: 'exact' })
     .eq('status', 'published');
 
   // Apply filters
@@ -168,7 +168,6 @@ const formatPrice = (price: number | null) => {
 const businessTypes = [
   { value: 'sale', label: 'Venda' },
   { value: 'rent', label: 'Arrendamento' },
-  { value: 'transfer', label: 'Trespasse' },
 ];
 
 const natures = [
@@ -177,8 +176,6 @@ const natures = [
   { value: 'land', label: 'Terreno' },
   { value: 'commercial', label: 'Comercial' },
   { value: 'warehouse', label: 'Armazém' },
-  { value: 'office', label: 'Escritório' },
-  { value: 'garage', label: 'Garagem' },
   { value: 'shop', label: 'Loja' },
 ];
 

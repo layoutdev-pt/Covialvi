@@ -64,15 +64,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let mounted = true;
     
-    const getSession = async () => {
+    // Small delay to prevent race conditions with Supabase auth locks
+    const initAuth = setTimeout(async () => {
+      if (!mounted) return;
+      
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
         if (!mounted) return;
+        if (error) {
+          // Silently ignore AbortError
+          if (error.name === 'AbortError' || error.message?.includes('aborted')) {
+            return;
+          }
+          console.error('Error getting session:', error);
+        }
         
         setSession(session);
         setUser(session?.user ?? null);
         
-        if (session?.user) {
+        if (session?.user && mounted) {
           await fetchProfile(session.user.id);
         }
       } catch (error: any) {
@@ -86,9 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setIsLoading(false);
         }
       }
-    };
-
-    getSession();
+    }, 0);
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event: string, session: any) => {
@@ -119,6 +128,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return () => {
       mounted = false;
+      clearTimeout(initAuth);
       subscription.unsubscribe();
     };
   }, []);

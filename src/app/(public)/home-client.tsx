@@ -312,8 +312,6 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
                       <SelectItem value="land" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Terreno</SelectItem>
                       <SelectItem value="commercial" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Comercial</SelectItem>
                       <SelectItem value="warehouse" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Armazém</SelectItem>
-                      <SelectItem value="office" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Escritório</SelectItem>
-                      <SelectItem value="garage" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Garagem</SelectItem>
                       <SelectItem value="shop" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Loja</SelectItem>
                     </SelectContent>
                   </Select>
