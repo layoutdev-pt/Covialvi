@@ -11,6 +11,8 @@ import {
   Trash2,
   Edit,
   Eye,
+  Calendar,
+  MapPin,
 } from 'lucide-react';
 import { getRelativeTime } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -29,8 +31,18 @@ interface Lead {
   assigned?: { id: string; first_name: string; last_name: string } | null;
 }
 
+interface ScheduledVisit {
+  id: string;
+  scheduled_at: string;
+  status: string;
+  notes?: string;
+  properties?: { id: string; title: string; reference: string; municipality: string } | null;
+  profiles?: { id: string; first_name: string; last_name: string; email: string; phone?: string } | null;
+}
+
 interface CRMClientProps {
   initialLeads: Lead[];
+  scheduledVisits?: ScheduledVisit[];
 }
 
 const pipelineStages = [
@@ -51,8 +63,9 @@ const sourceLabels: Record<string, string> = {
   other: 'Outro',
 };
 
-export function CRMClient({ initialLeads }: CRMClientProps) {
+export function CRMClient({ initialLeads, scheduledVisits = [] }: CRMClientProps) {
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
+  const [visits] = useState<ScheduledVisit[]>(scheduledVisits);
   const [draggedLead, setDraggedLead] = useState<Lead | null>(null);
   const [dragOverStage, setDragOverStage] = useState<string | null>(null);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
@@ -309,6 +322,82 @@ export function CRMClient({ initialLeads }: CRMClientProps) {
           </div>
         ))}
       </div>
+
+      {/* Scheduled Visits Section */}
+      {visits.length > 0 && (
+        <div className="bg-card rounded-2xl p-6 border border-border">
+          <div className="flex items-center gap-2 mb-4">
+            <Calendar className="h-5 w-5 text-purple-500" />
+            <h2 className="text-lg font-semibold text-foreground">Visitas Marcadas</h2>
+            <span className="ml-auto text-sm text-muted-foreground">
+              {visits.length} visita{visits.length > 1 ? 's' : ''} agendada{visits.length > 1 ? 's' : ''}
+            </span>
+          </div>
+          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+            {visits.map((visit) => (
+              <div
+                key={visit.id}
+                className={`p-4 rounded-xl border ${
+                  visit.status === 'confirmed'
+                    ? 'bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800'
+                    : 'bg-yellow-50 dark:bg-yellow-950/30 border-yellow-200 dark:border-yellow-800'
+                }`}
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white font-medium">
+                    {visit.profiles?.first_name?.charAt(0) || 'U'}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-foreground truncate">
+                      {visit.profiles?.first_name || 'Utilizador'} {visit.profiles?.last_name || ''}
+                    </p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {visit.profiles?.email}
+                    </p>
+                  </div>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    visit.status === 'confirmed'
+                      ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
+                      : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300'
+                  }`}>
+                    {visit.status === 'confirmed' ? 'Confirmada' : 'Pendente'}
+                  </span>
+                </div>
+                
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Calendar className="h-4 w-4" />
+                    <span>
+                      {new Date(visit.scheduled_at).toLocaleDateString('pt-PT', {
+                        weekday: 'short',
+                        day: 'numeric',
+                        month: 'short',
+                      })} às {new Date(visit.scheduled_at).toLocaleTimeString('pt-PT', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </span>
+                  </div>
+                  
+                  {visit.properties && (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <MapPin className="h-4 w-4" />
+                      <span className="truncate">{visit.properties.reference} - {visit.properties.municipality}</span>
+                    </div>
+                  )}
+                  
+                  {visit.profiles?.phone && (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Phone className="h-4 w-4" />
+                      <span>{visit.profiles.phone}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Lead Details Modal */}
       {showLeadModal && selectedLead && (

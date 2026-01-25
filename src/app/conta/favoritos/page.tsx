@@ -13,9 +13,14 @@ async function getFavorites(): Promise<any[]> {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   
-  if (!user) return [];
+  console.log('[Favorites Page] User:', user?.id);
   
-  const { data } = await supabase
+  if (!user) {
+    console.log('[Favorites Page] No user found');
+    return [];
+  }
+  
+  const { data, error } = await supabase
     .from('favorites')
     .select(`
       *,
@@ -26,6 +31,8 @@ async function getFavorites(): Promise<any[]> {
     `)
     .eq('user_id', user.id)
     .order('created_at', { ascending: false });
+
+  console.log('[Favorites Page] Fetched:', data?.length, 'favorites, error:', error);
 
   return data || [];
 }

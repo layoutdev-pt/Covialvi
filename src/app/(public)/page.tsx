@@ -44,6 +44,19 @@ export const metadata: Metadata = {
   },
 };
 
+async function getAllPublishedProperties(): Promise<any[]> {
+  const supabase = createClient();
+  const { data } = await supabase
+    .from('properties')
+    .select(`
+      *,
+      property_images (*)
+    `)
+    .eq('status', 'published')
+    .order('created_at', { ascending: false });
+  return data || [];
+}
+
 async function getFeaturedProperties(): Promise<any[]> {
   const supabase = createClient();
   // First try to get featured properties
@@ -124,7 +137,8 @@ async function getAvailableLocations(): Promise<{ districts: string[]; municipal
 }
 
 export default async function HomePage() {
-  const [properties, stats, heroProperty, locations] = await Promise.all([
+  const [allProperties, featuredProperties, stats, heroProperty, locations] = await Promise.all([
+    getAllPublishedProperties(),
     getFeaturedProperties(),
     getStats(),
     getMostViewedProperty(),
@@ -133,7 +147,8 @@ export default async function HomePage() {
 
   return (
     <HomeClient 
-      properties={properties} 
+      properties={allProperties}
+      featuredProperties={featuredProperties}
       stats={stats} 
       heroProperty={heroProperty}
       availableLocations={locations}

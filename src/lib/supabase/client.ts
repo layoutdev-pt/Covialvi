@@ -59,6 +59,7 @@ const createMockClient = () => ({
 
 export function createClient(): any {
   if (!supabaseUrl || !supabaseAnonKey) {
+    console.warn('[Supabase] Using mock client - env vars not set');
     return createMockClient();
   }
   
@@ -67,6 +68,7 @@ export function createClient(): any {
     return supabaseInstance;
   }
   
+  console.log('[Supabase] Creating real client');
   supabaseInstance = createBrowserClient<Database>(supabaseUrl, supabaseAnonKey);
   
   return supabaseInstance;

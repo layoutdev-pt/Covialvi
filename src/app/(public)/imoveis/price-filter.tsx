@@ -2,6 +2,13 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface PriceFilterProps {
   defaultMinPrice?: string;
@@ -12,6 +19,10 @@ interface PriceFilterProps {
   defaultConstructionStatus?: string;
   defaultBedrooms?: string;
   defaultShowSobConsulta?: string;
+  availableLocations?: {
+    districts: string[];
+    municipalities: string[];
+  };
 }
 
 const natures = [
@@ -53,6 +64,7 @@ export function PriceFilter({
   defaultConstructionStatus = '',
   defaultBedrooms = '',
   defaultShowSobConsulta = 'true',
+  availableLocations = { districts: [], municipalities: [] },
 }: PriceFilterProps) {
   const router = useRouter();
   const [minPrice, setMinPrice] = useState(parseInt(defaultMinPrice) || 0);
@@ -72,7 +84,15 @@ export function PriceFilter({
   const applyFilters = useCallback(() => {
     const params = new URLSearchParams();
     
-    if (location) params.set('location', location);
+    if (location) {
+      if (location.startsWith('municipality:')) {
+        params.set('municipality', location.replace('municipality:', ''));
+      } else if (location.startsWith('district:')) {
+        params.set('district', location.replace('district:', ''));
+      } else {
+        params.set('location', location);
+      }
+    }
     if (nature) params.set('nature', nature);
     if (businessType) params.set('business_type', businessType);
     if (constructionStatus) params.set('construction_status', constructionStatus);
@@ -97,80 +117,92 @@ export function PriceFilter({
   const minPercent = (minPrice / MAX_PRICE) * 100;
   const maxPercent = (maxPrice / MAX_PRICE) * 100;
 
-  const selectStyle = { 
-    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, 
-    backgroundRepeat: 'no-repeat', 
-    backgroundPosition: 'right 10px center', 
-    backgroundSize: '14px' 
-  };
-
   return (
     <div 
       className="bg-[#0f1419] rounded-3xl p-6 md:p-8 shadow-2xl border border-gray-800/50"
     >
       {/* Filter Pills Row - All in one line */}
-      <div className="flex items-center gap-4 mb-8">
-        <div className="flex items-center gap-3 flex-1 overflow-x-auto pb-2 md:pb-0">
-          {/* Localização */}
-          <input
-            type="text"
-            placeholder="Localização"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            className="bg-transparent border border-gray-600 hover:border-gray-500 rounded-full px-4 py-2 text-white text-sm placeholder-gray-400 focus:outline-none focus:border-white transition-all w-[120px] flex-shrink-0"
-          />
-          {/* Natureza */}
-          <select
-            value={nature}
-            onChange={(e) => setNature(e.target.value)}
-            className="bg-transparent border border-gray-600 hover:border-gray-500 rounded-full px-4 py-2 text-white text-sm focus:outline-none focus:border-white appearance-none cursor-pointer transition-all pr-8 flex-shrink-0"
-            style={selectStyle}
-          >
-            <option value="" className="bg-[#0f1419]">Natureza</option>
+      <div className="flex items-center gap-2 mb-8 flex-wrap md:flex-nowrap">
+        {/* Localização */}
+        <Select value={location} onValueChange={setLocation}>
+          <SelectTrigger className="flex-1 min-w-[100px] bg-transparent border border-gray-600 hover:border-gray-500 rounded-full px-4 py-2 text-white text-sm focus:outline-none focus:ring-0 focus:border-white transition-all [&>svg]:text-gray-400">
+            <SelectValue placeholder="Localização" />
+          </SelectTrigger>
+          <SelectContent className="bg-white border border-gray-200 shadow-xl rounded-xl max-h-[300px]">
+            {availableLocations.municipalities.length > 0 && (
+              <>
+                <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 bg-gray-50">Concelhos</div>
+                {availableLocations.municipalities.map((municipality) => (
+                  <SelectItem key={`municipality:${municipality}`} value={`municipality:${municipality}`} className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">
+                    {municipality}
+                  </SelectItem>
+                ))}
+              </>
+            )}
+            {availableLocations.districts.length > 0 && (
+              <>
+                <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 bg-gray-50">Distritos</div>
+                {availableLocations.districts.map((district) => (
+                  <SelectItem key={`district:${district}`} value={`district:${district}`} className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">
+                    {district}
+                  </SelectItem>
+                ))}
+              </>
+            )}
+          </SelectContent>
+        </Select>
+        {/* Tipo */}
+        <Select value={nature} onValueChange={setNature}>
+          <SelectTrigger className="flex-1 min-w-[80px] bg-transparent border border-gray-600 hover:border-gray-500 rounded-full px-4 py-2 text-white text-sm focus:outline-none focus:ring-0 focus:border-white transition-all [&>svg]:text-gray-400">
+            <SelectValue placeholder="Tipo" />
+          </SelectTrigger>
+          <SelectContent className="bg-white border border-gray-200 shadow-xl rounded-xl">
             {natures.map((n) => (
-              <option key={n.value} value={n.value} className="bg-[#0f1419]">{n.label}</option>
+              <SelectItem key={n.value} value={n.value} className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">
+                {n.label}
+              </SelectItem>
             ))}
-          </select>
-          {/* Negócio */}
-          <select
-            value={businessType}
-            onChange={(e) => setBusinessType(e.target.value)}
-            className="bg-transparent border border-gray-600 hover:border-gray-500 rounded-full px-4 py-2 text-white text-sm focus:outline-none focus:border-white appearance-none cursor-pointer transition-all pr-8 flex-shrink-0"
-            style={selectStyle}
-          >
-            <option value="" className="bg-[#0f1419]">Negócio</option>
+          </SelectContent>
+        </Select>
+        {/* Negócio */}
+        <Select value={businessType} onValueChange={setBusinessType}>
+          <SelectTrigger className="flex-1 min-w-[80px] bg-transparent border border-gray-600 hover:border-gray-500 rounded-full px-4 py-2 text-white text-sm focus:outline-none focus:ring-0 focus:border-white transition-all [&>svg]:text-gray-400">
+            <SelectValue placeholder="Negócio" />
+          </SelectTrigger>
+          <SelectContent className="bg-white border border-gray-200 shadow-xl rounded-xl">
             {businessTypes.map((b) => (
-              <option key={b.value} value={b.value} className="bg-[#0f1419]">{b.label}</option>
+              <SelectItem key={b.value} value={b.value} className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">
+                {b.label}
+              </SelectItem>
             ))}
-          </select>
-          {/* Estado */}
-          <select
-            value={constructionStatus}
-            onChange={(e) => setConstructionStatus(e.target.value)}
-            className="bg-transparent border border-gray-600 hover:border-gray-500 rounded-full px-4 py-2 text-white text-sm focus:outline-none focus:border-white appearance-none cursor-pointer transition-all pr-8 flex-shrink-0"
-            style={selectStyle}
-          >
-            <option value="" className="bg-[#0f1419]">Estado</option>
+          </SelectContent>
+        </Select>
+        {/* Estado */}
+        <Select value={constructionStatus} onValueChange={setConstructionStatus}>
+          <SelectTrigger className="flex-1 min-w-[80px] bg-transparent border border-gray-600 hover:border-gray-500 rounded-full px-4 py-2 text-white text-sm focus:outline-none focus:ring-0 focus:border-white transition-all [&>svg]:text-gray-400">
+            <SelectValue placeholder="Estado" />
+          </SelectTrigger>
+          <SelectContent className="bg-white border border-gray-200 shadow-xl rounded-xl">
             {constructionStatuses.map((s) => (
-              <option key={s.value} value={s.value} className="bg-[#0f1419]">{s.label}</option>
+              <SelectItem key={s.value} value={s.value} className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">
+                {s.label}
+              </SelectItem>
             ))}
-          </select>
-          {/* Tipologia */}
-          <select
-            value={bedrooms}
-            onChange={(e) => setBedrooms(e.target.value)}
-            className="bg-transparent border border-gray-600 hover:border-gray-500 rounded-full px-4 py-2 text-white text-sm focus:outline-none focus:border-white appearance-none cursor-pointer transition-all pr-8 flex-shrink-0"
-            style={selectStyle}
-          >
-            <option value="" className="bg-[#0f1419]">Tipologia</option>
+          </SelectContent>
+        </Select>
+        {/* Tipologia */}
+        <Select value={bedrooms} onValueChange={setBedrooms}>
+          <SelectTrigger className="flex-1 min-w-[80px] bg-transparent border border-gray-600 hover:border-gray-500 rounded-full px-4 py-2 text-white text-sm focus:outline-none focus:ring-0 focus:border-white transition-all [&>svg]:text-gray-400">
+            <SelectValue placeholder="Tipologia" />
+          </SelectTrigger>
+          <SelectContent className="bg-white border border-gray-200 shadow-xl rounded-xl">
             {[0, 1, 2, 3, 4, 5].map((num) => (
-              <option key={num} value={num.toString()} className="bg-[#0f1419]">
+              <SelectItem key={num} value={num.toString()} className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">
                 T{num}{num === 5 ? '+' : ''}
-              </option>
+              </SelectItem>
             ))}
-          </select>
-        </div>
-
+          </SelectContent>
+        </Select>
         {/* Clear Filters Button */}
         <button
           type="button"

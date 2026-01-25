@@ -48,6 +48,7 @@ const WhatsAppButton = dynamic(() => import('@/components/ui/whatsapp-button').t
 
 interface HomeClientProps {
   properties: any[];
+  featuredProperties: any[];
   stats: {
     properties: number;
     projects: number;
@@ -84,7 +85,7 @@ function AnimatedCounter({ value, suffix = '', duration = 2 }: { value: number; 
   return <span ref={ref}>{count}{suffix}</span>;
 }
 
-export function HomeClient({ properties, stats, heroProperty, availableLocations }: HomeClientProps) {
+export function HomeClient({ properties, featuredProperties, stats, heroProperty, availableLocations }: HomeClientProps) {
   const router = useRouter();
   const [activeService, setActiveService] = useState(0);
   const [heroExpanded, setHeroExpanded] = useState(false);
@@ -108,16 +109,25 @@ export function HomeClient({ properties, stats, heroProperty, availableLocations
   const y = useTransform(scrollYProgress, [0, 0.5], [0, 150]);
   const opacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
   
-  // Filter properties based on search
+  // Filter properties based on search for hero section
   const filteredProperties = properties.filter((property: any) => {
     let matches = true;
-    if (searchLocation) {
-      const loc = searchLocation.toLowerCase();
-      matches = matches && (
-        property.municipality?.toLowerCase().includes(loc) ||
-        property.district?.toLowerCase().includes(loc) ||
-        property.parish?.toLowerCase().includes(loc)
-      );
+    if (searchLocation && searchLocation !== 'all') {
+      // Check if it's a municipality or district selection (prefixed)
+      if (searchLocation.startsWith('municipality:')) {
+        const municipality = searchLocation.replace('municipality:', '');
+        matches = matches && property.municipality === municipality;
+      } else if (searchLocation.startsWith('district:')) {
+        const district = searchLocation.replace('district:', '');
+        matches = matches && property.district === district;
+      } else {
+        // Fallback for unprefixed values
+        const loc = searchLocation.toLowerCase();
+        matches = matches && (
+          property.municipality?.toLowerCase() === loc ||
+          property.district?.toLowerCase() === loc
+        );
+      }
     }
     if (searchNature && searchNature !== 'all') {
       matches = matches && property.nature === searchNature;
@@ -128,12 +138,21 @@ export function HomeClient({ properties, stats, heroProperty, availableLocations
     return matches;
   });
   
-  // Get hero properties (filtered or most viewed)
+  // Get hero properties (filtered)
   const heroProperties = filteredProperties.slice(0, 3);
   
   const handleSearch = () => {
     const params = new URLSearchParams();
-    if (searchLocation) params.set('location', searchLocation);
+    if (searchLocation && searchLocation !== 'all') {
+      // Extract the actual location value without prefix for URL
+      if (searchLocation.startsWith('municipality:')) {
+        params.set('municipality', searchLocation.replace('municipality:', ''));
+      } else if (searchLocation.startsWith('district:')) {
+        params.set('district', searchLocation.replace('district:', ''));
+      } else {
+        params.set('location', searchLocation);
+      }
+    }
     if (searchNature && searchNature !== 'all') params.set('nature', searchNature);
     if (searchBusinessType && searchBusinessType !== 'all') params.set('business_type', searchBusinessType);
     
@@ -261,7 +280,7 @@ export function HomeClient({ properties, stats, heroProperty, availableLocations
                         <>
                           <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 bg-gray-50">Concelhos</div>
                           {availableLocations.municipalities.map((municipality) => (
-                            <SelectItem key={municipality} value={municipality} className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">
+                            <SelectItem key={`municipality:${municipality}`} value={`municipality:${municipality}`} className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">
                               {municipality}
                             </SelectItem>
                           ))}
@@ -271,7 +290,7 @@ export function HomeClient({ properties, stats, heroProperty, availableLocations
                         <>
                           <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 bg-gray-50">Distritos</div>
                           {availableLocations.districts.map((district) => (
-                            <SelectItem key={district} value={district} className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">
+                            <SelectItem key={`district:${district}`} value={`district:${district}`} className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">
                               {district}
                             </SelectItem>
                           ))}
@@ -293,6 +312,9 @@ export function HomeClient({ properties, stats, heroProperty, availableLocations
                       <SelectItem value="land" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Terreno</SelectItem>
                       <SelectItem value="commercial" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Comercial</SelectItem>
                       <SelectItem value="warehouse" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Armazém</SelectItem>
+                      <SelectItem value="office" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Escritório</SelectItem>
+                      <SelectItem value="garage" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Garagem</SelectItem>
+                      <SelectItem value="shop" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Loja</SelectItem>
                     </SelectContent>
                   </Select>
                   <div className="hidden md:block w-px h-8 bg-gray-200" />
@@ -503,7 +525,7 @@ export function HomeClient({ properties, stats, heroProperty, availableLocations
           </div>
           
           <StaggerContainer className="grid md:grid-cols-2 lg:grid-cols-3 gap-8" staggerDelay={0.1}>
-            {properties.slice(0, 6).map((property) => (
+            {featuredProperties.slice(0, 6).map((property) => (
               <StaggerItem key={property.id}>
                 <PropertyCard 
                   property={property} 

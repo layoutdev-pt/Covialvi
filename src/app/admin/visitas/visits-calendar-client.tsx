@@ -4,7 +4,6 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import {
   Calendar,
@@ -112,24 +111,24 @@ export function VisitsCalendarClient({ visits }: VisitsCalendarClientProps) {
   const handleUpdateStatus = async (visitId: string, newStatus: 'confirmed' | 'cancelled') => {
     setIsUpdating(true);
     try {
-      const supabase = createClient();
-      const { error } = await supabase
-        .from('visits')
-        .update({ status: newStatus })
-        .eq('id', visitId);
+      const response = await fetch('/api/visits/status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ visitId, status: newStatus }),
+      });
 
-      if (error) {
-        console.error('Error updating visit:', error);
-        toast.error('Erro ao atualizar visita');
-        return;
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to update visit');
       }
 
       toast.success(newStatus === 'confirmed' ? 'Visita confirmada!' : 'Visita cancelada');
       setSelectedVisit(null);
       router.refresh();
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error:', err);
-      toast.error('Erro ao atualizar visita');
+      toast.error(err?.message || 'Erro ao atualizar visita');
     } finally {
       setIsUpdating(false);
     }

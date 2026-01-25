@@ -17,8 +17,26 @@ async function getLeads() {
   return data || [];
 }
 
-export default async function CRMPage() {
-  const leads = await getLeads();
+async function getScheduledVisits() {
+  const supabase = createClient();
+  const { data } = await supabase
+    .from('visits')
+    .select(`
+      *,
+      properties:property_id (id, title, reference, municipality),
+      profiles:user_id (id, first_name, last_name, email, phone)
+    `)
+    .in('status', ['pending', 'confirmed'])
+    .order('scheduled_at', { ascending: true });
 
-  return <CRMClient initialLeads={leads} />;
+  return data || [];
+}
+
+export default async function CRMPage() {
+  const [leads, scheduledVisits] = await Promise.all([
+    getLeads(),
+    getScheduledVisits(),
+  ]);
+
+  return <CRMClient initialLeads={leads} scheduledVisits={scheduledVisits} />;
 }

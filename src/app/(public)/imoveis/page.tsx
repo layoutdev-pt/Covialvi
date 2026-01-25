@@ -48,6 +48,24 @@ interface SearchParams {
   show_sob_consulta?: string;
 }
 
+async function getAvailableLocations(): Promise<{ districts: string[]; municipalities: string[] }> {
+  const supabase = createClient();
+  const { data } = await supabase
+    .from('properties')
+    .select('district, municipality')
+    .eq('status', 'published');
+  
+  if (!data) return { districts: [], municipalities: [] };
+  
+  const districts = [...new Set(data.map((p: { district: string | null }) => p.district).filter(Boolean))] as string[];
+  const municipalities = [...new Set(data.map((p: { municipality: string | null }) => p.municipality).filter(Boolean))] as string[];
+  
+  return {
+    districts: districts.sort(),
+    municipalities: municipalities.sort(),
+  };
+}
+
 async function getProperties(searchParams: SearchParams) {
   const supabase = createClient();
   
@@ -180,7 +198,10 @@ export default async function PropertiesPage({
 }: {
   searchParams: SearchParams;
 }) {
-  const { properties, total, page, totalPages } = await getProperties(searchParams);
+  const [{ properties, total, page, totalPages }, locations] = await Promise.all([
+    getProperties(searchParams),
+    getAvailableLocations(),
+  ]);
 
   return (
     <main className="min-h-screen bg-background pt-20">
@@ -202,12 +223,13 @@ export default async function PropertiesPage({
         <PriceFilter
           defaultMinPrice={searchParams.min_price}
           defaultMaxPrice={searchParams.max_price}
-          defaultLocation={searchParams.location}
+          defaultLocation={searchParams.municipality || searchParams.district || searchParams.location}
           defaultNature={searchParams.nature}
           defaultBusinessType={searchParams.business_type}
           defaultConstructionStatus={searchParams.construction_status}
           defaultBedrooms={searchParams.bedrooms}
           defaultShowSobConsulta={searchParams.show_sob_consulta}
+          availableLocations={locations}
         />
       </section>
 
