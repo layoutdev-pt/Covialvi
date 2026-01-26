@@ -1,8 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/client';
 import {
   Building2,
   Users,
@@ -46,132 +44,18 @@ interface Stats {
   };
 }
 
-export function AdminDashboardClient() {
-  const [stats, setStats] = useState<Stats>({
-    totalProperties: 0,
-    activeProperties: 0,
-    newLeads: 0,
-    scheduledVisits: 0,
-    pendingLeads: 0,
-    changes: {
-      properties: { value: 0, type: 'neutral' },
-      active: { value: 0, type: 'neutral' },
-      leads: { value: 0, type: 'neutral' },
-      visits: { value: 0, type: 'neutral' },
-    }
-  });
-  const [recentActivity, setRecentActivity] = useState<any[]>([]);
-  const [recentLeads, setRecentLeads] = useState<any[]>([]);
+interface DashboardData {
+  stats: Stats;
+  recentLeads: any[];
+  recentActivity: any[];
+}
 
-  useEffect(() => {
-    async function fetchData() {
-      const supabase = createClient();
-      
-      try {
-        const now = new Date();
-        const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-        const fourteenDaysAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
-        const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-        const sixtyDaysAgo = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
+interface AdminDashboardClientProps {
+  initialData: DashboardData;
+}
 
-        // Fetch properties data (most reliable)
-        const [
-          propertiesResult,
-          activePropertiesResult,
-          propertiesThisMonthResult,
-          propertiesLastMonthResult,
-        ] = await Promise.all([
-          supabase.from('properties').select('*', { count: 'exact', head: true }),
-          supabase.from('properties').select('*', { count: 'exact', head: true }).eq('status', 'published'),
-          supabase.from('properties').select('*', { count: 'exact', head: true }).gte('created_at', thirtyDaysAgo.toISOString()),
-          supabase.from('properties').select('*', { count: 'exact', head: true }).gte('created_at', sixtyDaysAgo.toISOString()).lt('created_at', thirtyDaysAgo.toISOString()),
-        ]);
-
-        const totalProperties = propertiesResult.count || 0;
-        const activeProperties = activePropertiesResult.count || 0;
-        const propertiesThisMonth = propertiesThisMonthResult.count || 0;
-        const propertiesLastMonth = propertiesLastMonthResult.count || 0;
-
-        // Try to fetch leads/visits data (may fail due to RLS)
-        let newLeadsThisWeek = 0;
-        let newLeadsLastWeek = 0;
-        let scheduledVisits = 0;
-        let visitsLastWeek = 0;
-        let pendingLeads = 0;
-        let activityData: any[] = [];
-        let leadsData: any[] = [];
-
-        try {
-          const leadsResults = await Promise.all([
-            supabase.from('leads').select('*', { count: 'exact', head: true }).gte('created_at', sevenDaysAgo.toISOString()),
-            supabase.from('leads').select('*', { count: 'exact', head: true }).gte('created_at', fourteenDaysAgo.toISOString()).lt('created_at', sevenDaysAgo.toISOString()),
-            supabase.from('leads').select('*', { count: 'exact', head: true }).eq('status', 'new'),
-            supabase.from('leads').select('*, properties:property_id (title, reference)').order('created_at', { ascending: false }).limit(5),
-          ]);
-          newLeadsThisWeek = leadsResults[0].count || 0;
-          newLeadsLastWeek = leadsResults[1].count || 0;
-          pendingLeads = leadsResults[2].count || 0;
-          leadsData = leadsResults[3].data || [];
-        } catch (e) {
-          console.warn('Could not fetch leads data');
-        }
-
-        try {
-          const visitsResults = await Promise.all([
-            supabase.from('visits').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
-            supabase.from('visits').select('*', { count: 'exact', head: true }).gte('scheduled_at', sevenDaysAgo.toISOString()).lt('scheduled_at', now.toISOString()),
-          ]);
-          scheduledVisits = visitsResults[0].count || 0;
-          visitsLastWeek = visitsResults[1].count || 0;
-        } catch (e) {
-          console.warn('Could not fetch visits data');
-        }
-
-        try {
-          const activityResult = await supabase.from('audit_logs').select('*, profiles:user_id (first_name, last_name)').order('created_at', { ascending: false }).limit(5);
-          activityData = activityResult.data || [];
-        } catch (e) {
-          console.warn('Could not fetch activity data');
-        }
-
-        const calcChange = (current: number, previous: number) => {
-          if (previous === 0) {
-            return current > 0 ? { value: 100, type: 'positive' as const } : { value: 0, type: 'neutral' as const };
-          }
-          const change = Math.round(((current - previous) / previous) * 100);
-          return {
-            value: Math.abs(change),
-            type: change > 0 ? 'positive' as const : change < 0 ? 'negative' as const : 'neutral' as const
-          };
-        };
-
-        const propertiesChange = calcChange(propertiesThisMonth, propertiesLastMonth);
-        const leadsChange = calcChange(newLeadsThisWeek, newLeadsLastWeek);
-        const activePercentage = totalProperties ? Math.round(activeProperties / totalProperties * 100) : 0;
-
-        setStats({
-          totalProperties,
-          activeProperties,
-          newLeads: newLeadsThisWeek,
-          scheduledVisits,
-          pendingLeads,
-          changes: {
-            properties: propertiesChange,
-            active: { value: activePercentage, type: 'neutral' },
-            leads: leadsChange,
-            visits: { value: visitsLastWeek, type: 'neutral' },
-          }
-        });
-
-        setRecentActivity(activityData);
-        setRecentLeads(leadsData);
-      } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-      }
-    }
-
-    fetchData();
-  }, []);
+export function AdminDashboardClient({ initialData }: AdminDashboardClientProps) {
+  const { stats, recentLeads, recentActivity } = initialData;
 
   const leadStatusLabels: Record<string, string> = {
     new: 'Novo',
@@ -318,41 +202,41 @@ export function AdminDashboardClient() {
             </div>
             <div>
               <p className="text-3xl font-bold text-foreground">{stats.totalProperties}</p>
-              <p className="text-sm text-muted-foreground">Properties</p>
+              <p className="text-sm text-muted-foreground">Imóveis</p>
             </div>
           </div>
           <Link href="/admin/imoveis" className="text-sm text-yellow-600 font-medium hover:text-yellow-700">
-            See all properties →
+            Ver todos os imóveis →
           </Link>
         </div>
         
         <div className="grid grid-cols-4 gap-4">
           <div className="text-center p-4 bg-secondary rounded-xl">
-            <p className="text-2xl font-bold text-foreground">{Math.floor(stats.totalProperties * 0.3)}</p>
-            <p className="text-sm text-muted-foreground">Vacant</p>
+            <p className="text-2xl font-bold text-foreground">{stats.totalProperties - stats.activeProperties}</p>
+            <p className="text-sm text-muted-foreground">Rascunho</p>
           </div>
           <div className="text-center p-4 bg-secondary rounded-xl">
             <p className="text-2xl font-bold text-foreground">{stats.activeProperties}</p>
-            <p className="text-sm text-muted-foreground">Occupied</p>
+            <p className="text-sm text-muted-foreground">Publicados</p>
           </div>
           <div className="text-center p-4 bg-secondary rounded-xl">
-            <p className="text-2xl font-bold text-foreground">{Math.floor(stats.totalProperties * 0.2)}</p>
-            <p className="text-sm text-muted-foreground">Unlisted</p>
+            <p className="text-2xl font-bold text-foreground">{stats.newLeads}</p>
+            <p className="text-sm text-muted-foreground">Contactos</p>
           </div>
           <div className="text-center p-4 bg-secondary rounded-xl">
-            <p className="text-2xl font-bold text-foreground">{Math.floor(stats.totalProperties * 0.05)}</p>
-            <p className="text-sm text-muted-foreground">Unavailable</p>
+            <p className="text-2xl font-bold text-foreground">{stats.scheduledVisits}</p>
+            <p className="text-sm text-muted-foreground">Visitas</p>
           </div>
         </div>
 
         {/* Progress Bar */}
         <div className="mt-6">
           <div className="flex items-center justify-between text-sm mb-2">
-            <span className="text-muted-foreground">Rents Collected</span>
-            <span className="text-foreground font-medium">68%</span>
+            <span className="text-muted-foreground">Taxa de Publicação</span>
+            <span className="text-foreground font-medium">{stats.changes.active.value}%</span>
           </div>
           <div className="h-2 bg-secondary rounded-full overflow-hidden">
-            <div className="h-full w-[68%] bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-full"></div>
+            <div className="h-full bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-full" style={{ width: `${stats.changes.active.value}%` }}></div>
           </div>
         </div>
       </div>
@@ -362,7 +246,7 @@ export function AdminDashboardClient() {
         {/* Activities */}
         <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-foreground">Activities</h2>
+            <h2 className="text-lg font-semibold text-foreground">Atividade Recente</h2>
             <Link href="/admin/auditoria" className="text-sm text-yellow-600 font-medium hover:text-yellow-700">
               Ver todos
             </Link>
@@ -396,7 +280,7 @@ export function AdminDashboardClient() {
         {/* Recent Leads */}
         <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-foreground">Recent Leads</h2>
+            <h2 className="text-lg font-semibold text-foreground">Contactos Recentes</h2>
             <Link href="/admin/crm" className="text-sm text-yellow-600 font-medium hover:text-yellow-700">
               Ver todos
             </Link>

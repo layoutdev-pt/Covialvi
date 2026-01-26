@@ -105,6 +105,51 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
   const [searchNature, setSearchNature] = useState('');
   const [searchBusinessType, setSearchBusinessType] = useState('');
   
+  // Contact form states
+  const [contactForm, setContactForm] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    message: '',
+  });
+  const [contactLoading, setContactLoading] = useState(false);
+  const [contactSuccess, setContactSuccess] = useState(false);
+  const [contactError, setContactError] = useState('');
+
+  const handleContactSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setContactLoading(true);
+    setContactError('');
+    setContactSuccess(false);
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: `${contactForm.firstName} ${contactForm.lastName}`.trim(),
+          email: contactForm.email,
+          phone: contactForm.phone,
+          message: contactForm.message,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Erro ao enviar mensagem');
+      }
+
+      setContactSuccess(true);
+      setContactForm({ firstName: '', lastName: '', email: '', phone: '', message: '' });
+    } catch (err: any) {
+      setContactError(err.message || 'Erro ao enviar mensagem. Tente novamente.');
+    } finally {
+      setContactLoading(false);
+    }
+  };
+  
   // Parallax effect for hero
   const y = useTransform(scrollYProgress, [0, 0.5], [0, 150]);
   const opacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
@@ -715,45 +760,79 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
                 whileHover={{ y: -5 }}
                 className="bg-white rounded-3xl p-8 md:p-10 shadow-2xl"
               >
-                <form className="space-y-5">
-                  <div className="grid md:grid-cols-2 gap-5">
-                    <input
-                      type="text"
-                      placeholder="Primeiro Nome"
-                      className="w-full px-5 py-4 border-b-2 border-gray-200 focus:border-gray-900 focus:outline-none transition-colors bg-transparent text-gray-900 placeholder:text-gray-400"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Último Nome"
-                      className="w-full px-5 py-4 border-b-2 border-gray-200 focus:border-gray-900 focus:outline-none transition-colors bg-transparent text-gray-900 placeholder:text-gray-400"
-                    />
+                {contactSuccess ? (
+                  <div className="text-center py-8">
+                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">Mensagem Enviada!</h3>
+                    <p className="text-gray-600">Entraremos em contacto brevemente.</p>
+                    <button
+                      onClick={() => setContactSuccess(false)}
+                      className="mt-4 text-yellow-600 font-medium hover:text-yellow-700"
+                    >
+                      Enviar nova mensagem
+                    </button>
                   </div>
-                  <div className="grid md:grid-cols-2 gap-5">
-                    <input
-                      type="email"
-                      placeholder="Email"
-                      className="w-full px-5 py-4 border-b-2 border-gray-200 focus:border-gray-900 focus:outline-none transition-colors bg-transparent text-gray-900 placeholder:text-gray-400"
+                ) : (
+                  <form className="space-y-5" onSubmit={handleContactSubmit}>
+                    <div className="grid md:grid-cols-2 gap-5">
+                      <input
+                        type="text"
+                        placeholder="Primeiro Nome"
+                        value={contactForm.firstName}
+                        onChange={(e) => setContactForm({ ...contactForm, firstName: e.target.value })}
+                        required
+                        className="w-full px-5 py-4 border-b-2 border-gray-200 focus:border-gray-900 focus:outline-none transition-colors bg-transparent text-gray-900 placeholder:text-gray-400"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Último Nome"
+                        value={contactForm.lastName}
+                        onChange={(e) => setContactForm({ ...contactForm, lastName: e.target.value })}
+                        className="w-full px-5 py-4 border-b-2 border-gray-200 focus:border-gray-900 focus:outline-none transition-colors bg-transparent text-gray-900 placeholder:text-gray-400"
+                      />
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-5">
+                      <input
+                        type="email"
+                        placeholder="Email"
+                        value={contactForm.email}
+                        onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
+                        required
+                        className="w-full px-5 py-4 border-b-2 border-gray-200 focus:border-gray-900 focus:outline-none transition-colors bg-transparent text-gray-900 placeholder:text-gray-400"
+                      />
+                      <input
+                        type="tel"
+                        placeholder="Telefone"
+                        value={contactForm.phone}
+                        onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value })}
+                        className="w-full px-5 py-4 border-b-2 border-gray-200 focus:border-gray-900 focus:outline-none transition-colors bg-transparent text-gray-900 placeholder:text-gray-400"
+                      />
+                    </div>
+                    <textarea
+                      placeholder="Como podemos ajudar?"
+                      rows={3}
+                      value={contactForm.message}
+                      onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
+                      className="w-full px-5 py-4 border-b-2 border-gray-200 focus:border-gray-900 focus:outline-none transition-colors bg-transparent text-gray-900 placeholder:text-gray-400 resize-none"
                     />
-                    <input
-                      type="tel"
-                      placeholder="Telefone"
-                      className="w-full px-5 py-4 border-b-2 border-gray-200 focus:border-gray-900 focus:outline-none transition-colors bg-transparent text-gray-900 placeholder:text-gray-400"
-                    />
-                  </div>
-                  <textarea
-                    placeholder="Como podemos ajudar?"
-                    rows={3}
-                    className="w-full px-5 py-4 border-b-2 border-gray-200 focus:border-gray-900 focus:outline-none transition-colors bg-transparent text-gray-900 placeholder:text-gray-400 resize-none"
-                  />
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    type="submit"
-                    className="w-full bg-gray-900 text-white rounded-full py-4 font-medium hover:bg-gray-800 transition-colors mt-4"
-                  >
-                    Agendar Chamada
-                  </motion.button>
-                </form>
+                    {contactError && (
+                      <p className="text-red-500 text-sm">{contactError}</p>
+                    )}
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      type="submit"
+                      disabled={contactLoading}
+                      className="w-full bg-gray-900 text-white rounded-full py-4 font-medium hover:bg-gray-800 transition-colors mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {contactLoading ? 'A enviar...' : 'Agendar Chamada'}
+                    </motion.button>
+                  </form>
+                )}
               </motion.div>
             </FadeInUp>
           </div>

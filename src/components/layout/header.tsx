@@ -181,36 +181,35 @@ export function Header() {
 
           {/* User Menu */}
           {user ? (
-            <div className="relative" data-dropdown>
+            <div className="relative z-[60]" data-dropdown>
               <button
-                onClick={() => setUserMenuOpen(!userMenuOpen)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setUserMenuOpen(!userMenuOpen);
+                }}
                 aria-label="Menu do utilizador"
                 aria-expanded={userMenuOpen}
                 aria-haspopup="true"
-                className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-500 cursor-pointer"
               >
                 <User className="h-4 w-4" aria-hidden="true" />
               </button>
               {userMenuOpen && (
-                <div className="absolute right-0 mt-2 w-52 bg-card rounded-xl shadow-lg border border-border py-2 z-50">
+                <div className="absolute right-0 mt-2 w-52 bg-card rounded-xl shadow-lg border border-border py-2 z-[70]">
                   <Link
                     href="/conta"
-                    className="block px-4 py-2.5 text-sm text-foreground hover:bg-secondary"
-                    onClick={(e) => {
-                      e.preventDefault();
+                    className="block px-4 py-2.5 text-sm text-foreground hover:bg-secondary cursor-pointer"
+                    onClick={() => {
                       setUserMenuOpen(false);
-                      router.push('/conta');
                     }}
                   >
                     Minha Conta
                   </Link>
                   <Link
                     href="/conta/favoritos"
-                    className="block px-4 py-2.5 text-sm text-foreground hover:bg-secondary"
-                    onClick={(e) => {
-                      e.preventDefault();
+                    className="block px-4 py-2.5 text-sm text-foreground hover:bg-secondary cursor-pointer"
+                    onClick={() => {
                       setUserMenuOpen(false);
-                      router.push('/conta/favoritos');
                     }}
                   >
                     Favoritos
@@ -218,11 +217,9 @@ export function Header() {
                   {isAdmin && (
                     <Link
                       href="/admin"
-                      className="block px-4 py-2.5 text-sm text-foreground hover:bg-secondary"
-                      onClick={(e) => {
-                        e.preventDefault();
+                      className="block px-4 py-2.5 text-sm text-foreground hover:bg-secondary cursor-pointer"
+                      onClick={() => {
                         setUserMenuOpen(false);
-                        router.push('/admin');
                       }}
                     >
                       Painel Admin
@@ -235,7 +232,7 @@ export function Header() {
                       await signOut();
                       window.location.href = '/';
                     }}
-                    className="block w-full text-left px-4 py-2.5 text-sm text-destructive hover:bg-destructive/10"
+                    className="block w-full text-left px-4 py-2.5 text-sm text-destructive hover:bg-destructive/10 cursor-pointer"
                   >
                     Sair
                   </button>
@@ -245,7 +242,7 @@ export function Header() {
           ) : (
             <Link 
               href="/auth/login"
-              className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors flex items-center justify-center"
+              className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors flex items-center justify-center cursor-pointer z-[60]"
             >
               <User className="h-4 w-4" />
             </Link>
@@ -321,10 +318,10 @@ export function Header() {
       {/* Mobile Menu */}
       <div
         className={cn(
-          'lg:hidden fixed inset-x-0 top-20 bg-background border-b border-border transition-all duration-300 ease-in-out',
+          'lg:hidden fixed inset-x-0 top-20 bg-background border-b border-border transition-all duration-300 ease-in-out z-40',
           mobileMenuOpen
             ? 'opacity-100 translate-y-0'
-            : 'opacity-0 -translate-y-4 pointer-events-none'
+            : 'opacity-0 -translate-y-4 pointer-events-none invisible'
         )}
       >
         <div className="px-6 py-6 space-y-4">
