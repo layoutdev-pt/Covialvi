@@ -15,6 +15,7 @@ async function getVisits(): Promise<any[]> {
     `)
     .order('scheduled_at', { ascending: true });
 
+  // Data already includes visitor_name, visitor_email, visitor_phone from the * selector
   return data || [];
 }
 

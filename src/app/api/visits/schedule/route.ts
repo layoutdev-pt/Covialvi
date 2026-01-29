@@ -5,23 +5,26 @@ export async function POST(request: NextRequest) {
   try {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
 
-    const { propertyId, scheduledAt, notes } = await request.json();
+    const { propertyId, scheduledAt, notes, visitorName, visitorEmail, visitorPhone } = await request.json();
     
     if (!propertyId || !scheduledAt) {
       return NextResponse.json({ error: 'Property ID and scheduled time required' }, { status: 400 });
     }
 
+    if (!user && (!visitorName || !visitorEmail || !visitorPhone)) {
+      return NextResponse.json({ error: 'Name, email and phone are required for guest visits' }, { status: 400 });
+    }
+
     const { error } = await supabase.from('visits').insert({
       property_id: propertyId,
-      user_id: user.id,
+      user_id: user?.id || null,
       scheduled_at: scheduledAt,
       notes: notes || null,
       status: 'pending',
+      visitor_name: visitorName || null,
+      visitor_email: visitorEmail || null,
+      visitor_phone: visitorPhone || null,
     });
 
     if (error) {

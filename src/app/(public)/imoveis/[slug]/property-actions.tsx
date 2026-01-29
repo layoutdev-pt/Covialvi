@@ -25,6 +25,9 @@ export function PropertyActions({
   const [visitDate, setVisitDate] = useState('');
   const [visitTime, setVisitTime] = useState('');
   const [visitMessage, setVisitMessage] = useState('');
+  const [visitorName, setVisitorName] = useState('');
+  const [visitorEmail, setVisitorEmail] = useState('');
+  const [visitorPhone, setVisitorPhone] = useState('');
 
   // Check if property is already favorited when user is available
   useEffect(() => {
@@ -83,23 +86,14 @@ export function PropertyActions({
   };
 
   const handleScheduleVisitClick = () => {
-    if (!user) {
-      toast.error('Precisa de iniciar sessão para agendar visitas.', {
-        action: {
-          label: 'Entrar',
-          onClick: () => router.push(`/auth/login?redirect=/imoveis/${propertyReference}`),
-        },
-      });
-      return;
-    }
     setShowVisitModal(true);
   };
 
   const handleScheduleVisit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!visitDate || !visitTime) {
-      toast.error('Por favor, selecione a data e hora da visita.');
+    if (!visitDate || !visitTime || !visitorName || !visitorEmail || !visitorPhone) {
+      toast.error('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
 
@@ -110,7 +104,14 @@ export function PropertyActions({
       const response = await fetch('/api/visits/schedule', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ propertyId, scheduledAt, notes: visitMessage }),
+        body: JSON.stringify({ 
+          propertyId, 
+          scheduledAt, 
+          notes: visitMessage,
+          visitorName,
+          visitorEmail,
+          visitorPhone,
+        }),
       });
 
       const data = await response.json();
@@ -124,6 +125,9 @@ export function PropertyActions({
       setVisitDate('');
       setVisitTime('');
       setVisitMessage('');
+      setVisitorName('');
+      setVisitorEmail('');
+      setVisitorPhone('');
     } catch (error: any) {
       console.error('Error scheduling visit:', error);
       toast.error(error?.message || 'Não foi possível agendar a visita. Tente novamente.');
@@ -171,7 +175,49 @@ export function PropertyActions({
             <form onSubmit={handleScheduleVisit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Data preferida
+                  Nome *
+                </label>
+                <input
+                  type="text"
+                  value={visitorName}
+                  onChange={(e) => setVisitorName(e.target.value)}
+                  placeholder="O seu nome completo"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  value={visitorEmail}
+                  onChange={(e) => setVisitorEmail(e.target.value)}
+                  placeholder="O seu email"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Telefone *
+                </label>
+                <input
+                  type="tel"
+                  value={visitorPhone}
+                  onChange={(e) => setVisitorPhone(e.target.value)}
+                  placeholder="O seu número de telefone"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Data preferida *
                 </label>
                 <input
                   type="date"

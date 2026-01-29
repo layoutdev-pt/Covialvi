@@ -127,8 +127,15 @@ export function Footer() {
           </div>
         </div>
 
+        {/* Disclaimer */}
+        <div className="mt-12 pt-8 border-t border-gray-800">
+          <p className="text-gray-500 text-xs leading-relaxed text-center">
+            As imagens, simulações 3D e descrições técnicas apresentadas são meramente ilustrativas e podem não corresponder fielmente ao produto final. Todas as informações, incluindo dimensões, acabamentos e preços, estão sujeitas a confirmação e podem ser alteradas sem aviso prévio.
+          </p>
+        </div>
+
         {/* Bottom */}
-        <div className="mt-16 pt-8 border-t border-gray-800">
+        <div className="mt-8 pt-8 border-t border-gray-800">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-gray-500 text-sm">
               © {currentYear} Covialvi - Construções, Lda. Todos os direitos reservados.

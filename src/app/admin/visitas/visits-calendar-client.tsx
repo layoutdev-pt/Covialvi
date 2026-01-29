@@ -25,6 +25,9 @@ interface Visit {
   scheduled_at: string;
   status: string;
   message?: string;
+  visitor_name?: string;
+  visitor_email?: string;
+  visitor_phone?: string;
   properties?: {
     id: string;
     title: string;
@@ -270,7 +273,7 @@ export function VisitsCalendarClient({ visits }: VisitsCalendarClientProps) {
                         />
                       ) : (
                         <div className="w-4 h-4 rounded-full bg-gray-300 flex items-center justify-center text-[8px] text-white">
-                          {visit.profiles?.first_name?.charAt(0) || 'U'}
+                          {visit.profiles?.first_name?.charAt(0) || visit.visitor_name?.charAt(0) || 'U'}
                         </div>
                       )}
                       <span className="truncate">
@@ -327,12 +330,12 @@ export function VisitsCalendarClient({ visits }: VisitsCalendarClientProps) {
                           />
                         ) : (
                           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center text-white font-medium">
-                            {visit.profiles?.first_name?.charAt(0) || 'U'}
+                            {visit.profiles?.first_name?.charAt(0) || visit.visitor_name?.charAt(0) || 'U'}
                           </div>
                         )}
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-foreground truncate">
-                            {visit.profiles?.first_name} {visit.profiles?.last_name}
+                            {visit.profiles ? `${visit.profiles.first_name} ${visit.profiles.last_name}` : visit.visitor_name || 'Visitante'}
                           </p>
                           <p className="text-sm text-muted-foreground">
                             {new Date(visit.scheduled_at).toLocaleTimeString('pt-PT', {
@@ -398,11 +401,11 @@ export function VisitsCalendarClient({ visits }: VisitsCalendarClientProps) {
               )}
               
               {/* Client */}
-              {selectedVisit.profiles && (
+              {(selectedVisit.profiles || selectedVisit.visitor_name) && (
                 <div className="mb-4">
                   <p className="text-sm text-muted-foreground mb-2">Cliente</p>
                   <div className="flex items-center gap-3 p-3 bg-secondary rounded-xl">
-                    {selectedVisit.profiles.avatar_url ? (
+                    {selectedVisit.profiles?.avatar_url ? (
                       <img 
                         src={selectedVisit.profiles.avatar_url} 
                         alt={selectedVisit.profiles.first_name}
@@ -410,21 +413,21 @@ export function VisitsCalendarClient({ visits }: VisitsCalendarClientProps) {
                       />
                     ) : (
                       <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center text-white font-medium text-lg">
-                        {selectedVisit.profiles.first_name?.charAt(0) || 'U'}
+                        {selectedVisit.profiles?.first_name?.charAt(0) || selectedVisit.visitor_name?.charAt(0) || 'U'}
                       </div>
                     )}
                     <div>
                       <p className="font-medium text-foreground">
-                        {selectedVisit.profiles.first_name} {selectedVisit.profiles.last_name}
+                        {selectedVisit.profiles ? `${selectedVisit.profiles.first_name} ${selectedVisit.profiles.last_name}` : selectedVisit.visitor_name || 'Visitante'}
                       </p>
                       <p className="text-sm text-muted-foreground flex items-center gap-1">
                         <Mail className="h-3 w-3" />
-                        {selectedVisit.profiles.email}
+                        {selectedVisit.profiles?.email || selectedVisit.visitor_email}
                       </p>
-                      {selectedVisit.profiles.phone && (
+                      {(selectedVisit.profiles?.phone || selectedVisit.visitor_phone) && (
                         <p className="text-sm text-muted-foreground flex items-center gap-1">
                           <Phone className="h-3 w-3" />
-                          {selectedVisit.profiles.phone}
+                          {selectedVisit.profiles?.phone || selectedVisit.visitor_phone}
                         </p>
                       )}
                     </div>
@@ -478,9 +481,9 @@ export function VisitsCalendarClient({ visits }: VisitsCalendarClientProps) {
                     </button>
                   </>
                 )}
-                {selectedVisit.status === 'confirmed' && selectedVisit.profiles?.phone && (
+                {selectedVisit.status === 'confirmed' && (selectedVisit.profiles?.phone || selectedVisit.visitor_phone) && (
                   <a 
-                    href={`tel:${selectedVisit.profiles.phone}`}
+                    href={`tel:${selectedVisit.profiles?.phone || selectedVisit.visitor_phone}`}
                     className="w-full flex items-center justify-center gap-2 bg-yellow-500 text-white font-medium py-3 rounded-xl hover:bg-yellow-600 transition-colors"
                   >
                     <Phone className="h-4 w-4" />
