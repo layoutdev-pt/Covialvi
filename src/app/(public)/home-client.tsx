@@ -594,8 +594,8 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
                   className="relative aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl"
                 >
                   <Image
-                    src="https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=1974"
-                    alt="Our Team"
+                    src="/team-covialvi.png"
+                    alt="Covialvi Imobiliário"
                     fill
                     className="object-cover"
                   />

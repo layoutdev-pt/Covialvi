@@ -79,6 +79,20 @@ export const metadata: Metadata = {
   verification: {
     google: 'your-google-verification-code',
   },
+  icons: {
+    icon: [
+      {
+        url: 'https://media.egorealestate.com/ORIGINAL/ab9a/2a120afd-2b27-49b5-8934-8237e1cbab9a.png',
+        type: 'image/png',
+      },
+    ],
+    apple: [
+      {
+        url: 'https://media.egorealestate.com/ORIGINAL/ab9a/2a120afd-2b27-49b5-8934-8237e1cbab9a.png',
+        type: 'image/png',
+      },
+    ],
+  },
 };
 
 export default async function RootLayout({

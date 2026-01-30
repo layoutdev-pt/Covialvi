@@ -120,7 +120,9 @@ export function PropertyActions({
         throw new Error(data.error || 'Failed to schedule visit');
       }
 
-      toast.success('Visita agendada com sucesso! Entraremos em contacto para confirmar.');
+      toast.success('Visita agendada com sucesso! Entraremos em contacto para confirmar.', {
+        duration: 500,
+      });
       setShowVisitModal(false);
       setVisitDate('');
       setVisitTime('');

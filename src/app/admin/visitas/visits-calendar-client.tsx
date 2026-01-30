@@ -18,6 +18,7 @@ import {
   Building2,
   User,
   Loader2,
+  Trash2,
 } from 'lucide-react';
 
 interface Visit {
@@ -110,6 +111,7 @@ export function VisitsCalendarClient({ visits }: VisitsCalendarClientProps) {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedVisit, setSelectedVisit] = useState<Visit | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleUpdateStatus = async (visitId: string, newStatus: 'confirmed' | 'cancelled') => {
     setIsUpdating(true);
@@ -134,6 +136,37 @@ export function VisitsCalendarClient({ visits }: VisitsCalendarClientProps) {
       toast.error(err?.message || 'Erro ao atualizar visita');
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  const handleDeleteVisit = async (visitId: string) => {
+    if (!confirm('Tem certeza que deseja eliminar esta visita? Esta ação não pode ser desfeita.')) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const response = await fetch('/api/visits/delete', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ visitId }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to delete visit');
+      }
+
+      toast.success('Visita eliminada com sucesso');
+      setSelectedVisit(null);
+      setSelectedDate(null);
+      router.refresh();
+    } catch (err: any) {
+      console.error('Error:', err);
+      toast.error(err?.message || 'Erro ao eliminar visita');
+    } finally {
+      setIsDeleting(false);
     }
   };
   
@@ -460,36 +493,46 @@ export function VisitsCalendarClient({ visits }: VisitsCalendarClientProps) {
               </div>
               
               {/* Actions */}
-              <div className="flex gap-3">
-                {selectedVisit.status === 'pending' && (
-                  <>
-                    <button 
-                      onClick={() => handleUpdateStatus(selectedVisit.id, 'confirmed')}
-                      disabled={isUpdating}
-                      className="flex-1 flex items-center justify-center gap-2 bg-green-500 text-white font-medium py-3 rounded-xl hover:bg-green-600 transition-colors disabled:opacity-50"
+              <div className="space-y-3">
+                <div className="flex gap-3">
+                  {selectedVisit.status === 'pending' && (
+                    <>
+                      <button 
+                        onClick={() => handleUpdateStatus(selectedVisit.id, 'confirmed')}
+                        disabled={isUpdating}
+                        className="flex-1 flex items-center justify-center gap-2 bg-green-500 text-white font-medium py-3 rounded-xl hover:bg-green-600 transition-colors disabled:opacity-50"
+                      >
+                        {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                        Confirmar
+                      </button>
+                      <button 
+                        onClick={() => handleUpdateStatus(selectedVisit.id, 'cancelled')}
+                        disabled={isUpdating}
+                        className="flex-1 flex items-center justify-center gap-2 bg-red-500 text-white font-medium py-3 rounded-xl hover:bg-red-600 transition-colors disabled:opacity-50"
+                      >
+                        {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : <X className="h-4 w-4" />}
+                        Cancelar
+                      </button>
+                    </>
+                  )}
+                  {selectedVisit.status === 'confirmed' && (selectedVisit.profiles?.phone || selectedVisit.visitor_phone) && (
+                    <a 
+                      href={`tel:${selectedVisit.profiles?.phone || selectedVisit.visitor_phone}`}
+                      className="w-full flex items-center justify-center gap-2 bg-yellow-500 text-white font-medium py-3 rounded-xl hover:bg-yellow-600 transition-colors"
                     >
-                      {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
-                      Confirmar
-                    </button>
-                    <button 
-                      onClick={() => handleUpdateStatus(selectedVisit.id, 'cancelled')}
-                      disabled={isUpdating}
-                      className="flex-1 flex items-center justify-center gap-2 bg-red-500 text-white font-medium py-3 rounded-xl hover:bg-red-600 transition-colors disabled:opacity-50"
-                    >
-                      {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : <X className="h-4 w-4" />}
-                      Cancelar
-                    </button>
-                  </>
-                )}
-                {selectedVisit.status === 'confirmed' && (selectedVisit.profiles?.phone || selectedVisit.visitor_phone) && (
-                  <a 
-                    href={`tel:${selectedVisit.profiles?.phone || selectedVisit.visitor_phone}`}
-                    className="w-full flex items-center justify-center gap-2 bg-yellow-500 text-white font-medium py-3 rounded-xl hover:bg-yellow-600 transition-colors"
-                  >
-                    <Phone className="h-4 w-4" />
-                    Ligar para Cliente
-                  </a>
-                )}
+                      <Phone className="h-4 w-4" />
+                      Ligar para Cliente
+                    </a>
+                  )}
+                </div>
+                <button 
+                  onClick={() => handleDeleteVisit(selectedVisit.id)}
+                  disabled={isDeleting}
+                  className="w-full flex items-center justify-center gap-2 bg-gray-500 text-white font-medium py-3 rounded-xl hover:bg-gray-600 transition-colors disabled:opacity-50"
+                >
+                  {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                  Eliminar Visita
+                </button>
               </div>
             </div>
           )}
