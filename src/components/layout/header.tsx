@@ -52,8 +52,8 @@ export function Header() {
     };
     
     if (userMenuOpen || ferramentasOpen) {
-      document.addEventListener('click', handleClickOutside);
-      return () => document.removeEventListener('click', handleClickOutside);
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
     }
   }, [userMenuOpen, ferramentasOpen]);
 
@@ -227,6 +227,7 @@ export function Header() {
                   )}
                   <hr className="my-2 border-border" />
                   <button
+                    onMouseDown={(e) => e.stopPropagation()}
                     onClick={async () => {
                       setUserMenuOpen(false);
                       await signOut();
