@@ -228,10 +228,9 @@ export function Header() {
                   <hr className="my-2 border-border" />
                   <button
                     onMouseDown={(e) => e.stopPropagation()}
-                    onClick={async () => {
+                    onClick={() => {
                       setUserMenuOpen(false);
-                      await signOut();
-                      window.location.href = '/';
+                      window.location.href = '/auth/logout';
                     }}
                     className="block w-full text-left px-4 py-2.5 text-sm text-destructive hover:bg-destructive/10 cursor-pointer"
                   >
@@ -465,10 +464,9 @@ export function Header() {
                 </Link>
               )}
               <button
-                onClick={async () => {
+                onClick={() => {
                   setMobileMenuOpen(false);
-                  await signOut();
-                  window.location.href = '/';
+                  window.location.href = '/auth/logout';
                 }}
                 className="block text-lg font-medium text-destructive"
               >

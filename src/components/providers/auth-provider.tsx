@@ -164,14 +164,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
+    // Clear React state immediately
+    setUser(null);
+    setProfile(null);
+    setSession(null);
+    
     try {
-      await supabase.auth.signOut();
+      // Try global sign-out first (revokes token on server)
+      await supabase.auth.signOut({ scope: 'global' });
     } catch (error) {
-      console.error('Error signing out:', error);
-    } finally {
-      setUser(null);
-      setProfile(null);
-      setSession(null);
+      console.error('Global sign-out failed, forcing local:', error);
+      try {
+        // Fallback: force local sign-out (clears cookies/storage)
+        await supabase.auth.signOut({ scope: 'local' });
+      } catch (e) {
+        console.error('Local sign-out also failed:', e);
+      }
     }
   };
 
