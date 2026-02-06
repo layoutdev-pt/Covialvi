@@ -136,8 +136,11 @@ export default function ProfilePage() {
                 <hr className="my-3 border-gray-100 dark:border-gray-700" />
 
                 <button
-                  onClick={() => signOut()}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-yellow-600 dark:text-yellow-400 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition-colors"
+                  onClick={async () => {
+                    await signOut();
+                    window.location.href = '/';
+                  }}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                 >
                   <LogOut className="h-5 w-5" />
                   <span className="text-sm font-medium">Sair</span>
