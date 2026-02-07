@@ -101,8 +101,11 @@ export async function updateSession(request: NextRequest) {
 
   // ============================================
   // AUTH ROUTE - REDIRECT IF ALREADY LOGGED IN
+  // (but always allow /auth/logout and /auth/callback)
   // ============================================
-  if (user && isAuthRoute) {
+  const isLogoutRoute = pathname === '/auth/logout';
+  const isCallbackRoute = pathname === '/auth/callback';
+  if (user && isAuthRoute && !isLogoutRoute && !isCallbackRoute) {
     // Check if they were trying to access admin
     const redirectParam = request.nextUrl.searchParams.get('redirect');
     if (redirectParam?.startsWith('/admin')) {
