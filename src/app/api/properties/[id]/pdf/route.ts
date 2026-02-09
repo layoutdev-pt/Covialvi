@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
+import { company } from '@/lib/company';
 
 export const dynamic = 'force-dynamic';
 
@@ -317,8 +318,8 @@ export async function GET(
           
           <div class="footer">
             <p class="footer-contact">
-              <strong>Covialvi - Construções, Lda.</strong><br>
-              📞 +351 967 138 116 | ✉️ covialvi@gmail.com
+              <strong>${company.name}</strong><br>
+              📞 ${company.phone} | ✉️ ${company.email}
             </p>
             <p class="footer-info">
               www.covialvi.com<br>

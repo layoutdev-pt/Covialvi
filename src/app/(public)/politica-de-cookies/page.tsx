@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { company } from '@/lib/company';
 
 export const metadata: Metadata = {
   title: 'Política de Cookies | Covialvi',
@@ -259,9 +260,9 @@ export default function PoliticaCookiesPage() {
               Para questões relacionadas com a utilização de cookies, contacte-nos:
             </p>
             <ul className="list-disc list-inside text-muted-foreground mt-4 space-y-2">
-              <li>Email: privacidade@covialvi.com</li>
-              <li>Telefone: +351 275 000 000</li>
-              <li>Morada: Covilhã, Portugal</li>
+              <li>Email: {company.email}</li>
+              <li>Telefone: {company.phone}</li>
+              <li>Morada: {company.address.full}</li>
             </ul>
           </section>
         </div>

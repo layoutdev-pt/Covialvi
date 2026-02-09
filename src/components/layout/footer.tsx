@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { company } from '@/lib/company';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -111,16 +112,16 @@ export function Footer() {
             <h3 className="font-semibold text-sm text-gray-400 mb-4 uppercase tracking-wider">Contactos</h3>
             <ul className="space-y-3">
               <li className="text-gray-300 text-sm">
-                Covilhã, Portugal
+                {company.address.full}
               </li>
               <li>
-                <a href="tel:+351967138116" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  +351 967 138 116
+                <a href={`tel:${company.phoneTel}`} className="text-gray-300 hover:text-white transition-colors text-sm">
+                  {company.phone}
                 </a>
               </li>
               <li>
-                <a href="mailto:covialvi@gmail.com" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  covialvi@gmail.com
+                <a href={`mailto:${company.email}`} className="text-gray-300 hover:text-white transition-colors text-sm">
+                  {company.email}
                 </a>
               </li>
             </ul>

@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import { company } from '@/lib/company';
 
 let resend: Resend | null = null;
 
@@ -8,7 +9,7 @@ if (process.env.RESEND_API_KEY) {
 }
 
 const FROM_EMAIL = 'Covialvi <noreply@covialvi.com>';
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'covialvi@gmail.com';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || company.email;
 
 interface EmailOptions {
   to: string | string[];
@@ -201,7 +202,7 @@ export function visitConfirmationEmailTemplate(data: {
         <div style="background-color: #f9fafb; padding: 20px 30px; text-align: center; border-top: 1px solid #eee;">
           <p style="color: #888; font-size: 12px; margin: 0;">
             © ${new Date().getFullYear()} Covialvi - Construções, Lda.<br>
-            +351 967 138 116 | covialvi@gmail.com
+            ${company.phone} | ${company.email}
           </p>
         </div>
       </div>

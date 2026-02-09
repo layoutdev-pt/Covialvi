@@ -1,4 +1,5 @@
 import { getTranslations } from 'next-intl/server';
+import { company } from '@/lib/company';
 
 export default async function CookiesPolicyPage() {
   const t = await getTranslations();
@@ -193,8 +194,9 @@ export default async function CookiesPolicyPage() {
             Para questões sobre a nossa utilização de cookies, contacte-nos:
           </p>
           <ul>
-            <li>Email: privacidade@covialvi.com</li>
-            <li>Telefone: +351 275 000 000</li>
+            <li>Email: {company.email}</li>
+            <li>Telefone: {company.phone}</li>
+            <li>Morada: {company.address.full}</li>
           </ul>
         </div>
       </div>

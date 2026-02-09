@@ -27,6 +27,7 @@ import {
   Moon,
   Monitor,
 } from 'lucide-react';
+import { company } from '@/lib/company';
 
 export default function AdminSettingsPage() {
   const { theme, setTheme } = useTheme();
@@ -84,15 +85,15 @@ export default function AdminSettingsPage() {
             </div>
             <div className="space-y-2">
               <Label>E-mail de Contacto</Label>
-              <Input type="email" defaultValue="info@covialvi.pt" />
+              <Input type="email" defaultValue={company.email} />
             </div>
             <div className="space-y-2">
               <Label>Telefone</Label>
-              <Input type="tel" defaultValue="+351 000 000 000" />
+              <Input type="tel" defaultValue={company.phone} />
             </div>
             <div className="space-y-2">
               <Label>Morada</Label>
-              <Input defaultValue="Lisboa, Portugal" />
+              <Input defaultValue={company.address.full} />
             </div>
           </CardContent>
         </Card>

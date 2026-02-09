@@ -3,6 +3,8 @@
  * JSON-LD schema.org markup for better search engine visibility
  */
 
+import { company } from '@/lib/company';
+
 // Organization Schema
 export const organizationSchema = {
   '@context': 'https://schema.org',
@@ -19,20 +21,20 @@ export const organizationSchema = {
   },
   image: 'https://covialvi.com/og-image.jpg',
   description: 'Imobiliária de referência em Portugal, especializada em compra, venda e arrendamento de imóveis. Apartamentos, moradias e imóveis comerciais na Covilhã e região.',
-  telephone: '+351967138116',
-  email: 'covialvi@gmail.com',
+  telephone: company.phoneTel,
+  email: company.email,
   address: {
     '@type': 'PostalAddress',
-    streetAddress: 'Covilhã',
-    addressLocality: 'Covilhã',
-    addressRegion: 'Castelo Branco',
-    postalCode: '6200',
-    addressCountry: 'PT',
+    streetAddress: `${company.address.street}, ${company.address.detail}`,
+    addressLocality: company.address.locality,
+    addressRegion: company.address.district,
+    postalCode: company.address.postalCode,
+    addressCountry: company.address.country,
   },
   geo: {
     '@type': 'GeoCoordinates',
-    latitude: 40.2833,
-    longitude: -7.5,
+    latitude: 40.2268,
+    longitude: -7.5086,
   },
   openingHoursSpecification: [
     {
@@ -71,22 +73,22 @@ export const localBusinessSchema = {
   '@id': 'https://covialvi.com/#localbusiness',
   name: 'Covialvi Imobiliária',
   image: 'https://covialvi.com/og-image.jpg',
-  telephone: '+351967138116',
-  email: 'covialvi@gmail.com',
+  telephone: company.phoneTel,
+  email: company.email,
   address: {
     '@type': 'PostalAddress',
-    streetAddress: 'Covilhã',
-    addressLocality: 'Covilhã',
-    addressRegion: 'Castelo Branco',
-    postalCode: '6200',
-    addressCountry: 'PT',
+    streetAddress: `${company.address.street}, ${company.address.detail}`,
+    addressLocality: company.address.locality,
+    addressRegion: company.address.district,
+    postalCode: company.address.postalCode,
+    addressCountry: company.address.country,
   },
   geo: {
     '@type': 'GeoCoordinates',
-    latitude: 40.2833,
-    longitude: -7.5,
+    latitude: 40.2268,
+    longitude: -7.5086,
   },
-  url: 'https://covialvi.com',
+  url: company.website,
   priceRange: '€€',
 };
 

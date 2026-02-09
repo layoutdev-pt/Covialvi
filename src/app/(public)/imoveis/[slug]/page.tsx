@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { company } from '@/lib/company';
 import { MapPin, ChevronDown, Building2, FileDown, FileText, LayoutGrid, ClipboardList } from 'lucide-react';
 import { PropertyActions } from './property-actions';
 import { PropertyGallery } from './property-gallery';
@@ -143,15 +144,17 @@ function generatePropertyJsonLd(property: any) {
 const organizationJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'RealEstateAgent',
-  name: 'Covialvi - Construções, Lda.',
-  url: 'https://covialvi.com',
+  name: company.name,
+  url: company.website,
   logo: 'https://media.egorealestate.com/ORIGINAL/ab9a/2a120afd-2b27-49b5-8934-8237e1cbab9a.png',
-  telephone: '+351967138116',
-  email: 'covialvi@gmail.com',
+  telephone: company.phoneTel,
+  email: company.email,
   address: {
     '@type': 'PostalAddress',
-    addressLocality: 'Covilhã',
-    addressCountry: 'PT',
+    streetAddress: `${company.address.street}, ${company.address.detail}`,
+    addressLocality: company.address.locality,
+    postalCode: company.address.postalCode,
+    addressCountry: company.address.country,
   },
 };
 

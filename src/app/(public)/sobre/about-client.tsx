@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Award, Users, Building2, Target, Phone, Mail, MapPin, CheckCircle2, Heart, Shield, Handshake } from 'lucide-react';
+import { company } from '@/lib/company';
 import { 
   FadeInUp, 
   SlideInLeft, 
@@ -407,7 +408,7 @@ export function AboutClient() {
                 </div>
                 <h3 className="font-semibold text-foreground mb-2">Telefone</h3>
                 <p className="text-muted-foreground">
-                  <a href="tel:+351967138116" className="hover:text-yellow-600 transition-colors">+351 967 138 116</a>
+                  <a href={`tel:${company.phoneTel}`} className="hover:text-yellow-600 transition-colors">{company.phone}</a>
                 </p>
               </motion.div>
             </StaggerItem>
@@ -422,7 +423,7 @@ export function AboutClient() {
                 </div>
                 <h3 className="font-semibold text-foreground mb-2">Email</h3>
                 <p className="text-muted-foreground">
-                  <a href="mailto:covialvi@gmail.com" className="hover:text-yellow-600 transition-colors">covialvi@gmail.com</a>
+                  <a href={`mailto:${company.email}`} className="hover:text-yellow-600 transition-colors">{company.email}</a>
                 </p>
               </motion.div>
             </StaggerItem>
@@ -436,7 +437,7 @@ export function AboutClient() {
                   <MapPin className="h-6 w-6 text-yellow-600" />
                 </div>
                 <h3 className="font-semibold text-foreground mb-2">Morada</h3>
-                <p className="text-muted-foreground text-sm">Parque Industrial do Tortosendo,<br />Lote 75 – Rua E,<br />6200-683 Tortosendo</p>
+                <p className="text-muted-foreground text-sm">{company.address.street},<br />{company.address.detail},<br />{company.address.postalCode} {company.address.locality}</p>
               </motion.div>
             </StaggerItem>
           </StaggerContainer>

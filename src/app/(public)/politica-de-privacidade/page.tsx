@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { company } from '@/lib/company';
 
 export const metadata: Metadata = {
   title: 'Política de Privacidade | Covialvi',
@@ -16,7 +17,7 @@ export default function PoliticaPrivacidadePage() {
           <section>
             <h2 className="text-2xl font-semibold text-foreground mb-4">1. Responsável pelo Tratamento</h2>
             <p className="text-muted-foreground leading-relaxed">
-              A <strong>Covialvi - Mediação Imobiliária, Lda.</strong>, com sede em Covilhã, Portugal, NIF 123456789, 
+              A <strong>{company.name}</strong>, com sede em {company.address.full}, NIF 123456789, 
               é a entidade responsável pelo tratamento dos dados pessoais recolhidos através deste website, em conformidade 
               com o Regulamento (UE) 2016/679 do Parlamento Europeu e do Conselho, de 27 de abril de 2016 (Regulamento 
               Geral sobre a Proteção de Dados - RGPD) e a Lei n.º 58/2019, de 8 de agosto.
@@ -119,7 +120,7 @@ export default function PoliticaPrivacidadePage() {
               <li><strong>Direito a retirar o consentimento:</strong> retirar o consentimento a qualquer momento, sem comprometer a licitude do tratamento efetuado anteriormente</li>
             </ul>
             <p className="text-muted-foreground leading-relaxed mt-4">
-              Para exercer qualquer destes direitos, contacte-nos através do email: <strong>privacidade@covialvi.com</strong>
+              Para exercer qualquer destes direitos, contacte-nos através do email: <strong>{company.email}</strong>
             </p>
           </section>
 
@@ -164,9 +165,9 @@ export default function PoliticaPrivacidadePage() {
               Para questões relacionadas com a proteção de dados pessoais, contacte-nos:
             </p>
             <ul className="list-disc list-inside text-muted-foreground mt-4 space-y-2">
-              <li>Email: privacidade@covialvi.com</li>
-              <li>Telefone: +351 275 000 000</li>
-              <li>Morada: Covilhã, Portugal</li>
+              <li>Email: {company.email}</li>
+              <li>Telefone: {company.phone}</li>
+              <li>Morada: {company.address.full}</li>
             </ul>
           </section>
         </div>

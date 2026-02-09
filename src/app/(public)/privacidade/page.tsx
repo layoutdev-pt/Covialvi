@@ -1,4 +1,5 @@
 import { getTranslations } from 'next-intl/server';
+import { company } from '@/lib/company';
 
 export default async function PrivacyPolicyPage() {
   const t = await getTranslations();
@@ -17,8 +18,7 @@ export default async function PrivacyPolicyPage() {
         <div className="max-w-4xl mx-auto prose prose-gray">
           <h2>1. Responsável pelo Tratamento</h2>
           <p>
-            A Covialvi - Mediação Imobiliária, Lda., com sede na Rua Principal, 123, 
-            6200-000 Covilhã, Portugal, é a entidade responsável pelo tratamento 
+            A {company.name}, com sede em {company.address.full}, é a entidade responsável pelo tratamento 
             dos dados pessoais recolhidos através deste website.
           </p>
 
@@ -104,7 +104,7 @@ export default async function PrivacyPolicyPage() {
             <li><strong>Direito de retirar o consentimento:</strong> a qualquer momento</li>
           </ul>
           <p>
-            Para exercer estes direitos, contacte-nos através de privacidade@covialvi.com.
+            Para exercer estes direitos, contacte-nos através de {company.email}.
           </p>
 
           <h2>9. Segurança</h2>
@@ -151,9 +151,9 @@ export default async function PrivacyPolicyPage() {
             Para questões relacionadas com a proteção de dados, contacte-nos:
           </p>
           <ul>
-            <li>Email: privacidade@covialvi.com</li>
-            <li>Telefone: +351 275 000 000</li>
-            <li>Morada: Rua Principal, 123, 6200-000 Covilhã, Portugal</li>
+            <li>Email: {company.email}</li>
+            <li>Telefone: {company.phone}</li>
+            <li>Morada: {company.address.full}</li>
           </ul>
         </div>
       </div>

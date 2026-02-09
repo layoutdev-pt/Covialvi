@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Image from 'next/image';
 import { MapPin, Phone, Mail, Clock, Loader2, Send, Smartphone, MessageSquare } from 'lucide-react';
+import { company } from '@/lib/company';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -197,8 +198,8 @@ export default function ContactPage() {
                 <div>
                   <h3 className="font-semibold mb-1 text-gray-900 dark:text-white">Morada</h3>
                   <p className="text-gray-600 dark:text-gray-400 text-sm">
-                    Parque Industrial do Tortosendo,<br />
-                    Lote 75 - Rua E, 6200-683 Tortosendo
+                    {company.address.street},<br />
+                    {company.address.detail}, {company.address.postalCode} {company.address.locality}
                   </p>
                 </div>
               </div>
@@ -211,8 +212,8 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="font-semibold mb-1 text-gray-900 dark:text-white">Telefone</h3>
-                    <a href="tel:+351275971394" className="text-gray-600 dark:text-gray-400 text-sm hover:text-yellow-600 transition-colors">
-                      +351 275 971 394
+                    <a href={`tel:${company.landlineTel}`} className="text-gray-600 dark:text-gray-400 text-sm hover:text-yellow-600 transition-colors">
+                      {company.landline}
                     </a>
                   </div>
                 </div>
@@ -223,8 +224,8 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="font-semibold mb-1 text-gray-900 dark:text-white">Telemóvel</h3>
-                    <a href="tel:+351967138116" className="text-gray-600 dark:text-gray-400 text-sm hover:text-yellow-600 transition-colors">
-                      +351 967 138 116
+                    <a href={`tel:${company.phoneTel}`} className="text-gray-600 dark:text-gray-400 text-sm hover:text-yellow-600 transition-colors">
+                      {company.phone}
                     </a>
                   </div>
                 </div>
@@ -237,8 +238,8 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h3 className="font-semibold mb-1 text-gray-900 dark:text-white">E-mail</h3>
-                  <a href="mailto:covialvi@gmail.com" className="text-gray-600 dark:text-gray-400 text-sm hover:text-yellow-600 transition-colors">
-                    covialvi@gmail.com
+                  <a href={`mailto:${company.email}`} className="text-gray-600 dark:text-gray-400 text-sm hover:text-yellow-600 transition-colors">
+                    {company.email}
                   </a>
                 </div>
               </div>
@@ -251,7 +252,7 @@ export default function ContactPage() {
                 <div>
                   <h3 className="font-semibold mb-1 text-gray-900 dark:text-white">Horário</h3>
                   <p className="text-gray-600 dark:text-gray-400 text-sm">
-                    Segunda a Sexta: 9h às 13h e das 14h às 18h
+                    {company.hours}
                   </p>
                 </div>
               </div>

@@ -1,4 +1,5 @@
 import { getTranslations } from 'next-intl/server';
+import { company } from '@/lib/company';
 
 export default async function TermsPage() {
   const t = await getTranslations();
@@ -122,9 +123,9 @@ export default async function TermsPage() {
             Para questões relacionadas com estes Termos e Condições, contacte-nos:
           </p>
           <ul>
-            <li>Email: legal@covialvi.com</li>
-            <li>Telefone: +351 275 000 000</li>
-            <li>Morada: Rua Principal, 123, 6200-000 Covilhã, Portugal</li>
+            <li>Email: {company.email}</li>
+            <li>Telefone: {company.phone}</li>
+            <li>Morada: {company.address.full}</li>
           </ul>
         </div>
       </div>

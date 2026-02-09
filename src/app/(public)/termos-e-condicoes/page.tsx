@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { company } from '@/lib/company';
 
 export const metadata: Metadata = {
   title: 'Termos e Condições | Covialvi',
@@ -16,8 +17,8 @@ export default function TermosCondicoesPage() {
           <section>
             <h2 className="text-2xl font-semibold text-foreground mb-4">1. Identificação da Entidade</h2>
             <p className="text-muted-foreground leading-relaxed">
-              O presente website é propriedade e gerido pela <strong>Covialvi - Mediação Imobiliária, Lda.</strong>, 
-              sociedade comercial por quotas, com sede em Covilhã, Portugal, registada na Conservatória do Registo Comercial 
+              O presente website é propriedade e gerido pela <strong>{company.name}</strong>, 
+              sociedade comercial por quotas, com sede em {company.address.full}, registada na Conservatória do Registo Comercial 
               da Covilhã, com o número de pessoa coletiva (NIF) 123456789, titular da Licença AMI n.º 12345, emitida pelo 
               Instituto dos Mercados Públicos, do Imobiliário e da Construção (IMPIC).
             </p>
@@ -161,9 +162,9 @@ export default function TermosCondicoesPage() {
               Para quaisquer questões relacionadas com os presentes Termos e Condições, por favor contacte-nos através de:
             </p>
             <ul className="list-disc list-inside text-muted-foreground mt-4 space-y-2">
-              <li>Email: info@covialvi.com</li>
-              <li>Telefone: +351 275 000 000</li>
-              <li>Morada: Covilhã, Portugal</li>
+              <li>Email: {company.email}</li>
+              <li>Telefone: {company.phone}</li>
+              <li>Morada: {company.address.full}</li>
             </ul>
           </section>
         </div>

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
 import { sendVisitConfirmation } from '@/lib/email';
+import { company } from '@/lib/company';
 
 export const dynamic = 'force-dynamic';
 
@@ -80,7 +81,7 @@ export async function POST(request: NextRequest) {
         visitDate: formattedDate,
         visitTime: formattedTime,
         agentName: 'Equipa Covialvi',
-        agentPhone: '+351 967 138 116',
+        agentPhone: company.phone,
       });
 
       if (!emailResult.success) {
