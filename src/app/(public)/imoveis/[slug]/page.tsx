@@ -6,6 +6,7 @@ import { company } from '@/lib/company';
 import { MapPin, ChevronDown, Building2, FileDown, FileText, LayoutGrid, ClipboardList } from 'lucide-react';
 import { PropertyActions } from './property-actions';
 import { PropertyGallery } from './property-gallery';
+import { PropertyContactForm } from './property-contact-form';
 
 export const dynamic = 'force-dynamic';
 
@@ -491,46 +492,11 @@ export default async function PropertyDetailPage({ params }: PageProps) {
               />
               
               <h3 className="text-2xl font-bold text-foreground mb-6">Pedido de Contacto</h3>
-              <form className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Nome</label>
-                  <input
-                    type="text"
-                    placeholder="Nome Completo"
-                    className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Telefone</label>
-                  <input
-                    type="tel"
-                    placeholder="+351 912345678"
-                    className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Email</label>
-                  <input
-                    type="email"
-                    placeholder="nome@email.com"
-                    className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Mensagem</label>
-                  <textarea
-                    rows={4}
-                    placeholder="Desejo ser contactado a fim de obter mais informações sobre o referido imóvel."
-                    className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent resize-none"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-3 rounded-full transition-colors shadow-lg shadow-yellow-500/25"
-                >
-                  Enviar
-                </button>
-              </form>
+              <PropertyContactForm
+                propertyId={property.id}
+                propertyTitle={property.title}
+                propertyRef={property.reference}
+              />
               
             </div>
           </div>

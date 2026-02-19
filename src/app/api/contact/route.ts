@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, email, phone, message, propertyId, propertyTitle, propertyRef } = body;
+    const { name, email, phone, message, propertyId, propertyTitle, propertyRef, source } = body;
 
     // Validate required fields
     if (!name || !email) {
@@ -26,18 +26,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Derive source: explicit value wins, otherwise infer from propertyId
+    const leadSource: string = source || (propertyId ? 'property' : 'contact');
+
+    // Server-side rule: if source is 'property', property_id must be present
+    if (leadSource === 'property' && !propertyId) {
+      return NextResponse.json(
+        { error: 'property_id é obrigatório para leads de imóveis' },
+        { status: 400 }
+      );
+    }
+
+    // Split name into first/last (leads table has first_name + last_name, not name)
+    const nameParts = name.trim().split(' ');
+    const firstName = nameParts[0] || name;
+    const lastName = nameParts.slice(1).join(' ') || null;
+
     const supabase = createServiceClient();
 
     // Save lead to database
     const { data: lead, error: leadError } = await supabase
       .from('leads')
       .insert({
-        name,
+        first_name: firstName,
+        last_name: lastName,
         email,
         phone: phone || null,
         message: message || null,
         property_id: propertyId || null,
-        source: propertyId ? 'property_page' : 'contact_page',
+        source: leadSource,
         status: 'new',
       })
       .select()

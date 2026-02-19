@@ -83,9 +83,38 @@ export async function updateSession(request: NextRequest) {
   const user = session?.user ?? null;
 
   // ============================================
-  // ADMIN ROUTES - No server-side protection, load directly
+  // ADMIN ROUTES - Server-side protection
   // ============================================
   if (isAdminRoute) {
+    // Always allow the login page
+    if (isAdminLoginRoute) {
+      // If already authenticated as admin, skip the login page
+      if (user) {
+        const role = user.app_metadata?.role || user.user_metadata?.role;
+        if (role === 'admin' || role === 'super_admin') {
+          return NextResponse.redirect(new URL('/admin', request.url));
+        }
+      }
+      return response;
+    }
+
+    // All other /admin/* require a valid session
+    if (!user) {
+      const loginUrl = new URL('/admin/login', request.url);
+      loginUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+
+    // Session exists — check role
+    const role = user.app_metadata?.role || user.user_metadata?.role;
+    const isAdminUser = role === 'admin' || role === 'super_admin';
+
+    if (!isAdminUser) {
+      // Authenticated but not admin — send to homepage
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+
+    // Admin confirmed — allow through
     return response;
   }
 
