@@ -66,6 +66,7 @@ export function Header() {
     { name: t('about') || 'Sobre Nós', href: '/sobre' },
     { name: t('services') || 'Serviços', href: '/servicos' },
     { name: t('properties'), href: '/imoveis' },
+    { name: t('contact') || 'Contacto', href: '/contacto' },
   ];
 
   const isHomePage = pathname === '/';
