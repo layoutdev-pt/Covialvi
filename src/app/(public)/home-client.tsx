@@ -246,6 +246,33 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
     },
   ];
 
+  const futureProjects = [
+    {
+      id: 1,
+      title: 'Residencial Vila Nova',
+      description: 'Empreendimento moderno com 50 unidades habitacionais, incluindo apartamentos T2 e T3 com acabamentos de luxo e áreas comuns premium.',
+      status: 'Início em 2026',
+      location: 'Covilhã',
+      image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=2070',
+    },
+    {
+      id: 2,
+      title: 'Condomínio Jardim das Flores',
+      description: 'Projeto residencial sustentável com certificação energética A+, espaços verdes e infraestruturas eco-friendly para famílias modernas.',
+      status: 'Em Breve',
+      location: 'Fundão',
+      image: 'https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=2070',
+    },
+    {
+      id: 3,
+      title: 'Loteamento Serra da Estrela',
+      description: 'Lotes para construção em localização privilegiada com vista panorâmica para a Serra da Estrela, ideal para moradias unifamiliares.',
+      status: '2026',
+      location: 'Belmonte',
+      image: 'https://images.unsplash.com/photo-1600607687644-c7171b42498f?q=80&w=2070',
+    },
+  ];
+
   return (
     <main className="bg-background overflow-hidden">
       {/* Hero Section - VistaHaven Style with Rounded Container */}
@@ -723,6 +750,70 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
               <ArrowUpRight className="h-5 w-5" />
             </a>
           </FadeInUp>
+        </div>
+      </section>
+
+      {/* Future Projects Section */}
+      <section className="py-20 px-6 md:px-12 lg:px-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto">
+          <FadeInUp>
+            <div className="text-center mb-12">
+              <span className="inline-block px-4 py-2 rounded-full bg-yellow-100 text-yellow-700 text-sm font-medium mb-4">
+                Novidades
+              </span>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                Projetos Futuros
+              </h2>
+              <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+                Descubra os nossos próximos empreendimentos e seja o primeiro a conhecer as melhores oportunidades
+              </p>
+            </div>
+          </FadeInUp>
+
+          <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {futureProjects.map((project) => (
+              <StaggerItem key={project.id}>
+                <motion.div
+                  whileHover={{ y: -8 }}
+                  className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 group"
+                >
+                  <div className="relative h-64 overflow-hidden">
+                    <Image
+                      src={project.image}
+                      alt={project.title}
+                      fill
+                      className="object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                    <span className="absolute top-4 right-4 px-3 py-1 bg-yellow-500 text-white rounded-full text-xs font-semibold">
+                      {project.status}
+                    </span>
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2">
+                      {project.title}
+                    </h3>
+                    <p className="text-gray-600 mb-4 line-clamp-3">
+                      {project.description}
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <MapPin className="h-4 w-4" />
+                        {project.location}
+                      </div>
+                      <motion.button
+                        whileHover={{ x: 5 }}
+                        className="text-yellow-600 font-medium flex items-center gap-1 text-sm hover:text-yellow-700"
+                      >
+                        Saber mais
+                        <ArrowRight className="h-4 w-4" />
+                      </motion.button>
+                    </div>
+                  </div>
+                </motion.div>
+              </StaggerItem>
+            ))}
+          </StaggerContainer>
         </div>
       </section>
 

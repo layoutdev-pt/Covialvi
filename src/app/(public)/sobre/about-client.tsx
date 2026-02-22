@@ -73,10 +73,9 @@ export function AboutClient() {
   ];
 
   const stats = [
-    { value: 25, suffix: '+', label: 'Anos de Experiência' },
-    { value: 500, suffix: '+', label: 'Imóveis Vendidos' },
-    { value: 98, suffix: '%', label: 'Clientes Satisfeitos' },
-    { value: 50, suffix: '+', label: 'Projetos Concluídos' },
+    { value: 30, suffix: '', label: 'Anos de Experiência' },
+    { value: 1000, suffix: '+', label: 'Imóveis Vendidos' },
+    { value: 100, suffix: '+', label: 'Projetos Concluídos' },
   ];
 
   const services = [
@@ -166,7 +165,7 @@ export function AboutClient() {
                 transition={{ duration: 0.8, delay: 0.5 }}
                 className="text-white/70 text-lg md:text-xl max-w-xl mb-10 leading-relaxed"
               >
-                Há mais de 25 anos a ajudar famílias portuguesas a encontrar o lar perfeito. 
+                Há mais de 30 anos a ajudar famílias portuguesas a encontrar o lar perfeito. 
                 Somos especialistas em imóveis na região da Beira Interior e em todo o país.
               </motion.p>
               
