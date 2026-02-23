@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button';
 interface CookiePreferences {
   necessary: boolean;
   analytics: boolean;
-  marketing: boolean;
 }
 
 const COOKIE_CONSENT_KEY = 'covialvi_cookie_consent';
@@ -21,7 +20,6 @@ export function CookieConsent() {
   const [preferences, setPreferences] = useState<CookiePreferences>({
     necessary: true,
     analytics: false,
-    marketing: false,
   });
 
   useEffect(() => {
@@ -38,15 +36,15 @@ export function CookieConsent() {
   }, []);
 
   const saveConsent = (prefs: CookiePreferences) => {
-    localStorage.setItem(COOKIE_CONSENT_KEY, 'true');
+    localStorage.setItem(COOKIE_CONSENT_KEY, JSON.stringify(prefs));
     localStorage.setItem(COOKIE_PREFERENCES_KEY, JSON.stringify(prefs));
     setPreferences(prefs);
     setShowBanner(false);
     setShowSettings(false);
 
-    if (prefs.analytics && typeof window !== 'undefined') {
-      // Enable analytics if consented
-      (window as any).va?.('consent', 'granted');
+    // Dispatch custom event so ConditionalAnalytics can react immediately
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('cookieConsentUpdated'));
     }
   };
 
@@ -54,7 +52,6 @@ export function CookieConsent() {
     saveConsent({
       necessary: true,
       analytics: true,
-      marketing: true,
     });
   };
 
@@ -62,7 +59,6 @@ export function CookieConsent() {
     saveConsent({
       necessary: true,
       analytics: false,
-      marketing: false,
     });
   };
 
@@ -186,25 +182,6 @@ export function CookieConsent() {
                     Permitem-nos compreender como os visitantes interagem com o website, 
                     ajudando a melhorar a experiência de utilização. Incluem Vercel Analytics 
                     para estatísticas anónimas de visitas.
-                  </p>
-                </div>
-
-                {/* Marketing Cookies */}
-                <div className="p-4 bg-secondary/50 rounded-xl">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="checkbox"
-                        checked={preferences.marketing}
-                        onChange={(e) => setPreferences({ ...preferences, marketing: e.target.checked })}
-                        className="w-5 h-5 rounded accent-yellow-500"
-                      />
-                      <span className="font-medium text-foreground">Cookies de Marketing</span>
-                    </div>
-                  </div>
-                  <p className="text-sm text-muted-foreground ml-8">
-                    Utilizados para apresentar anúncios relevantes e medir a eficácia das 
-                    campanhas publicitárias. Podem ser partilhados com terceiros.
                   </p>
                 </div>
               </div>
