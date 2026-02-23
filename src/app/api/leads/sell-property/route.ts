@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
 import { getDistrictLabel, getMunicipalityLabel } from '@/lib/portugal-locations';
+import { sendEmail } from '@/lib/email';
+import { getSellPropertyEmailTemplate } from '@/lib/sell-property-email-template';
 
 /**
  * API Route: POST /api/leads/sell-property
@@ -255,39 +257,44 @@ export async function POST(request: NextRequest) {
     }
 
     // -------------------------------------------------------------------------
-    // SEND EMAIL NOTIFICATION (Optional - requires Resend setup)
+    // SEND EMAIL NOTIFICATION
     // -------------------------------------------------------------------------
 
-    // Uncomment when email notifications are needed:
-    /*
-    if (process.env.RESEND_API_KEY && process.env.ADMIN_EMAIL) {
-      try {
-        const { Resend } = await import('resend');
-        const resend = new Resend(process.env.RESEND_API_KEY);
-        
-        await resend.emails.send({
-          from: 'Covialvi <noreply@covialvi.com>',
-          to: process.env.ADMIN_EMAIL,
-          subject: `Novo Lead — Venda de Imóvel em ${getMunicipalityLabel(body.district, body.municipality)}`,
-          html: `
-            <h2>Novo Lead de Venda</h2>
-            <p><strong>Nome:</strong> ${body.name || 'Não fornecido'}</p>
-            <p><strong>Telefone:</strong> ${sanitizedPhone}</p>
-            <p><strong>Email:</strong> ${body.email || 'Não fornecido'}</p>
-            <p><strong>Tipo de Imóvel:</strong> ${body.propertyType}</p>
-            <p><strong>Localização:</strong> ${getMunicipalityLabel(body.district, body.municipality)}, ${getDistrictLabel(body.district)}</p>
-            <p><strong>Fase de Venda:</strong> ${body.sellingStage}</p>
-            <p><strong>Valor Estimado:</strong> ${body.estimatedValue}</p>
-            <p><strong>Preferência de Contacto:</strong> ${body.contactTiming}</p>
-            <p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/admin/leads/${lead.id}">Ver Lead no CRM</a></p>
-          `,
-        });
-      } catch (emailError) {
-        console.error('Error sending email notification:', emailError);
-        // Don't fail the request if email fails
-      }
+    try {
+      const emailHTML = getSellPropertyEmailTemplate({
+        name: body.name,
+        email: body.email,
+        phone: sanitizedPhone,
+        propertyType: body.propertyType,
+        district: body.district,
+        municipality: body.municipality,
+        districtLabel: getDistrictLabel(body.district),
+        municipalityLabel: getMunicipalityLabel(body.district, body.municipality),
+        sellingStage: body.sellingStage,
+        estimatedValue: body.estimatedValue,
+        contactTiming: body.contactTiming,
+        leadId: lead.id,
+        submittedAt: new Date().toLocaleString('pt-PT', {
+          dateStyle: 'full',
+          timeStyle: 'short'
+        }),
+      });
+
+      const isUrgent = body.sellingStage === 'urgent';
+      const emailSubject = isUrgent
+        ? `🏡 URGENTE: Avaliação ${body.propertyType} - ${body.name || 'Cliente'} ⚡`
+        : `🏡 Nova Avaliação: ${body.propertyType} em ${getMunicipalityLabel(body.district, body.municipality)}`;
+
+      await sendEmail({
+        to: 'covialvi@gmail.com',
+        subject: emailSubject,
+        html: emailHTML,
+        replyTo: body.email,
+      });
+    } catch (emailError) {
+      console.error('Error sending email notification:', emailError);
+      // Don't fail the request if email fails - lead is still saved
     }
-    */
 
     // -------------------------------------------------------------------------
     // RETURN SUCCESS
