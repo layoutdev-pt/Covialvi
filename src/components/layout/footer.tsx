@@ -109,6 +109,23 @@ export function Footer() {
                   Configurar Cookies
                 </button>
               </li>
+              <li className="pt-2">
+                <a 
+                  href="https://www.livroreclamacoes.pt/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Livro de Reclamações Online"
+                  className="inline-block hover:opacity-80 transition-opacity"
+                >
+                  <Image
+                    src="/images/footer/livro-reclamacoes.png"
+                    alt="Livro de Reclamações Eletrónico"
+                    width={120}
+                    height={40}
+                    className="w-auto h-8"
+                  />
+                </a>
+              </li>
             </ul>
           </div>
 
@@ -138,27 +155,6 @@ export function Footer() {
           <p className="text-gray-500 text-xs leading-relaxed text-center">
             As imagens, simulações 3D e descrições técnicas apresentadas são meramente ilustrativas e podem não corresponder fielmente ao produto final. Todas as informações, incluindo dimensões, acabamentos e preços, estão sujeitas a confirmação e podem ser alteradas sem aviso prévio.
           </p>
-        </div>
-
-        {/* Livro de Reclamações */}
-        <div className="mt-8 pt-8 border-t border-gray-800">
-          <div className="flex justify-center">
-            <a 
-              href="https://www.livroreclamacoes.pt/"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Livro de Reclamações Online"
-              className="hover:opacity-80 transition-opacity"
-            >
-              <Image
-                src="/images/footer/livro-reclamacoes.png"
-                alt="Livro de Reclamações Eletrónico"
-                width={180}
-                height={60}
-                className="w-auto h-12 md:h-16"
-              />
-            </a>
-          </div>
         </div>
 
         {/* Bottom */}
