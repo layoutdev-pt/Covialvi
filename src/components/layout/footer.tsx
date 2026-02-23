@@ -140,6 +140,27 @@ export function Footer() {
           </p>
         </div>
 
+        {/* Livro de Reclamações */}
+        <div className="mt-8 pt-8 border-t border-gray-800">
+          <div className="flex justify-center">
+            <a 
+              href="https://www.livroreclamacoes.pt/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Livro de Reclamações Online"
+              className="hover:opacity-80 transition-opacity"
+            >
+              <Image
+                src="/images/footer/livro-reclamacoes.png"
+                alt="Livro de Reclamações Eletrónico"
+                width={180}
+                height={60}
+                className="w-auto h-12 md:h-16"
+              />
+            </a>
+          </div>
+        </div>
+
         {/* Bottom */}
         <div className="mt-8 pt-8 border-t border-gray-800">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
