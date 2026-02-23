@@ -676,7 +676,7 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
                 </div>
                 <div className="group">
                   <p className="text-4xl font-bold text-foreground group-hover:text-yellow-500 transition-colors">
-                    <AnimatedCounter value={25} suffix="+" />
+                    <AnimatedCounter value={30} suffix="+" />
                   </p>
                   <p className="text-muted-foreground text-sm">Anos de Experiência</p>
                 </div>
