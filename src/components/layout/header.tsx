@@ -146,8 +146,10 @@ export function Header() {
             </button>
             {ferramentasOpen && (
               <div className="absolute right-0 mt-2 w-56 bg-card rounded-xl shadow-lg border border-border py-2 z-50">
-                <Link
-                  href="/simulador-credito"
+                <a
+                  href="https://simuladores.bancomontepio.pt/ITSCredit.External/Calculator/ITSCredit.Calculator.UI.External/calculator/HOUSINGJOURNEY"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-secondary"
                   onClick={() => setFerramentasOpen(false)}
                 >
@@ -156,7 +158,7 @@ export function Header() {
                     <div className="font-medium">Simulador de Crédito</div>
                     <div className="text-xs text-muted-foreground">Calcule a sua prestação</div>
                   </div>
-                </Link>
+                </a>
                 <Link
                   href="/avaliacao-completa"
                   className="flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-secondary"
@@ -360,8 +362,10 @@ export function Header() {
           {/* Mobile Ferramentas */}
           <div className="space-y-2">
             <p className="text-sm font-medium text-muted-foreground">Ferramentas</p>
-            <Link
-              href="/simulador-credito"
+            <a
+              href="https://simuladores.bancomontepio.pt/ITSCredit.External/Calculator/ITSCredit.Calculator.UI.External/calculator/HOUSINGJOURNEY"
+              target="_blank"
+              rel="noopener noreferrer"
               onClick={() => setMobileMenuOpen(false)}
               className="flex items-center gap-3 py-3 px-4 rounded-xl bg-yellow-500/10 text-foreground"
             >
@@ -370,7 +374,7 @@ export function Header() {
                 <div className="font-medium">Simulador de Crédito</div>
                 <div className="text-xs text-muted-foreground">Calcule a sua prestação</div>
               </div>
-            </Link>
+            </a>
             <Link
               href="/avaliacao-completa"
               onClick={() => setMobileMenuOpen(false)}

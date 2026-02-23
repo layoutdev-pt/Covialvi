@@ -57,9 +57,14 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/simulador-credito" className="text-gray-300 hover:text-white transition-colors text-sm">
+                <a 
+                  href="https://simuladores.bancomontepio.pt/ITSCredit.External/Calculator/ITSCredit.Calculator.UI.External/calculator/HOUSINGJOURNEY"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-300 hover:text-white transition-colors text-sm"
+                >
                   Simulador de Crédito
-                </Link>
+                </a>
               </li>
               <li>
                 <Link href="/contacto" className="text-gray-300 hover:text-white transition-colors text-sm">
