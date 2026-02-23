@@ -67,6 +67,15 @@ export async function updateSession(request: NextRequest) {
 
   // Route classification
   const pathname = request.nextUrl.pathname;
+  
+  // ALWAYS allow public routes - no auth required
+  const publicRoutes = ['/', '/sobre', '/servicos', '/imoveis', '/contacto', '/simulador-credito', '/avaliacao-completa', '/recrutamento'];
+  const isPublicRoute = publicRoutes.some(route => pathname === route || pathname.startsWith(route + '/'));
+  
+  if (isPublicRoute) {
+    return response; // Allow public routes immediately
+  }
+  
   const isAdminRoute = pathname.startsWith('/admin');
   const isAdminLoginRoute = pathname === '/admin/login';
   const isAccountRoute = pathname.startsWith('/conta');
