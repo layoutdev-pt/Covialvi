@@ -8,7 +8,9 @@ if (process.env.RESEND_API_KEY) {
   resend = new Resend(process.env.RESEND_API_KEY);
 }
 
-const FROM_EMAIL = 'Covialvi <noreply@covialvi.com>';
+// Use Resend's onboarding email for testing (works without domain verification)
+// TODO: Change to 'Covialvi <noreply@covialvi.com>' after verifying domain in Resend
+const FROM_EMAIL = 'Covialvi <onboarding@resend.dev>';
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || company.email;
 
 interface EmailOptions {
