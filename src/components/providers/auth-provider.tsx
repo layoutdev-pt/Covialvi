@@ -13,6 +13,7 @@ interface AuthContextType {
   session: Session | null;
   isLoading: boolean;
   isAdmin: boolean;
+  isSuperAdmin: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string, metadata?: { firstName?: string; lastName?: string; phone?: string }) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -229,6 +230,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const profileRole = profile?.role;
   const role = jwtRole || profileRole || 'user';
   const isAdmin = role === 'admin' || role === 'super_admin';
+  const isSuperAdmin = role === 'super_admin';
 
   return (
     <AuthContext.Provider
@@ -238,6 +240,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         session,
         isLoading,
         isAdmin,
+        isSuperAdmin,
         signIn,
         signUp,
         signOut,

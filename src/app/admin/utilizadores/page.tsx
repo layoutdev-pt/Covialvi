@@ -94,16 +94,13 @@ export default async function AdminUsersPage() {
                 Contacto
               </th>
               <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
-                Função
-              </th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
                 Estado
               </th>
               <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
                 Registado
               </th>
               <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
-                Ações
+                Função
               </th>
             </tr>
           </thead>
@@ -143,12 +140,6 @@ export default async function AdminUsersPage() {
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <Badge className={`${roleColors[user.role]} flex items-center w-fit gap-1`}>
-                        <RoleIcon className="h-3 w-3" />
-                        {roleLabels[user.role] || user.role}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-3">
                       {user.is_active ? (
                         <Badge className="bg-green-100 text-green-700">Ativo</Badge>
                       ) : (
@@ -168,7 +159,7 @@ export default async function AdminUsersPage() {
               })
             ) : (
               <tr>
-                <td colSpan={6} className="px-4 py-12 text-center">
+                <td colSpan={5} className="px-4 py-12 text-center">
                   <User className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
                   <p className="text-muted-foreground">
                     Ainda não existem utilizadores registados.
