@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -16,11 +16,16 @@ import { UserRoleForm } from './user-role-form';
 export const dynamic = 'force-dynamic';
 
 async function getUsers(): Promise<any[]> {
-  const supabase = createClient();
-  const { data } = await supabase
+  const supabase = createServiceClient();
+  const { data, error } = await supabase
     .from('profiles')
     .select('*')
     .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching users:', error);
+    return [];
+  }
 
   return data || [];
 }
