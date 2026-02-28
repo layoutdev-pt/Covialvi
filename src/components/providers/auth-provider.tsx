@@ -155,26 +155,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       },
     });
     
-    // Create profile record for new user
+    // Create profile record for new user via API route (uses service role)
     if (!error && data.user) {
       try {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            id: data.user.id,
+        const response = await fetch('/api/auth/create-profile', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: data.user.id,
             email: data.user.email,
-            first_name: metadata?.firstName || '',
-            last_name: metadata?.lastName || '',
-            phone: metadata?.phone || '',
-            role: 'user',
-            is_active: true,
-            created_at: data.user.created_at,
-            updated_at: new Date().toISOString(),
-          });
-        
-        if (profileError) {
-          console.error('Error creating profile:', profileError);
+            firstName: metadata?.firstName,
+            lastName: metadata?.lastName,
+            phone: metadata?.phone,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error('Error creating profile:', errorData);
           // Don't fail the registration, just log the error
+        } else {
+          const result = await response.json();
+          console.log('Profile created successfully:', result);
         }
       } catch (profileError) {
         console.error('Exception creating profile:', profileError);
