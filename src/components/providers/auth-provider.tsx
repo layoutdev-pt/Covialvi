@@ -155,8 +155,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       },
     });
     
-    // Auto sign-in after registration (no email confirmation)
+    // Create profile record for new user
     if (!error && data.user) {
+      try {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: data.user.id,
+            email: data.user.email,
+            first_name: metadata?.firstName || '',
+            last_name: metadata?.lastName || '',
+            phone: metadata?.phone || '',
+            role: 'user',
+            is_active: true,
+            created_at: data.user.created_at,
+            updated_at: new Date().toISOString(),
+          });
+        
+        if (profileError) {
+          console.error('Error creating profile:', profileError);
+          // Don't fail the registration, just log the error
+        }
+      } catch (profileError) {
+        console.error('Exception creating profile:', profileError);
+        // Don't fail the registration, just log the error
+      }
+      
+      // Auto sign-in after registration (no email confirmation)
       await supabase.auth.signInWithPassword({ email, password });
     }
     
