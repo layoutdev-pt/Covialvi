@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
 import { AdminSidebar } from './admin-sidebar';
 import { AdminTopbar } from './admin-topbar';
 
@@ -28,17 +27,12 @@ export function AdminAuthWrapper({ children }: AdminAuthWrapperProps) {
     
     const loadProfile = async () => {
       try {
-        const supabase = createClient();
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        if (session?.user) {
-          setProfile({
-            id: session.user.id,
-            email: session.user.email || 'admin@covialvi.com',
-            role: session.user.app_metadata?.role || session.user.user_metadata?.role || 'admin',
-            first_name: session.user.user_metadata?.first_name || 'Admin',
-            last_name: session.user.user_metadata?.last_name || '',
-          });
+        const res = await fetch('/api/auth/me', { cache: 'no-store' });
+        if (res.ok) {
+          const { profile: dbProfile } = await res.json();
+          if (dbProfile) {
+            setProfile(dbProfile);
+          }
         }
       } catch (err) {
         // Silent fail - use default profile

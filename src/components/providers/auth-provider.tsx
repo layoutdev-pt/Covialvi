@@ -32,23 +32,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const supabase = createClient();
 
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = async (_userId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-      
-      if (error) {
-        console.error('Error fetching profile:', error);
-        // Don't block auth - just set profile to null
+      const response = await fetch('/api/auth/me', { cache: 'no-store' });
+      if (!response.ok) {
         setProfile(null);
         return null;
       }
-      
-      setProfile(data);
-      return data;
+      const { profile: data } = await response.json();
+      setProfile(data ?? null);
+      return data ?? null;
     } catch (err) {
       console.error('Exception fetching profile:', err);
       setProfile(null);

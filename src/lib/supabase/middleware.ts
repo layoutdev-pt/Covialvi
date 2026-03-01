@@ -1,9 +1,28 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { NextResponse, type NextRequest } from 'next/server';
 import type { Database } from '@/lib/database.types';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+async function getProfileRole(userId: string): Promise<string> {
+  if (!supabaseUrl || !supabaseServiceKey) return 'user';
+  try {
+    const serviceClient = createSupabaseClient<Database>(supabaseUrl, supabaseServiceKey, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+    const { data } = await serviceClient
+      .from('profiles')
+      .select('role')
+      .eq('id', userId)
+      .single();
+    return (data as any)?.role || 'user';
+  } catch {
+    return 'user';
+  }
+}
 
 export async function updateSession(request: NextRequest) {
   // Create initial response that forwards the request
@@ -97,10 +116,10 @@ export async function updateSession(request: NextRequest) {
   if (isAdminRoute) {
     // Always allow the login page
     if (isAdminLoginRoute) {
-      // If already authenticated as admin, skip the login page
       if (user) {
-        const role = user.app_metadata?.role || user.user_metadata?.role;
-        if (role === 'admin' || role === 'super_admin') {
+        // Check DB profile role (not stale JWT)
+        const dbRole = await getProfileRole(user.id);
+        if (dbRole === 'admin' || dbRole === 'super_admin') {
           return NextResponse.redirect(new URL('/admin', request.url));
         }
       }
@@ -114,9 +133,9 @@ export async function updateSession(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
 
-    // Session exists — check role
-    const role = user.app_metadata?.role || user.user_metadata?.role;
-    const isAdminUser = role === 'admin' || role === 'super_admin';
+    // Session exists — check DB profile role (not stale JWT)
+    const dbRole = await getProfileRole(user.id);
+    const isAdminUser = dbRole === 'admin' || dbRole === 'super_admin';
 
     if (!isAdminUser) {
       // Authenticated but not admin — send to homepage
