@@ -225,10 +225,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error: error as Error | null };
   };
 
-  // Check role from JWT first (faster), fallback to profile
-  const jwtRole = user?.app_metadata?.role || user?.user_metadata?.role;
-  const profileRole = profile?.role;
-  const role = jwtRole || profileRole || 'user';
+  // Always use profile role from DB (reflects role changes immediately)
+  // JWT role is stale until session refresh, so we don't rely on it
+  const role = profile?.role || 'user';
   const isAdmin = role === 'admin' || role === 'super_admin';
   const isSuperAdmin = role === 'super_admin';
 

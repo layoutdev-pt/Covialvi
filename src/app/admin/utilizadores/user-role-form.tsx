@@ -41,7 +41,7 @@ export function UserRoleForm({ userId, currentRole }: UserRoleFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [role, setRole] = useState(currentRole);
   const router = useRouter();
-  const { isSuperAdmin } = useAuth();
+  const { isSuperAdmin, refreshProfile, user } = useAuth();
 
   const handleRoleChange = async (newRole: string) => {
     if (!isSuperAdmin) {
@@ -65,6 +65,11 @@ export function UserRoleForm({ userId, currentRole }: UserRoleFormProps) {
       } else {
         toast.success('Função atualizada com sucesso!');
         setRole(newRole);
+        // If the changed user is the current logged-in user, refresh their profile
+        // so isSuperAdmin updates immediately without requiring logout
+        if (user?.id === userId) {
+          await refreshProfile();
+        }
         router.refresh();
       }
     } catch (err) {
