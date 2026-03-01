@@ -814,6 +814,19 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
               </StaggerItem>
             ))}
           </StaggerContainer>
+
+          <FadeInUp className="mt-12 text-center">
+            <Link href="/projetos-futuros">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="inline-flex items-center gap-2 px-8 py-4 bg-yellow-500 text-white font-semibold rounded-full hover:bg-yellow-600 transition-colors shadow-lg hover:shadow-xl"
+              >
+                Ver Mais Projetos
+                <ArrowRight className="h-5 w-5" />
+              </motion.button>
+            </Link>
+          </FadeInUp>
         </div>
       </section>
 
