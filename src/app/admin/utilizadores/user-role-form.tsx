@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
 import {
   Select,
   SelectContent,
@@ -42,7 +41,6 @@ export function UserRoleForm({ userId, currentRole }: UserRoleFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [role, setRole] = useState(currentRole);
   const router = useRouter();
-  const supabase = createClient();
   const { isSuperAdmin } = useAuth();
 
   const handleRoleChange = async (newRole: string) => {
@@ -53,12 +51,16 @@ export function UserRoleForm({ userId, currentRole }: UserRoleFormProps) {
 
     setIsLoading(true);
     try {
-      const { error } = await (supabase.from('profiles') as any)
-        .update({ role: newRole })
-        .eq('id', userId);
+      const response = await fetch('/api/admin/update-role', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, newRole }),
+      });
 
-      if (error) {
-        toast.error('Erro ao atualizar função: ' + error.message);
+      const result = await response.json();
+
+      if (!response.ok) {
+        toast.error('Erro ao atualizar função: ' + (result.error || 'Erro desconhecido'));
         setRole(currentRole);
       } else {
         toast.success('Função atualizada com sucesso!');
