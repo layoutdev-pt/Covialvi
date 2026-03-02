@@ -16,6 +16,7 @@ import {
   TrendingUp,
   HelpCircle,
   ChevronRight,
+  Sparkles,
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -30,6 +31,7 @@ interface AdminSidebarProps {
 const navigation = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
   { name: 'Imóveis', href: '/admin/imoveis', icon: Building2 },
+  { name: 'Projetos Futuros', href: '/admin/projetos-futuros', icon: Sparkles },
   { name: 'CRM', href: '/admin/crm', icon: MessageSquare },
   { name: 'Visitas', href: '/admin/visitas', icon: Calendar },
   { name: 'Utilizadores', href: '/admin/utilizadores', icon: Users },
@@ -43,7 +45,7 @@ export function AdminSidebar({ profile, isSuperAdmin }: AdminSidebarProps) {
   const pathname = usePathname();
 
   const navItems = isSuperAdmin 
-    ? [...navigation.slice(0, 6), superAdminNav, navigation[6]]
+    ? [...navigation.slice(0, 7), superAdminNav, navigation[7]]
     : navigation;
 
   return (
