@@ -42,6 +42,8 @@ interface FutureProject {
   features: string[];
   start_date: string;
   is_published: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 interface FutureProjectDialogProps {
