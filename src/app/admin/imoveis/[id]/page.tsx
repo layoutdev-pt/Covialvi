@@ -473,9 +473,40 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
     }
   };
 
-  const removeImage = (index: number) => {
-    setPropertyImages(prev => prev.filter((_, i) => i !== index));
+  const removeImage = async (index: number) => {
+    // Check if this is an existing image (has an id) or a new upload
+    const existingImage = existingImages[index];
+    
+    if (existingImage && existingImage.id) {
+      // Delete from database
+      try {
+        const response = await fetch(`/api/properties/${params.id}/images?imageId=${existingImage.id}`, {
+          method: 'DELETE',
+        });
+        
+        if (!response.ok) {
+          toast.error('Erro ao remover imagem');
+          return;
+        }
+        
+        // Remove from existing images array
+        setExistingImages(prev => prev.filter((_, i) => i !== index));
+      } catch (error) {
+        console.error('Error deleting image:', error);
+        toast.error('Erro ao remover imagem');
+        return;
+      }
+    } else {
+      // Remove from new uploads array
+      const newImageIndex = index - existingImages.length;
+      if (newImageIndex >= 0) {
+        setPropertyImages(prev => prev.filter((_, i) => i !== newImageIndex));
+      }
+    }
+    
+    // Remove from preview URLs
     setImagePreviewUrls(prev => prev.filter((_, i) => i !== index));
+    
     // Adjust cover index if needed
     if (index === coverImageIndex) {
       setCoverImageIndex(0);
@@ -484,8 +515,35 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
     }
   };
 
-  const setCoverImage = (index: number) => {
+  const setCoverImage = async (index: number) => {
     setCoverImageIndex(index);
+    
+    // If this is an existing image, update the database
+    const existingImage = existingImages[index];
+    if (existingImage && existingImage.id) {
+      try {
+        const response = await fetch(`/api/properties/${params.id}/images`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            imageId: existingImage.id,
+            is_cover: true,
+          }),
+        });
+        
+        if (!response.ok) {
+          toast.error('Erro ao definir imagem de capa');
+          return;
+        }
+        
+        toast.success('Imagem de capa atualizada');
+      } catch (error) {
+        console.error('Error setting cover image:', error);
+        toast.error('Erro ao definir imagem de capa');
+      }
+    }
   };
 
   // Custom options handlers
