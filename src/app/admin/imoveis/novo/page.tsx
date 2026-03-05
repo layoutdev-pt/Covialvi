@@ -947,7 +947,7 @@ export default function NewPropertyPage() {
                       Clique para carregar ou arraste imagens
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      PNG, JPG até 10MB
+                      PNG, JPG até 20MB
                     </p>
                   </label>
                 </div>

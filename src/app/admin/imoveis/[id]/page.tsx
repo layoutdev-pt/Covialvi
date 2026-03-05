@@ -751,6 +751,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
 
       console.log('Property updated:', result);
       toast.success('Imóvel atualizado com sucesso!');
+      router.refresh(); // Refresh to reload data
       router.push('/admin/imoveis');
     } catch (error: any) {
       console.error('Error:', error);
@@ -1333,7 +1334,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                     Clique para carregar imagens
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    JPG, PNG, WebP (máx. 10MB cada)
+                    JPG, PNG, WebP (máx. 20MB cada)
                   </p>
                 </label>
               </div>

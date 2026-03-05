@@ -1137,7 +1137,7 @@ export default function SimpleNewPropertyPage() {
                     Clique para carregar imagens
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    JPG, PNG, WebP (máx. 10MB cada)
+                    JPG, PNG, WebP (máx. 20MB cada)
                   </p>
                 </label>
               </div>

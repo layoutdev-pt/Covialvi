@@ -57,10 +57,10 @@ export async function POST(
       );
     }
 
-    // Validate file size (max 10MB)
-    if (file.size > 10 * 1024 * 1024) {
+    // Validate file size (max 20MB)
+    if (file.size > 20 * 1024 * 1024) {
       return NextResponse.json(
-        { error: 'Ficheiro muito grande. Máximo 10MB.' },
+        { error: 'Ficheiro muito grande. Máximo 20MB.' },
         { status: 400 }
       );
     }
