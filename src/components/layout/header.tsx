@@ -95,11 +95,10 @@ export function Header() {
     setShowFilters(false);
   };
 
-  // On homepage: transparent when at top, pill when scrolled
-  // On other pages: always pill style
-  // Before mount, homepage shows transparent to avoid flash
-  const isPill = mounted && (!isHomePage || scrolled);
-  const isTransparent = !mounted || (isHomePage && !scrolled);
+  // Non-homepage: always pill (even before mount — no flash needed)
+  // Homepage: transparent at top, pill after scroll
+  const isPill = !isHomePage || (mounted && scrolled);
+  const isTransparent = isHomePage && !(mounted && scrolled);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
