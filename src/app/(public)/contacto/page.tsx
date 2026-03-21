@@ -141,8 +141,8 @@ export default async function ContactPage() {
                               </div>
                             )}
                             {isSold && (
-                              <div className="absolute top-0 left-0 z-10 overflow-hidden w-24 h-24 pointer-events-none">
-                                <div className="absolute top-[14px] left-[-18px] w-[130px] text-center transform -rotate-45 bg-red-600 text-white text-[10px] font-bold py-1 shadow-lg">
+                              <div className="absolute top-0 left-0 z-10 overflow-hidden w-28 h-28 pointer-events-none">
+                                <div className="absolute top-[16px] left-[-24px] w-[155px] text-center transform -rotate-45 bg-red-600 text-white text-[10px] font-bold py-1.5 shadow-lg tracking-wide">
                                   100% Vendido
                                 </div>
                               </div>
