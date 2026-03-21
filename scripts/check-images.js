@@ -1,5 +1,16 @@
 const { createClient } = require('@supabase/supabase-js');
-require('dotenv').config({ path: '.env.local' });
+const fs = require('fs');
+const path = require('path');
+
+// Parse .env.local manually
+const envPath = path.join(__dirname, '..', '.env.local');
+const envContent = fs.readFileSync(envPath, 'utf8');
+envContent.split('\n').forEach(line => {
+  const [key, ...vals] = line.split('=');
+  if (key && !key.startsWith('#')) {
+    process.env[key.trim()] = vals.join('=').trim();
+  }
+});
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -11,39 +22,31 @@ if (!supabaseUrl || !supabaseKey) {
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-async function checkImages() {
-  const slug = 'edificio-habitacional-c-piscina-condominio-fechado-praia-da-luz-lagos-1769091760884';
+async function uploadHeroVideo() {
+  const videoPath = path.join(__dirname, '..', 'src', 'video', 'video site covialvi.mp4');
+  const fileBuffer = fs.readFileSync(videoPath);
   
-  console.log(`\nFinding property by slug: ${slug}\n`);
-  
-  // First find the property by slug
-  const { data: property, error: propError } = await supabase
-    .from('properties')
-    .select('id, title, slug')
-    .eq('slug', slug)
-    .single();
-  
-  if (propError) {
-    console.error('Property Error:', propError);
-    return;
-  }
-  
-  console.log('Property found:', property);
-  console.log(`\nChecking images for property ID: ${property.id}\n`);
-  
-  // Check property_images table
-  const { data: images, error } = await supabase
-    .from('property_images')
-    .select('*')
-    .eq('property_id', property.id);
-  
+  console.log('Uploading hero video to Supabase storage...');
+  console.log('File size:', (fileBuffer.length / 1024 / 1024).toFixed(1), 'MB');
+
+  const { data, error } = await supabase.storage
+    .from('property-images')
+    .upload('site/hero.mp4', fileBuffer, {
+      contentType: 'video/mp4',
+      upsert: true,
+    });
+
   if (error) {
-    console.error('Images Error:', error);
+    console.error('Upload error:', error);
     return;
   }
-  
-  console.log(`Found ${images?.length || 0} images:`);
-  console.log(JSON.stringify(images, null, 2));
+
+  const { data: { publicUrl } } = supabase.storage
+    .from('property-images')
+    .getPublicUrl('site/hero.mp4');
+
+  console.log('Upload successful!');
+  console.log('Public URL:', publicUrl);
 }
 
-checkImages();
+uploadHeroVideo();

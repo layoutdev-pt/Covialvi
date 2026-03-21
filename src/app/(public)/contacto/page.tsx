@@ -1,82 +1,69 @@
-'use client';
-
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import Image from 'next/image';
-import { MapPin, Phone, Mail, Clock, Loader2, Send, Smartphone, MessageSquare } from 'lucide-react';
+import Link from 'next/link';
+import { MapPin, Phone, Mail, Clock, Smartphone, Building2, Bed, Maximize, ArrowRight } from 'lucide-react';
 import { company } from '@/lib/company';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
+import { ContactForm } from './contact-form';
+import { createServiceClient } from '@/lib/supabase/server';
 
-const contactSchema = z.object({
-  firstName: z.string().min(1, 'O nome é obrigatório.'),
-  lastName: z.string().min(1, 'O apelido é obrigatório.'),
-  email: z.string().email('Por favor, introduza um e-mail válido.'),
-  phone: z.string().optional(),
-  message: z.string().min(10, 'A mensagem deve ter pelo menos 10 caracteres.'),
-});
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
-type ContactFormData = z.infer<typeof contactSchema>;
+async function getCondominiums() {
+  const supabase = createServiceClient();
 
-export default function ContactPage() {
-  const [isLoading, setIsLoading] = useState(false);
+  // Lote 26 - Quinta do Pinheiro, Covilhã
+  const { data: lote26 } = await supabase
+    .from('properties')
+    .select('id, title, slug, price, price_on_request, bedrooms, gross_area, construction_status, property_images(*)')
+    .ilike('address', '%QUINTA DO PINHEIRO LOTE 26%')
+    .eq('status', 'published')
+    .order('title');
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<ContactFormData>({
-    resolver: zodResolver(contactSchema),
-  });
+  // Junto à Faculdade de Medicina
+  const { data: faculdade } = await supabase
+    .from('properties')
+    .select('id, title, slug, price, price_on_request, bedrooms, gross_area, construction_status, property_images(*)')
+    .ilike('title', '%faculdade de medicina%')
+    .eq('status', 'published')
+    .order('title');
 
-  const onSubmit = async (data: ContactFormData) => {
-    setIsLoading(true);
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000);
+  // Edifício Trindade - Lagos
+  const { data: trindade } = await supabase
+    .from('properties')
+    .select('id, title, slug, price, price_on_request, bedrooms, gross_area, construction_status, property_images(*)')
+    .ilike('title', '%Trindade%')
+    .eq('status', 'published')
+    .order('title');
 
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        signal: controller.signal,
-        body: JSON.stringify({
-          name: `${data.firstName} ${data.lastName}`.trim(),
-          email: data.email,
-          phone: data.phone || null,
-          message: data.message,
-          source: 'contact',
-        }),
-      });
+  return [
+    {
+      name: 'Lote 26 - Quinta do Pinheiro',
+      location: 'Cidade Nova, Covilhã',
+      properties: lote26 || [],
+    },
+    {
+      name: 'Edifício Junto à Faculdade de Medicina',
+      location: 'Covilhã',
+      properties: faculdade || [],
+    },
+    {
+      name: 'Edifício Trindade',
+      location: 'Torraltinha, Lagos',
+      properties: trindade || [],
+    },
+  ];
+}
 
-      clearTimeout(timeoutId);
+function formatPrice(price: number | null) {
+  if (price === null) return 'Sob Consulta';
+  return new Intl.NumberFormat('pt-PT', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(price) + ' €';
+}
 
-      const result = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        throw new Error(result?.error || 'Ocorreu um erro. Por favor, tente novamente.');
-      }
-
-      toast.success(result?.message || 'Mensagem enviada com sucesso! Entraremos em contacto brevemente.');
-      reset();
-    } catch (err) {
-      const message =
-        err instanceof Error
-          ? err.name === 'AbortError'
-            ? 'O pedido demorou demasiado tempo. Por favor, tente novamente.'
-            : err.message
-          : 'Ocorreu um erro. Por favor, tente novamente.';
-      toast.error(message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+export default async function ContactPage() {
+  const condominiums = await getCondominiums();
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
@@ -94,92 +81,114 @@ export default function ContactPage() {
         </div>
       </div>
 
+      {/* Condomínios em Destaque */}
+      <div className="container-wide py-16">
+        <div className="text-center mb-12">
+          <span className="inline-flex items-center gap-2 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 px-4 py-2 rounded-full text-sm font-medium mb-4">
+            <Building2 className="h-4 w-4" />
+            Condomínios em Destaque
+          </span>
+          <h2 className="font-display text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-3">
+            Explore os Nossos Condomínios
+          </h2>
+          <p className="text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
+            Encontre o apartamento ideal dentro dos nossos condomínios. Todos os imóveis organizados para facilitar a sua procura.
+          </p>
+        </div>
+
+        <div className="grid gap-10">
+          {condominiums.map((condo) => (
+            <div key={condo.name} className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden shadow-lg">
+              <div className="bg-gradient-to-r from-gray-900 to-gray-800 p-6 md:p-8">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-xl bg-yellow-500 flex items-center justify-center">
+                    <Building2 className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl md:text-2xl font-bold text-white">{condo.name}</h3>
+                    <p className="text-gray-400 text-sm flex items-center gap-1">
+                      <MapPin className="h-3.5 w-3.5" />
+                      {condo.location}
+                    </p>
+                  </div>
+                </div>
+                <p className="text-gray-400 text-sm mt-2">
+                  {condo.properties.length} imóve{condo.properties.length === 1 ? 'l' : 'is'} disponíve{condo.properties.length === 1 ? 'l' : 'is'}
+                </p>
+              </div>
+              
+              {condo.properties.length > 0 ? (
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-6">
+                  {condo.properties.map((property: any) => {
+                    const coverImage = property.property_images?.find((img: any) => img.is_cover) || property.property_images?.[0];
+                    const isSold = property.construction_status === 'sold';
+                    
+                    return (
+                      <Link key={property.id} href={`/imoveis/${property.slug}`} className="group">
+                        <div className="bg-gray-50 dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700 hover:border-yellow-500/50 hover:shadow-lg transition-all duration-300">
+                          <div className="relative aspect-[4/3] overflow-hidden">
+                            {coverImage ? (
+                              <Image
+                                src={coverImage.url}
+                                alt={property.title}
+                                fill
+                                className="object-cover transition-transform duration-500 group-hover:scale-110"
+                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                                <Building2 className="h-8 w-8 text-gray-400" />
+                              </div>
+                            )}
+                            {isSold && (
+                              <div className="absolute top-0 left-0 z-10 overflow-hidden w-24 h-24 pointer-events-none">
+                                <div className="absolute top-[12px] left-[-22px] w-[130px] text-center transform -rotate-45 bg-red-600 text-white text-[10px] font-bold py-1 shadow-lg">
+                                  Vendido
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                          <div className="p-3">
+                            <h4 className="font-semibold text-sm text-gray-900 dark:text-white line-clamp-2 group-hover:text-yellow-600 transition-colors mb-2">
+                              {property.title}
+                            </h4>
+                            <div className="flex items-center gap-3 text-xs text-gray-500 mb-2">
+                              {property.bedrooms !== null && (
+                                <span className="flex items-center gap-1">
+                                  <Bed className="h-3.5 w-3.5" />
+                                  {property.bedrooms}
+                                </span>
+                              )}
+                              {property.gross_area !== null && (
+                                <span className="flex items-center gap-1">
+                                  <Maximize className="h-3.5 w-3.5" />
+                                  {property.gross_area} m²
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-sm font-bold text-gray-900 dark:text-white">
+                              {property.price_on_request ? 'Sob Consulta' : formatPrice(property.price)}
+                            </p>
+                          </div>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="p-6 text-center text-gray-500">
+                  <p>Nenhum imóvel disponível de momento.</p>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div className="container-wide py-16">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
           {/* Contact Form */}
-          <div className="bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-xl border border-gray-100 dark:border-gray-800">
-            <h2 className="font-display text-2xl font-bold mb-2 text-gray-900 dark:text-white">
-              Envie-nos uma Mensagem
-            </h2>
-            <p className="text-gray-500 dark:text-gray-400 mb-8">Preencha o formulário e entraremos em contacto em breve.</p>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName">Nome</Label>
-                  <Input
-                    id="firstName"
-                    {...register('firstName')}
-                    className={errors.firstName ? 'border-destructive' : ''}
-                  />
-                  {errors.firstName && (
-                    <p className="text-sm text-destructive">{errors.firstName.message}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName">Apelido</Label>
-                  <Input
-                    id="lastName"
-                    {...register('lastName')}
-                    className={errors.lastName ? 'border-destructive' : ''}
-                  />
-                  {errors.lastName && (
-                    <p className="text-sm text-destructive">{errors.lastName.message}</p>
-                  )}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email">E-mail</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  {...register('email')}
-                  className={errors.email ? 'border-destructive' : ''}
-                />
-                {errors.email && (
-                  <p className="text-sm text-destructive">{errors.email.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="phone">Telefone</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  {...register('phone')}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="message">Mensagem</Label>
-                <textarea
-                  id="message"
-                  rows={5}
-                  {...register('message')}
-                  className={`flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none ${
-                    errors.message ? 'border-destructive' : ''
-                  }`}
-                />
-                {errors.message && (
-                  <p className="text-sm text-destructive">{errors.message.message}</p>
-                )}
-              </div>
-
-              <Button type="submit" variant="gold" size="lg" className="w-full" disabled={isLoading}>
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    A enviar...
-                  </>
-                ) : (
-                  <>
-                    <Send className="mr-2 h-4 w-4" />
-                    Enviar Mensagem
-                  </>
-                )}
-              </Button>
-            </form>
-          </div>
+          <ContactForm />
 
           {/* Contact Info */}
           <div className="space-y-8">

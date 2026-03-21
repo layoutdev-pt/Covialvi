@@ -88,17 +88,7 @@ function AnimatedCounter({ value, suffix = '', duration = 2 }: { value: number; 
 export function HomeClient({ properties, featuredProperties, stats, heroProperty, availableLocations }: HomeClientProps) {
   const router = useRouter();
   const [activeService, setActiveService] = useState(0);
-  const [heroExpanded, setHeroExpanded] = useState(false);
   const { scrollYProgress } = useScroll();
-  const heroRef = useRef<HTMLDivElement>(null);
-  
-  // Expand hero image after 2 seconds
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setHeroExpanded(true);
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, []);
   
   // Search filter states
   const [searchLocation, setSearchLocation] = useState('');
@@ -275,42 +265,23 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
 
   return (
     <main className="bg-background overflow-hidden">
-      {/* Hero Section - VistaHaven Style with Rounded Container */}
-      <section className="pt-[88px] pb-4 px-6 md:px-12 lg:px-20">
-        <motion.div 
-          className="relative max-w-7xl mx-auto rounded-3xl overflow-hidden min-h-[600px] md:min-h-[700px]"
-          initial={{ scale: 0.92, opacity: 0.8 }}
-          animate={{ 
-            scale: heroExpanded ? 1 : 0.92,
-            opacity: heroExpanded ? 1 : 0.8,
-          }}
-          transition={{ duration: 1, ease: [0.4, 0, 0.2, 1] }}
-        >
-          {/* Background Image */}
-          <motion.div
-            className="absolute inset-0"
-            initial={{ scale: 1.1 }}
-            animate={{ 
-              scale: heroExpanded ? 1 : 1.1,
-            }}
-            transition={{ duration: 1.2, ease: [0.4, 0, 0.2, 1] }}
+      {/* Hero Section - Full Width Video Background */}
+      <section className="relative w-full min-h-screen">
+        <div className="absolute inset-0 w-full h-full overflow-hidden">
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
           >
-            <Image
-              src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=1200&auto=format"
-              alt="Moradia moderna de luxo"
-              fill
-              className="object-cover"
-              priority
-              sizes="100vw"
-              quality={75}
-              placeholder="blur"
-              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH/8QAIhAAAgEDAwUBAAAAAAAAAAAAAQIDAAQRBRIhBhMiMUFR/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAZEQACAwEAAAAAAAAAAAAAAAABAgADESH/2gAMAwEAAhEDEQA/ANJ0rqG+1C3uJLmztYGjlMaLFKzggAHJyB7z+VKlVLKlYBmJxP/Z"
-            />
-          </motion.div>
-          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
+            <source src="/video/hero.mp4" type="video/mp4" />
+          </video>
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-black/20" />
           
           {/* Hero Content */}
-          <div className="relative z-10 h-full flex flex-col justify-center p-8 md:p-12 lg:p-16 min-h-[600px] md:min-h-[700px]">
+          <div className="relative z-10 h-full flex flex-col justify-center px-8 md:px-12 lg:px-16 pt-[120px] pb-12 min-h-screen">
             <div className="max-w-2xl">
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
@@ -340,10 +311,10 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
               transition={{ duration: 0.8, delay: 0.6 }}
               className="w-full max-w-3xl"
             >
-              <div className="bg-white/95 backdrop-blur-sm rounded-2xl md:rounded-full p-2 shadow-2xl flex flex-col md:flex-row items-stretch md:items-center gap-2">
+              <div className="bg-white/20 backdrop-blur-md rounded-2xl md:rounded-full p-2 shadow-2xl flex flex-col md:flex-row items-stretch md:items-center gap-2 border border-white/10">
                 <div className="flex-1">
                   <Select value={searchLocation} onValueChange={setSearchLocation}>
-                    <SelectTrigger className="border-0 bg-transparent shadow-none focus:ring-0 w-full md:min-w-[160px] text-sm text-gray-900 [&>svg]:text-gray-400">
+                    <SelectTrigger className="border-0 bg-transparent shadow-none focus:ring-0 w-full md:min-w-[160px] text-sm text-white [&>svg]:text-white/60">
                       <SelectValue placeholder="Localização" />
                     </SelectTrigger>
                     <SelectContent className="bg-white border border-gray-200 shadow-xl rounded-xl max-h-[300px]">
@@ -371,10 +342,10 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="hidden md:block w-px h-8 bg-gray-200" />
+                <div className="hidden md:block w-px h-8 bg-white/20" />
                 <div className="flex gap-2">
                   <Select value={searchNature} onValueChange={setSearchNature}>
-                    <SelectTrigger className="border-0 bg-transparent shadow-none focus:ring-0 flex-1 md:min-w-[130px] text-sm text-gray-900 [&>svg]:text-gray-400">
+                    <SelectTrigger className="border-0 bg-transparent shadow-none focus:ring-0 flex-1 md:min-w-[130px] text-sm text-white [&>svg]:text-white/60">
                       <SelectValue placeholder="Tipo" />
                     </SelectTrigger>
                     <SelectContent className="bg-white border border-gray-200 shadow-xl rounded-xl">
@@ -387,9 +358,9 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
                       <SelectItem value="shop" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Loja</SelectItem>
                     </SelectContent>
                   </Select>
-                  <div className="hidden md:block w-px h-8 bg-gray-200" />
+                  <div className="hidden md:block w-px h-8 bg-white/20" />
                   <Select value={searchBusinessType} onValueChange={setSearchBusinessType}>
-                    <SelectTrigger className="border-0 bg-transparent shadow-none focus:ring-0 flex-1 md:min-w-[100px] text-sm text-gray-900 [&>svg]:text-gray-400">
+                    <SelectTrigger className="border-0 bg-transparent shadow-none focus:ring-0 flex-1 md:min-w-[100px] text-sm text-white [&>svg]:text-white/60">
                       <SelectValue placeholder="Negócio" />
                     </SelectTrigger>
                   <SelectContent className="bg-white border border-gray-200 shadow-xl rounded-xl">
@@ -403,7 +374,7 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={handleSearch}
-                  className="group flex items-center gap-2 bg-gray-900 text-white rounded-full pl-5 pr-2 py-2 font-medium hover:bg-yellow-500 transition-all"
+                  className="group flex items-center gap-2 bg-white/30 text-white rounded-full pl-5 pr-2 py-2 font-medium hover:bg-yellow-500 transition-all backdrop-blur-sm"
                 >
                   <span className="hidden sm:inline">Pesquisar</span>
                   <span className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center group-hover:bg-white/30 transition-colors">
@@ -443,15 +414,15 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
               </div>
             </motion.div>
           </div>
-          
-        </motion.div>
+      </section>
         
-        {/* Featured Properties Below Hero */}
+      {/* Featured Properties Below Hero */}
+      <section className="py-12 px-6 md:px-12 lg:px-20 bg-background">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 1 }}
-          className="mt-16 max-w-7xl mx-auto"
+          className="max-w-7xl mx-auto"
         >
           {heroProperties.length > 0 ? (
             <div className="grid md:grid-cols-3 gap-6">
@@ -465,9 +436,9 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 bg-white/10 backdrop-blur-sm rounded-2xl">
-              <Building2 className="h-10 w-10 text-white/40 mx-auto mb-2" />
-              <p className="text-white/60 text-sm">Nenhum imóvel encontrado com os filtros selecionados</p>
+            <div className="text-center py-8 bg-secondary/50 rounded-2xl">
+              <Building2 className="h-10 w-10 text-muted-foreground/40 mx-auto mb-2" />
+              <p className="text-muted-foreground text-sm">Nenhum imóvel encontrado com os filtros selecionados</p>
             </div>
           )}
         </motion.div>
@@ -1028,6 +999,15 @@ function PropertyCard({
           </div>
         )}
         
+        {/* Vendido Ribbon */}
+        {property.construction_status === 'sold' && (
+          <div className="absolute top-0 left-0 z-30 overflow-hidden w-32 h-32 pointer-events-none">
+            <div className="absolute top-[18px] left-[-30px] w-[170px] text-center transform -rotate-45 bg-red-600 text-white text-xs font-bold py-1.5 shadow-lg">
+              Vendido
+            </div>
+          </div>
+        )}
+        
         {/* Gradient Overlay on Hover */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-20 pointer-events-none" />
         
@@ -1178,6 +1158,15 @@ function HeroPropertyCard({
                 <Play className="h-3 w-3 fill-white" />
                 Vídeo
               </span>
+            </div>
+          )}
+          
+          {/* Vendido Ribbon */}
+          {property.construction_status === 'sold' && (
+            <div className="absolute top-0 left-0 z-30 overflow-hidden w-28 h-28 pointer-events-none">
+              <div className="absolute top-[14px] left-[-28px] w-[150px] text-center transform -rotate-45 bg-red-600 text-white text-[10px] font-bold py-1 shadow-lg">
+                Vendido
+              </div>
             </div>
           )}
           
