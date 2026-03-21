@@ -114,8 +114,7 @@ export default async function RootLayout({
       <body className={`${poppins.variable} font-sans`}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="light"
           disableTransitionOnChange
         >
           <NextIntlClientProvider messages={messages}>
