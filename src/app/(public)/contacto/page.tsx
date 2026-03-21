@@ -1,69 +1,13 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { MapPin, Phone, Mail, Clock, Smartphone, Building2, Bed, Maximize, ArrowRight } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, Smartphone, Building2 } from 'lucide-react';
 import { company } from '@/lib/company';
 import { ContactForm } from './contact-form';
-import { createServiceClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-async function getCondominiums() {
-  const supabase = createServiceClient();
-
-  // Lote 26 - Quinta do Pinheiro, Covilhã
-  const { data: lote26 } = await supabase
-    .from('properties')
-    .select('id, title, slug, price, price_on_request, bedrooms, gross_area, construction_status, property_images(*)')
-    .ilike('address', '%QUINTA DO PINHEIRO LOTE 26%')
-    .eq('status', 'published')
-    .order('title');
-
-  // Junto à Faculdade de Medicina
-  const { data: faculdade } = await supabase
-    .from('properties')
-    .select('id, title, slug, price, price_on_request, bedrooms, gross_area, construction_status, property_images(*)')
-    .ilike('title', '%faculdade de medicina%')
-    .eq('status', 'published')
-    .order('title');
-
-  // Edifício Trindade - Lagos
-  const { data: trindade } = await supabase
-    .from('properties')
-    .select('id, title, slug, price, price_on_request, bedrooms, gross_area, construction_status, property_images(*)')
-    .ilike('title', '%Trindade%')
-    .eq('status', 'published')
-    .order('title');
-
-  return [
-    {
-      name: 'Lote 26 - Quinta do Pinheiro',
-      location: 'Cidade Nova, Covilhã',
-      properties: lote26 || [],
-    },
-    {
-      name: 'Edifício Junto à Faculdade de Medicina',
-      location: 'Covilhã',
-      properties: faculdade || [],
-    },
-    {
-      name: 'Edifício Trindade',
-      location: 'Torraltinha, Lagos',
-      properties: trindade || [],
-    },
-  ];
-}
-
-function formatPrice(price: number | null) {
-  if (price === null) return 'Sob Consulta';
-  return new Intl.NumberFormat('pt-PT', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(price) + ' €';
-}
-
 export default async function ContactPage() {
-  const condominiums = await getCondominiums();
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
@@ -78,110 +22,6 @@ export default async function ContactPage() {
           </div>
           <h1 className="font-display text-4xl md:text-5xl font-bold mb-4 text-white">Contacte-nos</h1>
           <p className="text-gray-300 text-lg max-w-2xl">Estamos aqui para ajudar. A nossa equipa está pronta para responder às suas questões e acompanhá-lo em cada passo.</p>
-        </div>
-      </div>
-
-      {/* Condomínios em Destaque */}
-      <div className="container-wide py-16">
-        <div className="text-center mb-12">
-          <span className="inline-flex items-center gap-2 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 px-4 py-2 rounded-full text-sm font-medium mb-4">
-            <Building2 className="h-4 w-4" />
-            Condomínios em Destaque
-          </span>
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-3">
-            Explore os Nossos Condomínios
-          </h2>
-          <p className="text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
-            Encontre o apartamento ideal dentro dos nossos condomínios. Todos os imóveis organizados para facilitar a sua procura.
-          </p>
-        </div>
-
-        <div className="grid gap-10">
-          {condominiums.map((condo) => (
-            <div key={condo.name} className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden shadow-lg">
-              <div className="bg-gradient-to-r from-gray-900 to-gray-800 p-6 md:p-8">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-xl bg-yellow-500 flex items-center justify-center">
-                    <Building2 className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl md:text-2xl font-bold text-white">{condo.name}</h3>
-                    <p className="text-gray-400 text-sm flex items-center gap-1">
-                      <MapPin className="h-3.5 w-3.5" />
-                      {condo.location}
-                    </p>
-                  </div>
-                </div>
-                <p className="text-gray-400 text-sm mt-2">
-                  {condo.properties.length} imóve{condo.properties.length === 1 ? 'l' : 'is'} disponíve{condo.properties.length === 1 ? 'l' : 'is'}
-                </p>
-              </div>
-              
-              {condo.properties.length > 0 ? (
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-6">
-                  {condo.properties.map((property: any) => {
-                    const coverImage = property.property_images?.find((img: any) => img.is_cover) || property.property_images?.[0];
-                    const isSold = property.construction_status === 'sold';
-                    
-                    return (
-                      <Link key={property.id} href={`/imoveis/${property.slug}`} className="group">
-                        <div className="bg-gray-50 dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700 hover:border-yellow-500/50 hover:shadow-lg transition-all duration-300">
-                          <div className="relative aspect-[4/3] overflow-hidden">
-                            {coverImage ? (
-                              <Image
-                                src={coverImage.url}
-                                alt={property.title}
-                                fill
-                                className="object-cover transition-transform duration-500 group-hover:scale-110"
-                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                              />
-                            ) : (
-                              <div className="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                                <Building2 className="h-8 w-8 text-gray-400" />
-                              </div>
-                            )}
-                            {isSold && (
-                              <div className="absolute top-0 left-0 z-10 overflow-hidden w-28 h-28 pointer-events-none">
-                                <div className="absolute top-[16px] left-[-24px] w-[155px] text-center transform -rotate-45 bg-red-600 text-white text-[10px] font-bold py-1.5 shadow-lg tracking-wide">
-                                  100% Vendido
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                          <div className="p-3">
-                            <h4 className="font-semibold text-sm text-gray-900 dark:text-white line-clamp-2 group-hover:text-yellow-600 transition-colors mb-2">
-                              {property.title}
-                            </h4>
-                            <div className="flex items-center gap-3 text-xs text-gray-500 mb-2">
-                              {property.bedrooms !== null && (
-                                <span className="flex items-center gap-1">
-                                  <Bed className="h-3.5 w-3.5" />
-                                  {property.bedrooms}
-                                </span>
-                              )}
-                              {property.gross_area !== null && (
-                                <span className="flex items-center gap-1">
-                                  <Maximize className="h-3.5 w-3.5" />
-                                  {property.gross_area} m²
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-sm font-bold text-gray-900 dark:text-white">
-                              {property.price_on_request ? 'Sob Consulta' : formatPrice(property.price)}
-                            </p>
-                          </div>
-                        </div>
-                      </Link>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="p-6 text-center text-gray-500">
-                  <p>Nenhum imóvel disponível de momento.</p>
-                </div>
-              )}
-            </div>
-          ))}
         </div>
       </div>
 

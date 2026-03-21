@@ -2,8 +2,10 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/server';
-import { MapPin, Building2, Bed, Maximize } from 'lucide-react';
+import { createServiceClient } from '@/lib/supabase/server';
+import { MapPin, Building2, Bed, Maximize, ArrowRight } from 'lucide-react';
 import { PriceFilter } from './price-filter';
+import { CONDOMINIOS } from '@/lib/condominios';
 
 export const dynamic = 'force-dynamic';
 
@@ -46,6 +48,32 @@ interface SearchParams {
   sort?: string;
   page?: string;
   show_sob_consulta?: string;
+}
+
+async function getCondominioCovers() {
+  const supabase = createServiceClient();
+  const covers: Record<string, string | null> = {};
+
+  for (const condo of CONDOMINIOS) {
+    let query = supabase
+      .from('properties')
+      .select('id, property_images(*)')
+      .eq('status', 'published')
+      .limit(1);
+
+    if (condo.filterType === 'address') {
+      query = query.ilike('address', `%${condo.filterValue}%`);
+    } else {
+      query = query.ilike('title', `%${condo.filterValue}%`);
+    }
+
+    const { data } = await query;
+    const firstProperty = data?.[0] as any;
+    const img = firstProperty?.property_images?.find((i: any) => i.is_cover) || firstProperty?.property_images?.[0];
+    covers[condo.slug] = img?.url ?? null;
+  }
+
+  return covers;
 }
 
 async function getAvailableLocations(): Promise<{ districts: string[]; municipalities: string[] }> {
@@ -195,9 +223,10 @@ export default async function PropertiesPage({
 }: {
   searchParams: SearchParams;
 }) {
-  const [{ properties, total, page, totalPages }, locations] = await Promise.all([
+  const [{ properties, total, page, totalPages }, locations, condoCoverImages] = await Promise.all([
     getProperties(searchParams),
     getAvailableLocations(),
+    getCondominioCovers(),
   ]);
 
   return (
@@ -338,6 +367,66 @@ export default async function PropertiesPage({
             </Link>
           </div>
         )}
+      </section>
+
+      {/* Condomínios em Destaque */}
+      <section id="condominios" className="max-w-7xl mx-auto px-4 md:px-8 pb-20">
+        <div className="text-center mb-10">
+          <span className="inline-flex items-center gap-2 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 px-4 py-2 rounded-full text-sm font-medium mb-4">
+            <Building2 className="h-4 w-4" />
+            Condomínios em Destaque
+          </span>
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
+            Explore os Nossos Condomínios
+          </h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Encontre o apartamento ideal dentro dos nossos condomínios. Todos os imóveis organizados para facilitar a sua procura.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {CONDOMINIOS.map((condo) => (
+            <Link key={condo.slug} href={`/imoveis/condominios/${condo.slug}`} className="group">
+              <article className="bg-card rounded-2xl overflow-hidden border border-border hover:border-yellow-500/50 hover:shadow-xl hover:shadow-yellow-500/5 transition-all duration-300 h-full flex flex-col">
+                <div className="relative aspect-[16/9] overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900">
+                  {condoCoverImages[condo.slug] ? (
+                    <Image
+                      src={condoCoverImages[condo.slug]!}
+                      alt={condo.name}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Building2 className="h-16 w-16 text-white/20" />
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                  <div className="absolute bottom-3 left-3">
+                    <div className="w-9 h-9 rounded-xl bg-yellow-500 flex items-center justify-center">
+                      <Building2 className="h-5 w-5 text-white" />
+                    </div>
+                  </div>
+                </div>
+                <div className="p-5 flex flex-col flex-1">
+                  <h3 className="font-bold text-foreground text-lg mb-1 group-hover:text-yellow-600 transition-colors line-clamp-2">
+                    {condo.name}
+                  </h3>
+                  <p className="text-sm text-muted-foreground flex items-center gap-1 mb-3">
+                    <MapPin className="h-3.5 w-3.5 text-yellow-500 flex-shrink-0" />
+                    {condo.location}
+                  </p>
+                  <p className="text-sm text-muted-foreground line-clamp-2 mb-4 flex-1">{condo.description}</p>
+                  <div className="flex items-center gap-2 text-yellow-600 dark:text-yellow-400 text-sm font-medium mt-auto">
+                    Ver imóveis
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </div>
+                </div>
+              </article>
+            </Link>
+          ))}
+        </div>
       </section>
     </main>
   );
