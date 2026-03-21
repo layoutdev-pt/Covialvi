@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import { motion } from 'framer-motion';
 import { Menu, X, User, ChevronDown, Search, Sun, Moon, Calculator, ClipboardList } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -30,15 +31,28 @@ export function Header() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [ferramentasOpen, setFerramentasOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   
   // Filter states
   const [searchLocation, setSearchLocation] = useState('');
   const [searchNature, setSearchNature] = useState('');
   const [searchBusinessType, setSearchBusinessType] = useState('');
 
+  const isHomePage = pathname === '/';
+
   // Prevent hydration mismatch by only rendering theme-dependent content after mount
   useEffect(() => {
     setMounted(true);
+  }, []);
+
+  // Scroll detection
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 80);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   // Close dropdowns when clicking outside
@@ -69,8 +83,6 @@ export function Header() {
     { name: t('contact') || 'Contacto', href: '/contacto' },
   ];
 
-  const isHomePage = pathname === '/';
-
   const handleSearch = () => {
     const params = new URLSearchParams();
     if (searchLocation) params.set('location', searchLocation);
@@ -82,9 +94,46 @@ export function Header() {
     setShowFilters(false);
   };
 
+  // On homepage: transparent when at top, pill when scrolled
+  // On other pages: always pill style
+  const isPill = scrolled || !isHomePage;
+  const isTransparent = isHomePage && !scrolled;
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border">
-      <nav className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 flex items-center justify-between h-20 relative z-50">
+    <header className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
+      <motion.div
+        className="pointer-events-auto"
+        animate={isPill ? {
+          marginLeft: '1rem',
+          marginRight: '1rem',
+          marginTop: '0.75rem',
+        } : {
+          marginLeft: '0rem',
+          marginRight: '0rem',
+          marginTop: '0rem',
+        }}
+        transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+      >
+        <motion.div
+          animate={isPill ? {
+            borderRadius: '9999px',
+            backgroundColor: theme === 'dark' ? 'rgba(15,15,15,0.95)' : 'rgba(255,255,255,0.97)',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06)',
+            borderWidth: '1px',
+            borderColor: theme === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)',
+          } : {
+            borderRadius: '0px',
+            backgroundColor: 'rgba(0,0,0,0)',
+            boxShadow: '0 0 0 rgba(0,0,0,0)',
+            borderWidth: '0px',
+            borderColor: 'rgba(0,0,0,0)',
+          }}
+          transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+          style={{ borderStyle: 'solid', backdropFilter: isPill ? 'blur(20px) saturate(180%)' : 'none' }}
+        >
+      <nav className="px-4 md:px-6 flex items-center justify-between relative z-50"
+        style={{ height: isPill ? '56px' : '80px', transition: 'height 0.4s cubic-bezier(0.25,0.46,0.45,0.94)' }}
+      >
         {/* Logo */}
         <Link href="/" className="flex items-center">
           <Image
@@ -92,7 +141,7 @@ export function Header() {
             alt="Covialvi"
             width={200}
             height={70}
-            className="h-16 w-auto dark:brightness-0 dark:invert"
+            className={isPill ? 'h-10 w-auto dark:brightness-0 dark:invert transition-all duration-400' : 'h-14 w-auto brightness-0 invert transition-all duration-400'}
             priority
           />
         </Link>
@@ -103,7 +152,7 @@ export function Header() {
             <Link
               key={item.name}
               href={item.href}
-              className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+              className={cn('text-sm font-medium transition-colors', isPill ? 'text-foreground hover:text-yellow-500' : 'text-white/90 hover:text-white')}
             >
               {item.name}
             </Link>
@@ -115,7 +164,7 @@ export function Header() {
           {/* Dark/Light Mode Toggle */}
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-500"
+            className={cn('p-2 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-500', isPill ? 'text-muted-foreground hover:text-foreground hover:bg-secondary' : 'text-white/70 hover:text-white hover:bg-white/10')}
             aria-label={mounted && theme === 'dark' ? 'Mudar para modo claro' : 'Mudar para modo escuro'}
           >
             {mounted && theme === 'dark' ? (
@@ -130,7 +179,7 @@ export function Header() {
             onClick={() => setShowFilters(!showFilters)}
             aria-label="Pesquisar imóveis"
             aria-expanded={showFilters}
-            className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-500"
+            className={cn('p-2 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-500', isPill ? 'text-muted-foreground hover:text-foreground hover:bg-secondary' : 'text-white/70 hover:text-white hover:bg-white/10')}
           >
             <Search className="h-4 w-4" aria-hidden="true" />
           </button>
@@ -174,10 +223,15 @@ export function Header() {
             )}
           </div>
           
-          {/* Contact Button - Simple */}
-          <Link 
+          {/* Contact Button */}
+          <Link
             href="/contacto"
-            className="px-4 py-2 rounded-full bg-foreground text-background font-medium text-sm hover:opacity-90 transition-all"
+            className={cn(
+              'px-4 py-1.5 rounded-full font-medium text-sm transition-all',
+              isTransparent
+                ? 'bg-white/15 text-white hover:bg-white/25 border border-white/20'
+                : 'bg-foreground text-background hover:opacity-90'
+            )}
           >
             Contacto
           </Link>
@@ -193,7 +247,12 @@ export function Header() {
                 aria-label="Menu do utilizador"
                 aria-expanded={userMenuOpen}
                 aria-haspopup="true"
-                className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-500 cursor-pointer"
+                className={cn(
+                  'p-2 rounded-full transition-colors cursor-pointer',
+                  isTransparent
+                    ? 'text-white/70 hover:text-white hover:bg-white/10'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+                )}
               >
                 <User className="h-4 w-4" aria-hidden="true" />
               </button>
@@ -245,7 +304,12 @@ export function Header() {
           ) : (
             <Link 
               href="/auth/login"
-              className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors flex items-center justify-center cursor-pointer z-[60]"
+              className={cn(
+                'p-2 rounded-full transition-colors flex items-center justify-center cursor-pointer',
+                isTransparent
+                  ? 'text-white/70 hover:text-white hover:bg-white/10'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+              )}
             >
               <User className="h-4 w-4" />
             </Link>
@@ -254,7 +318,10 @@ export function Header() {
 
         {/* Mobile Menu Button */}
         <button
-          className="lg:hidden p-2 text-foreground focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded-lg"
+          className={cn(
+            'lg:hidden p-2 focus:outline-none rounded-lg transition-colors',
+            isTransparent ? 'text-white' : 'text-foreground'
+          )}
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-label={mobileMenuOpen ? 'Fechar menu' : 'Abrir menu'}
           aria-expanded={mobileMenuOpen}
@@ -265,63 +332,67 @@ export function Header() {
             <Menu className="h-6 w-6" />
           )}
         </button>
-      </nav>
+        </nav>
 
-      {/* Filter Bar Dropdown */}
-      {showFilters && (
-      <div
-        className="absolute left-0 right-0 top-20 bg-background border-b border-border shadow-lg transition-all duration-300 overflow-hidden max-h-32 opacity-100 z-40"
-      >
-        <div className="max-w-5xl mx-auto px-6 md:px-12 lg:px-20 py-4">
-          <div className="flex flex-wrap md:flex-nowrap items-center gap-4">
-            <div className="flex-1 min-w-[200px]">
-              <input
-                type="text"
-                placeholder="Localização..."
-                value={searchLocation}
-                onChange={(e) => setSearchLocation(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                className="w-full px-4 py-2.5 rounded-full border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20"
-              />
+          {/* Filter Bar Dropdown */}
+          {showFilters && (
+          <div
+            className="border-t border-border/50"
+          >
+          <div className="max-w-5xl mx-auto px-6 md:px-12 lg:px-20 py-4">
+            <div className="flex flex-wrap md:flex-nowrap items-center gap-4">
+              <div className="flex-1 min-w-[200px]">
+                <input
+                  type="text"
+                  placeholder="Localização..."
+                  value={searchLocation}
+                  onChange={(e) => setSearchLocation(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                  className="w-full px-4 py-2.5 rounded-full border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20"
+                />
+              </div>
+              <Select value={searchNature} onValueChange={setSearchNature}>
+                <SelectTrigger className="rounded-full border-border min-w-[150px]">
+                  <SelectValue placeholder="Tipo de Imóvel" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl">
+                  <SelectItem value="all">Todos os Tipos</SelectItem>
+                  <SelectItem value="apartment">Apartamento</SelectItem>
+                  <SelectItem value="house">Moradia</SelectItem>
+                  <SelectItem value="land">Terreno</SelectItem>
+                  <SelectItem value="commercial">Comercial</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={searchBusinessType} onValueChange={setSearchBusinessType}>
+                <SelectTrigger className="rounded-full border-border min-w-[120px]">
+                  <SelectValue placeholder="Negócio" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl">
+                  <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="sale">Comprar</SelectItem>
+                  <SelectItem value="rent">Arrendar</SelectItem>
+                </SelectContent>
+              </Select>
+              <button
+                onClick={handleSearch}
+                className="bg-foreground text-background rounded-full px-6 py-2.5 font-medium hover:opacity-90 transition-opacity flex items-center gap-2"
+              >
+                <Search className="h-4 w-4" />
+                Pesquisar
+              </button>
             </div>
-            <Select value={searchNature} onValueChange={setSearchNature}>
-              <SelectTrigger className="rounded-full border-border min-w-[150px]">
-                <SelectValue placeholder="Tipo de Imóvel" />
-              </SelectTrigger>
-              <SelectContent className="rounded-xl">
-                <SelectItem value="all">Todos os Tipos</SelectItem>
-                <SelectItem value="apartment">Apartamento</SelectItem>
-                <SelectItem value="house">Moradia</SelectItem>
-                <SelectItem value="land">Terreno</SelectItem>
-                <SelectItem value="commercial">Comercial</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={searchBusinessType} onValueChange={setSearchBusinessType}>
-              <SelectTrigger className="rounded-full border-border min-w-[120px]">
-                <SelectValue placeholder="Negócio" />
-              </SelectTrigger>
-              <SelectContent className="rounded-xl">
-                <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="sale">Comprar</SelectItem>
-                <SelectItem value="rent">Arrendar</SelectItem>
-              </SelectContent>
-            </Select>
-            <button
-              onClick={handleSearch}
-              className="bg-foreground text-background rounded-full px-6 py-2.5 font-medium hover:opacity-90 transition-opacity flex items-center gap-2"
-            >
-              <Search className="h-4 w-4" />
-              Pesquisar
-            </button>
           </div>
-        </div>
-      </div>
-      )}
+          </div>
+          )}
+
+        </motion.div>
+      </motion.div>
 
       {/* Mobile Menu */}
       <div
         className={cn(
-          'lg:hidden fixed inset-x-0 top-20 bg-background border-b border-border transition-all duration-300 ease-in-out z-40',
+          'lg:hidden fixed inset-x-0 top-[68px] bg-background border-b border-border transition-all duration-300 ease-in-out z-40',
+          // top-[68px] = pill height (56px) + margin top (12px)
           mobileMenuOpen
             ? 'opacity-100 translate-y-0'
             : 'opacity-0 -translate-y-4 pointer-events-none invisible'
