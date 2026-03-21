@@ -31,6 +31,7 @@ export function Header() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [ferramentasOpen, setFerramentasOpen] = useState(false);
+  // Non-homepage always starts as pill; homepage starts transparent
   const [scrolled, setScrolled] = useState(false);
   
   // Filter states
@@ -96,7 +97,7 @@ export function Header() {
 
   // On homepage: transparent when at top, pill when scrolled
   // On other pages: always pill style
-  const isPill = scrolled || !isHomePage;
+  const isPill = !isHomePage || scrolled;
   const isTransparent = isHomePage && !scrolled;
 
   return (
@@ -104,9 +105,9 @@ export function Header() {
       <motion.div
         className="pointer-events-auto"
         animate={isPill ? {
-          marginLeft: '1rem',
-          marginRight: '1rem',
-          marginTop: '0.75rem',
+          marginLeft: '3rem',
+          marginRight: '3rem',
+          marginTop: '0.875rem',
         } : {
           marginLeft: '0rem',
           marginRight: '0rem',
@@ -145,7 +146,7 @@ export function Header() {
               'w-auto transition-all duration-500',
               isTransparent
                 ? 'h-12 brightness-0 invert'
-                : 'h-9 dark:brightness-0 dark:invert'
+                : 'h-9'
             )}
             priority
           />
