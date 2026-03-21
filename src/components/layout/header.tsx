@@ -100,9 +100,12 @@ export function Header() {
   const isPill = !isHomePage || (mounted && scrolled);
   const isTransparent = isHomePage && !(mounted && scrolled);
 
+  // Theme helper
+  const isDark = mounted && theme === 'dark';
+
   // Derived color helpers — explicit, not relying on CSS variables that may not resolve
-  const pillBg = mounted && theme === 'dark' ? 'rgba(15,15,15,0.96)' : 'rgba(255,255,255,0.97)';
-  const pillBorder = mounted && theme === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
+  const pillBg = isDark ? 'rgba(15,15,15,0.96)' : 'rgba(255,255,255,0.97)';
+  const pillBorder = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
@@ -149,15 +152,14 @@ export function Header() {
                   alt="Covialvi"
                   width={200}
                   height={70}
-                  className="w-auto transition-all duration-500"
-                  style={{
-                    height: isTransparent ? '44px' : '36px',
-                    filter: isTransparent
-                      ? 'brightness(0) invert(1)'
-                      : (mounted && theme === 'dark')
-                        ? 'brightness(0) invert(1)'
-                        : 'none',
-                  }}
+                  className={cn(
+                    'w-auto transition-all duration-500',
+                    isTransparent
+                      ? isDark ? 'h-11 brightness-0 invert' : 'h-11'
+                      : isDark
+                        ? 'h-9 brightness-0 invert'
+                        : 'h-9'
+                  )}
                   priority
                 />
               </Link>
@@ -168,14 +170,14 @@ export function Header() {
                   <Link
                     key={item.name}
                     href={item.href}
-                    className="text-sm font-medium transition-colors whitespace-nowrap hover:text-yellow-500"
-                    style={{
-                      color: isTransparent
-                        ? 'rgba(255,255,255,0.90)'
-                        : (mounted && theme === 'dark')
-                          ? 'rgb(243,244,246)'
-                          : 'rgb(17,24,39)',
-                    }}
+                    className={cn(
+                      'text-sm font-medium transition-colors whitespace-nowrap',
+                      isTransparent
+                        ? isDark ? 'text-white/90 hover:text-white' : 'text-gray-900 hover:text-yellow-500'
+                        : isDark
+                          ? 'text-gray-100 hover:text-yellow-400'
+                          : 'text-gray-900 hover:text-yellow-500'
+                    )}
                   >
                     {item.name}
                   </Link>
@@ -189,13 +191,13 @@ export function Header() {
                   <>
                     <button
                       onClick={toggleTheme}
-                      className="p-2 rounded-full text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+                      className={cn('p-2 rounded-full transition-colors', isDark ? 'text-white/70 hover:text-white hover:bg-white/10' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200/50')}
                     >
-                      {mounted && theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                      {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
                     </button>
                     <button
                       onClick={() => setShowFilters(!showFilters)}
-                      className="p-2 rounded-full text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+                      className={cn('p-2 rounded-full transition-colors', isDark ? 'text-white/70 hover:text-white hover:bg-white/10' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200/50')}
                     >
                       <Search className="h-4 w-4" />
                     </button>
@@ -237,7 +239,12 @@ export function Header() {
                     </div>
                     <Link
                       href="/contacto"
-                      className="px-4 py-1.5 rounded-full font-medium text-sm bg-white/15 text-white hover:bg-white/25 border border-white/20 transition-all"
+                      className={cn(
+                        'px-4 py-1.5 rounded-full font-medium text-sm border transition-all',
+                        isDark
+                          ? 'bg-white/15 text-white hover:bg-white/25 border-white/20'
+                          : 'bg-gray-900/10 text-gray-900 hover:bg-gray-900/20 border-gray-900/20'
+                      )}
                     >
                       Contacto
                     </Link>
@@ -251,11 +258,9 @@ export function Header() {
                       onClick={(e) => { e.stopPropagation(); setUserMenuOpen(!userMenuOpen); }}
                       className={cn(
                         'p-2 rounded-full transition-colors cursor-pointer',
-                        isTransparent
+                        isDark
                           ? 'text-white/70 hover:text-white hover:bg-white/10'
-                          : mounted && theme === 'dark'
-                            ? 'text-gray-300 hover:text-white hover:bg-white/10'
-                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                       )}
                     >
                       <User className="h-4 w-4" />
@@ -275,11 +280,9 @@ export function Header() {
                     href="/auth/login"
                     className={cn(
                       'p-2 rounded-full transition-colors flex items-center justify-center',
-                      isTransparent
-                        ? 'text-white/70 hover:text-white hover:bg-white/10'
-                        : mounted && theme === 'dark'
-                          ? 'text-gray-300 hover:text-white hover:bg-white/10'
-                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                      isDark
+                        ? 'text-gray-300 hover:text-white hover:bg-white/10'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                     )}
                   >
                     <User className="h-4 w-4" />
@@ -291,11 +294,9 @@ export function Header() {
               <button
                 className={cn(
                   'lg:hidden p-2 rounded-lg transition-colors',
-                  isTransparent
-                    ? 'text-white hover:bg-white/10'
-                    : mounted && theme === 'dark'
-                      ? 'text-gray-200 hover:bg-white/10'
-                      : 'text-gray-800 hover:bg-gray-100'
+                  isDark
+                    ? 'text-gray-200 hover:bg-white/10'
+                    : 'text-gray-800 hover:bg-gray-100'
                 )}
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
