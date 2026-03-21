@@ -131,8 +131,8 @@ export function Header() {
           transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
           style={{ borderStyle: 'solid', backdropFilter: isPill ? 'blur(20px) saturate(180%)' : 'none' }}
         >
-      <nav className="px-4 md:px-6 flex items-center justify-between relative z-50"
-        style={{ height: isPill ? '56px' : '80px', transition: 'height 0.4s cubic-bezier(0.25,0.46,0.45,0.94)' }}
+      <nav className="px-6 md:px-8 flex items-center justify-between relative z-50"
+        style={{ height: isPill ? '56px' : '80px', transition: 'height 0.45s cubic-bezier(0.25,0.46,0.45,0.94)' }}
       >
         {/* Logo */}
         <Link href="/" className="flex items-center">
@@ -141,7 +141,12 @@ export function Header() {
             alt="Covialvi"
             width={200}
             height={70}
-            className={isPill ? 'h-10 w-auto dark:brightness-0 dark:invert transition-all duration-400' : 'h-14 w-auto brightness-0 invert transition-all duration-400'}
+            className={cn(
+              'w-auto transition-all duration-500',
+              isTransparent
+                ? 'h-12 brightness-0 invert'
+                : 'h-9 dark:brightness-0 dark:invert'
+            )}
             priority
           />
         </Link>
