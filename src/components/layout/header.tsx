@@ -104,17 +104,15 @@ export function Header() {
     <header className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
       <motion.div
         className="pointer-events-auto"
-        animate={isPill ? {
-          marginLeft: '6rem',
-          marginRight: '6rem',
-          marginTop: '0.875rem',
-        } : {
-          marginLeft: '0rem',
-          marginRight: '0rem',
-          marginTop: '0rem',
-        }}
-        transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+        style={isPill ? { display: 'flex', justifyContent: 'center', paddingTop: '0.875rem' } : {}}
+        transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
       >
+        {/* Pill wrapper — limits width when scrolled */}
+        <motion.div
+          className="w-full"
+          animate={isPill ? { maxWidth: '720px' } : { maxWidth: '100%' }}
+          transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
+        >
         <motion.div
           animate={isPill ? {
             borderRadius: '9999px',
@@ -153,12 +151,17 @@ export function Header() {
         </Link>
 
         {/* Desktop Navigation */}
-        <div className="hidden lg:flex items-center space-x-8">
+        <div className={cn('hidden lg:flex items-center', isPill ? 'space-x-5' : 'space-x-8')}>
           {navigation.map((item) => (
             <Link
               key={item.name}
               href={item.href}
-              className={cn('text-sm font-medium transition-colors', isPill ? 'text-foreground hover:text-yellow-500' : 'text-white/90 hover:text-white')}
+              className={cn(
+                'text-sm font-medium transition-colors whitespace-nowrap',
+                isPill
+                  ? 'text-gray-800 dark:text-gray-100 hover:text-yellow-500'
+                  : 'text-white/90 hover:text-white'
+              )}
             >
               {item.name}
             </Link>
@@ -381,6 +384,7 @@ export function Header() {
           </div>
           )}
 
+        </motion.div>
         </motion.div>
       </motion.div>
 
