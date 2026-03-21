@@ -97,20 +97,24 @@ export function Header() {
 
   // On homepage: transparent when at top, pill when scrolled
   // On other pages: always pill style
-  const isPill = !isHomePage || scrolled;
-  const isTransparent = isHomePage && !scrolled;
+  // Before mount, homepage shows transparent to avoid flash
+  const isPill = mounted && (!isHomePage || scrolled);
+  const isTransparent = !mounted || (isHomePage && !scrolled);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
       <motion.div
         className="pointer-events-auto"
-        style={isPill ? { display: 'flex', justifyContent: 'center', paddingTop: '0.875rem' } : {}}
+        animate={isPill
+          ? { display: 'flex', justifyContent: 'center', paddingTop: '14px' }
+          : { paddingTop: '0px' }
+        }
         transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
       >
         {/* Pill wrapper — limits width when scrolled */}
         <motion.div
           className="w-full"
-          animate={isPill ? { maxWidth: '720px' } : { maxWidth: '100%' }}
+          animate={isPill ? { maxWidth: '760px' } : { maxWidth: '9999px' }}
           transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
         >
         <motion.div
