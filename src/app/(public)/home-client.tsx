@@ -278,7 +278,7 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
             <source src="/video/hero.mp4" type="video/mp4" />
           </video>
         </div>
-        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-br from-black/55 via-black/30 to-black/10" />
           
           {/* Hero Content */}
           <div className="relative z-10 h-full flex flex-col justify-center px-8 md:px-12 lg:px-16 pt-[120px] pb-12 min-h-screen">
@@ -311,10 +311,19 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
               transition={{ duration: 0.8, delay: 0.6 }}
               className="w-full max-w-3xl"
             >
-              <div className="bg-white/20 backdrop-blur-md rounded-2xl md:rounded-full p-2 shadow-2xl flex flex-col md:flex-row items-stretch md:items-center gap-2 border border-white/10">
+              <div className="relative rounded-2xl md:rounded-full p-[1px] flex flex-col md:flex-row" style={{background: 'linear-gradient(135deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.25) 100%)'}}
+              >
+                <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 w-full rounded-2xl md:rounded-full px-2 py-2"
+                  style={{
+                    background: 'rgba(255,255,255,0.12)',
+                    backdropFilter: 'blur(40px) saturate(180%)',
+                    WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+                    boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.4), inset 0 -1px 1px rgba(0,0,0,0.1), 0 8px 32px rgba(0,0,0,0.25), 0 2px 8px rgba(0,0,0,0.15)'
+                  }}
+                >
                 <div className="flex-1">
                   <Select value={searchLocation} onValueChange={setSearchLocation}>
-                    <SelectTrigger className="border-0 bg-transparent shadow-none focus:ring-0 w-full md:min-w-[160px] text-sm text-white [&>svg]:text-white/60">
+                    <SelectTrigger className="border-0 bg-transparent shadow-none focus:ring-0 w-full md:min-w-[160px] text-sm text-white/90 font-medium [&>svg]:text-white/50 placeholder:text-white/50">
                       <SelectValue placeholder="Localização" />
                     </SelectTrigger>
                     <SelectContent className="bg-white border border-gray-200 shadow-xl rounded-xl max-h-[300px]">
@@ -345,7 +354,7 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
                 <div className="hidden md:block w-px h-8 bg-white/20" />
                 <div className="flex gap-2">
                   <Select value={searchNature} onValueChange={setSearchNature}>
-                    <SelectTrigger className="border-0 bg-transparent shadow-none focus:ring-0 flex-1 md:min-w-[130px] text-sm text-white [&>svg]:text-white/60">
+                    <SelectTrigger className="border-0 bg-transparent shadow-none focus:ring-0 flex-1 md:min-w-[130px] text-sm text-white/90 font-medium [&>svg]:text-white/50">
                       <SelectValue placeholder="Tipo" />
                     </SelectTrigger>
                     <SelectContent className="bg-white border border-gray-200 shadow-xl rounded-xl">
@@ -360,7 +369,7 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
                   </Select>
                   <div className="hidden md:block w-px h-8 bg-white/20" />
                   <Select value={searchBusinessType} onValueChange={setSearchBusinessType}>
-                    <SelectTrigger className="border-0 bg-transparent shadow-none focus:ring-0 flex-1 md:min-w-[100px] text-sm text-white [&>svg]:text-white/60">
+                    <SelectTrigger className="border-0 bg-transparent shadow-none focus:ring-0 flex-1 md:min-w-[100px] text-sm text-white/90 font-medium [&>svg]:text-white/50">
                       <SelectValue placeholder="Negócio" />
                     </SelectTrigger>
                   <SelectContent className="bg-white border border-gray-200 shadow-xl rounded-xl">
@@ -374,13 +383,20 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={handleSearch}
-                  className="group flex items-center gap-2 bg-white/30 text-white rounded-full pl-5 pr-2 py-2 font-medium hover:bg-yellow-500 transition-all backdrop-blur-sm"
+                  className="group flex items-center gap-2 rounded-full pl-5 pr-2 py-2 font-medium transition-all duration-300 hover:bg-yellow-500 text-white"
+                  style={{
+                    background: 'rgba(255,255,255,0.22)',
+                    backdropFilter: 'blur(20px) saturate(180%)',
+                    WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                    boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.5), inset 0 -1px 1px rgba(0,0,0,0.1), 0 4px 12px rgba(0,0,0,0.2)'
+                  }}
                 >
                   <span className="hidden sm:inline">Pesquisar</span>
                   <span className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center group-hover:bg-white/30 transition-colors">
                     <Search className="h-4 w-4" />
                   </span>
                 </motion.button>
+              </div>
               </div>
             </motion.div>
             </div>
