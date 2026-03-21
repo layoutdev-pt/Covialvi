@@ -105,8 +105,8 @@ export function Header() {
       <motion.div
         className="pointer-events-auto"
         animate={isPill ? {
-          marginLeft: '3rem',
-          marginRight: '3rem',
+          marginLeft: '6rem',
+          marginRight: '6rem',
           marginTop: '0.875rem',
         } : {
           marginLeft: '0rem',
@@ -167,80 +167,70 @@ export function Header() {
 
         {/* Desktop Actions */}
         <div className="hidden lg:flex items-center gap-2 relative z-50">
-          {/* Dark/Light Mode Toggle */}
-          <button
-            onClick={toggleTheme}
-            className={cn('p-2 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-500', isPill ? 'text-muted-foreground hover:text-foreground hover:bg-secondary' : 'text-white/70 hover:text-white hover:bg-white/10')}
-            aria-label={mounted && theme === 'dark' ? 'Mudar para modo claro' : 'Mudar para modo escuro'}
-          >
-            {mounted && theme === 'dark' ? (
-              <Sun className="h-4 w-4" />
-            ) : (
-              <Moon className="h-4 w-4" />
-            )}
-          </button>
+          {/* Theme, Search, Ferramentas, Contacto — hidden in pill, visible in full navbar */}
+          {!isPill && (
+            <>
+              <button
+                onClick={toggleTheme}
+                className="p-2 rounded-full transition-colors text-white/70 hover:text-white hover:bg-white/10"
+                aria-label={mounted && theme === 'dark' ? 'Mudar para modo claro' : 'Mudar para modo escuro'}
+              >
+                {mounted && theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </button>
 
-          {/* Search Button */}
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            aria-label="Pesquisar imóveis"
-            aria-expanded={showFilters}
-            className={cn('p-2 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-500', isPill ? 'text-muted-foreground hover:text-foreground hover:bg-secondary' : 'text-white/70 hover:text-white hover:bg-white/10')}
-          >
-            <Search className="h-4 w-4" aria-hidden="true" />
-          </button>
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                aria-label="Pesquisar imóveis"
+                className="p-2 rounded-full transition-colors text-white/70 hover:text-white hover:bg-white/10"
+              >
+                <Search className="h-4 w-4" />
+              </button>
 
-          {/* Ferramentas Dropdown */}
-          <div className="relative" data-dropdown>
-            <button
-              onClick={() => setFerramentasOpen(!ferramentasOpen)}
-              className="flex items-center gap-1 px-4 py-2 rounded-full bg-yellow-500 text-white font-medium text-sm hover:bg-yellow-600 transition-colors"
-            >
-              Ferramentas
-              <ChevronDown className={`h-4 w-4 transition-transform ${ferramentasOpen ? 'rotate-180' : ''}`} />
-            </button>
-            {ferramentasOpen && (
-              <div className="absolute right-0 mt-2 w-56 bg-card rounded-xl shadow-lg border border-border py-2 z-50">
-                <a
-                  href="https://simuladores.bancomontepio.pt/ITSCredit.External/Calculator/ITSCredit.Calculator.UI.External/calculator/HOUSINGJOURNEY"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-secondary"
-                  onClick={() => setFerramentasOpen(false)}
+              <div className="relative" data-dropdown>
+                <button
+                  onClick={() => setFerramentasOpen(!ferramentasOpen)}
+                  className="flex items-center gap-1 px-4 py-2 rounded-full bg-yellow-500 text-white font-medium text-sm hover:bg-yellow-600 transition-colors"
                 >
-                  <Calculator className="h-4 w-4 text-yellow-500" />
-                  <div>
-                    <div className="font-medium">Simulador de Crédito</div>
-                    <div className="text-xs text-muted-foreground">Calcule a sua prestação</div>
+                  Ferramentas
+                  <ChevronDown className={`h-4 w-4 transition-transform ${ferramentasOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {ferramentasOpen && (
+                  <div className="absolute right-0 mt-2 w-56 bg-card rounded-xl shadow-lg border border-border py-2 z-50">
+                    <a
+                      href="https://simuladores.bancomontepio.pt/ITSCredit.External/Calculator/ITSCredit.Calculator.UI.External/calculator/HOUSINGJOURNEY"
+                      target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-secondary"
+                      onClick={() => setFerramentasOpen(false)}
+                    >
+                      <Calculator className="h-4 w-4 text-yellow-500" />
+                      <div>
+                        <div className="font-medium">Simulador de Crédito</div>
+                        <div className="text-xs text-muted-foreground">Calcule a sua prestação</div>
+                      </div>
+                    </a>
+                    <Link
+                      href="/avaliacao-completa"
+                      className="flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-secondary"
+                      onClick={() => setFerramentasOpen(false)}
+                    >
+                      <ClipboardList className="h-4 w-4 text-yellow-500" />
+                      <div>
+                        <div className="font-medium">Avaliação de Imóvel</div>
+                        <div className="text-xs text-muted-foreground">Questionário completo</div>
+                      </div>
+                    </Link>
                   </div>
-                </a>
-                <Link
-                  href="/avaliacao-completa"
-                  className="flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-secondary"
-                  onClick={() => setFerramentasOpen(false)}
-                >
-                  <ClipboardList className="h-4 w-4 text-yellow-500" />
-                  <div>
-                    <div className="font-medium">Avaliação de Imóvel</div>
-                    <div className="text-xs text-muted-foreground">Questionário completo</div>
-                  </div>
-                </Link>
+                )}
               </div>
-            )}
-          </div>
-          
-          {/* Contact Button */}
-          <Link
-            href="/contacto"
-            className={cn(
-              'px-4 py-1.5 rounded-full font-medium text-sm transition-all',
-              isTransparent
-                ? 'bg-white/15 text-white hover:bg-white/25 border border-white/20'
-                : 'bg-foreground text-background hover:opacity-90'
-            )}
-          >
-            Contacto
-          </Link>
+
+              <Link
+                href="/contacto"
+                className="px-4 py-1.5 rounded-full font-medium text-sm bg-white/15 text-white hover:bg-white/25 border border-white/20 transition-all"
+              >
+                Contacto
+              </Link>
+            </>
+          )}
 
           {/* User Menu */}
           {user ? (
