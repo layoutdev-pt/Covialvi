@@ -1019,7 +1019,7 @@ function PropertyCard({
         {property.construction_status === 'sold' && (
           <div className="absolute top-0 left-0 z-30 overflow-hidden w-32 h-32 pointer-events-none">
             <div className="absolute top-[18px] left-[-30px] w-[170px] text-center transform -rotate-45 bg-red-600 text-white text-xs font-bold py-1.5 shadow-lg">
-              Vendido
+              100% Vendido
             </div>
           </div>
         )}
@@ -1181,7 +1181,7 @@ function HeroPropertyCard({
           {property.construction_status === 'sold' && (
             <div className="absolute top-0 left-0 z-30 overflow-hidden w-28 h-28 pointer-events-none">
               <div className="absolute top-[14px] left-[-28px] w-[150px] text-center transform -rotate-45 bg-red-600 text-white text-[10px] font-bold py-1 shadow-lg">
-                Vendido
+                100% Vendido
               </div>
             </div>
           )}
