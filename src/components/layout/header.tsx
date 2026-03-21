@@ -100,305 +100,254 @@ export function Header() {
   const isPill = !isHomePage || (mounted && scrolled);
   const isTransparent = isHomePage && !(mounted && scrolled);
 
+  // Derived color helpers — explicit, not relying on CSS variables that may not resolve
+  const pillBg = mounted && theme === 'dark' ? 'rgba(15,15,15,0.96)' : 'rgba(255,255,255,0.97)';
+  const pillBorder = mounted && theme === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
-      <motion.div
-        className="pointer-events-auto"
-        animate={isPill
-          ? { display: 'flex', justifyContent: 'center', paddingTop: '14px' }
-          : { paddingTop: '0px' }
-        }
-        transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
-      >
-        {/* Pill wrapper — limits width when scrolled */}
-        <motion.div
-          className="w-full"
-          animate={isPill ? { maxWidth: '760px' } : { maxWidth: '9999px' }}
-          transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
-        >
-        <motion.div
-          animate={isPill ? {
-            borderRadius: '9999px',
-            backgroundColor: theme === 'dark' ? 'rgba(15,15,15,0.95)' : 'rgba(255,255,255,0.97)',
-            boxShadow: '0 4px 24px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06)',
-            borderWidth: '1px',
-            borderColor: theme === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)',
-          } : {
-            borderRadius: '0px',
-            backgroundColor: 'rgba(0,0,0,0)',
-            boxShadow: '0 0 0 rgba(0,0,0,0)',
-            borderWidth: '0px',
-            borderColor: 'rgba(0,0,0,0)',
-          }}
-          transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-          style={{ borderStyle: 'solid', backdropFilter: isPill ? 'blur(20px) saturate(180%)' : 'none' }}
-        >
-      <nav className="px-6 md:px-8 flex items-center justify-between relative z-50"
-        style={{ height: isPill ? '56px' : '80px', transition: 'height 0.45s cubic-bezier(0.25,0.46,0.45,0.94)' }}
-      >
-        {/* Logo */}
-        <Link href="/" className="flex items-center">
-          <Image
-            src="https://media.egorealestate.com/ORIGINAL/ab9a/2a120afd-2b27-49b5-8934-8237e1cbab9a.png"
-            alt="Covialvi"
-            width={200}
-            height={70}
-            className={cn(
-              'w-auto transition-all duration-500',
-              isTransparent
-                ? 'h-12 brightness-0 invert'
-                : 'h-9'
-            )}
-            priority
-          />
-        </Link>
 
-        {/* Desktop Navigation */}
-        <div className={cn('hidden lg:flex items-center', isPill ? 'space-x-5' : 'space-x-8')}>
-          {navigation.map((item) => (
-            <Link
-              key={item.name}
-              href={item.href}
-              className={cn(
-                'text-sm font-medium transition-colors whitespace-nowrap',
-                isPill
-                  ? 'text-gray-800 dark:text-gray-100 hover:text-yellow-500'
-                  : 'text-white/90 hover:text-white'
-              )}
-            >
-              {item.name}
-            </Link>
-          ))}
-        </div>
-
-        {/* Desktop Actions */}
-        <div className="hidden lg:flex items-center gap-2 relative z-50">
-          {/* Theme, Search, Ferramentas, Contacto — hidden in pill, visible in full navbar */}
-          {!isPill && (
-            <>
-              <button
-                onClick={toggleTheme}
-                className="p-2 rounded-full transition-colors text-white/70 hover:text-white hover:bg-white/10"
-                aria-label={mounted && theme === 'dark' ? 'Mudar para modo claro' : 'Mudar para modo escuro'}
-              >
-                {mounted && theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-              </button>
-
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                aria-label="Pesquisar imóveis"
-                className="p-2 rounded-full transition-colors text-white/70 hover:text-white hover:bg-white/10"
-              >
-                <Search className="h-4 w-4" />
-              </button>
-
-              <div className="relative" data-dropdown>
-                <button
-                  onClick={() => setFerramentasOpen(!ferramentasOpen)}
-                  className="flex items-center gap-1 px-4 py-2 rounded-full bg-yellow-500 text-white font-medium text-sm hover:bg-yellow-600 transition-colors"
-                >
-                  Ferramentas
-                  <ChevronDown className={`h-4 w-4 transition-transform ${ferramentasOpen ? 'rotate-180' : ''}`} />
-                </button>
-                {ferramentasOpen && (
-                  <div className="absolute right-0 mt-2 w-56 bg-card rounded-xl shadow-lg border border-border py-2 z-50">
-                    <a
-                      href="https://simuladores.bancomontepio.pt/ITSCredit.External/Calculator/ITSCredit.Calculator.UI.External/calculator/HOUSINGJOURNEY"
-                      target="_blank" rel="noopener noreferrer"
-                      className="flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-secondary"
-                      onClick={() => setFerramentasOpen(false)}
-                    >
-                      <Calculator className="h-4 w-4 text-yellow-500" />
-                      <div>
-                        <div className="font-medium">Simulador de Crédito</div>
-                        <div className="text-xs text-muted-foreground">Calcule a sua prestação</div>
-                      </div>
-                    </a>
-                    <Link
-                      href="/avaliacao-completa"
-                      className="flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-secondary"
-                      onClick={() => setFerramentasOpen(false)}
-                    >
-                      <ClipboardList className="h-4 w-4 text-yellow-500" />
-                      <div>
-                        <div className="font-medium">Avaliação de Imóvel</div>
-                        <div className="text-xs text-muted-foreground">Questionário completo</div>
-                      </div>
-                    </Link>
-                  </div>
-                )}
-              </div>
-
-              <Link
-                href="/contacto"
-                className="px-4 py-1.5 rounded-full font-medium text-sm bg-white/15 text-white hover:bg-white/25 border border-white/20 transition-all"
-              >
-                Contacto
-              </Link>
-            </>
-          )}
-
-          {/* User Menu */}
-          {user ? (
-            <div className="relative z-[60]" data-dropdown>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setUserMenuOpen(!userMenuOpen);
-                }}
-                aria-label="Menu do utilizador"
-                aria-expanded={userMenuOpen}
-                aria-haspopup="true"
-                className={cn(
-                  'p-2 rounded-full transition-colors cursor-pointer',
-                  isTransparent
-                    ? 'text-white/70 hover:text-white hover:bg-white/10'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
-                )}
-              >
-                <User className="h-4 w-4" aria-hidden="true" />
-              </button>
-              {userMenuOpen && (
-                <div className="absolute right-0 mt-2 w-52 bg-card rounded-xl shadow-lg border border-border py-2 z-[70]">
-                  <Link
-                    href="/conta"
-                    className="block px-4 py-2.5 text-sm text-foreground hover:bg-secondary cursor-pointer"
-                    onClick={() => {
-                      setUserMenuOpen(false);
-                    }}
-                  >
-                    Minha Conta
-                  </Link>
-                  <Link
-                    href="/conta/favoritos"
-                    className="block px-4 py-2.5 text-sm text-foreground hover:bg-secondary cursor-pointer"
-                    onClick={() => {
-                      setUserMenuOpen(false);
-                    }}
-                  >
-                    Favoritos
-                  </Link>
-                  {isAdmin && (
-                    <Link
-                      href="/admin"
-                      className="block px-4 py-2.5 text-sm text-foreground hover:bg-secondary cursor-pointer"
-                      onClick={() => {
-                        setUserMenuOpen(false);
-                      }}
-                    >
-                      Painel Admin
-                    </Link>
-                  )}
-                  <hr className="my-2 border-border" />
-                  <button
-                    onMouseDown={(e) => e.stopPropagation()}
-                    onClick={() => {
-                      setUserMenuOpen(false);
-                      window.location.href = '/auth/logout';
-                    }}
-                    className="block w-full text-left px-4 py-2.5 text-sm text-destructive hover:bg-destructive/10 cursor-pointer"
-                  >
-                    Sair
-                  </button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <Link 
-              href="/auth/login"
-              className={cn(
-                'p-2 rounded-full transition-colors flex items-center justify-center cursor-pointer',
-                isTransparent
-                  ? 'text-white/70 hover:text-white hover:bg-white/10'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
-              )}
-            >
-              <User className="h-4 w-4" />
-            </Link>
-          )}
-        </div>
-
-        {/* Mobile Menu Button */}
-        <button
-          className={cn(
-            'lg:hidden p-2 focus:outline-none rounded-lg transition-colors',
-            isTransparent ? 'text-white' : 'text-foreground'
-          )}
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label={mobileMenuOpen ? 'Fechar menu' : 'Abrir menu'}
-          aria-expanded={mobileMenuOpen}
-        >
-          {mobileMenuOpen ? (
-            <X className="h-6 w-6" />
-          ) : (
-            <Menu className="h-6 w-6" />
-          )}
-        </button>
-        </nav>
-
-          {/* Filter Bar Dropdown */}
-          {showFilters && (
-          <div
-            className="border-t border-border/50"
-          >
-          <div className="max-w-5xl mx-auto px-6 md:px-12 lg:px-20 py-4">
-            <div className="flex flex-wrap md:flex-nowrap items-center gap-4">
-              <div className="flex-1 min-w-[200px]">
-                <input
-                  type="text"
-                  placeholder="Localização..."
-                  value={searchLocation}
-                  onChange={(e) => setSearchLocation(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                  className="w-full px-4 py-2.5 rounded-full border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20"
-                />
-              </div>
-              <Select value={searchNature} onValueChange={setSearchNature}>
-                <SelectTrigger className="rounded-full border-border min-w-[150px]">
-                  <SelectValue placeholder="Tipo de Imóvel" />
-                </SelectTrigger>
-                <SelectContent className="rounded-xl">
-                  <SelectItem value="all">Todos os Tipos</SelectItem>
-                  <SelectItem value="apartment">Apartamento</SelectItem>
-                  <SelectItem value="house">Moradia</SelectItem>
-                  <SelectItem value="land">Terreno</SelectItem>
-                  <SelectItem value="commercial">Comercial</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={searchBusinessType} onValueChange={setSearchBusinessType}>
-                <SelectTrigger className="rounded-full border-border min-w-[120px]">
-                  <SelectValue placeholder="Negócio" />
-                </SelectTrigger>
-                <SelectContent className="rounded-xl">
-                  <SelectItem value="all">Todos</SelectItem>
-                  <SelectItem value="sale">Comprar</SelectItem>
-                  <SelectItem value="rent">Arrendar</SelectItem>
-                </SelectContent>
-              </Select>
-              <button
-                onClick={handleSearch}
-                className="bg-foreground text-background rounded-full px-6 py-2.5 font-medium hover:opacity-90 transition-opacity flex items-center gap-2"
-              >
-                <Search className="h-4 w-4" />
-                Pesquisar
-              </button>
-            </div>
-          </div>
-          </div>
-          )}
-
-        </motion.div>
-        </motion.div>
-      </motion.div>
-
-      {/* Mobile Menu */}
+      {/* Outer centering wrapper — uses CSS flex when pill */}
       <div
         className={cn(
-          'lg:hidden fixed inset-x-0 top-[68px] bg-background border-b border-border transition-all duration-300 ease-in-out z-40',
-          // top-[68px] = pill height (56px) + margin top (12px)
-          mobileMenuOpen
-            ? 'opacity-100 translate-y-0'
-            : 'opacity-0 -translate-y-4 pointer-events-none invisible'
+          'pointer-events-auto transition-all duration-[450ms] ease-[cubic-bezier(0.25,0.46,0.45,0.94)]',
+          isPill ? 'flex justify-center pt-3' : 'block pt-0'
+        )}
+      >
+        {/* Width-limiting wrapper */}
+        <motion.div
+          className="w-full"
+          animate={{ maxWidth: isPill ? '780px' : '9999px' }}
+          transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
+        >
+          {/* Visual pill shell */}
+          <motion.div
+            animate={isPill ? {
+              borderRadius: '9999px',
+              backgroundColor: pillBg,
+              boxShadow: '0 4px 24px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06)',
+              borderWidth: '1px',
+              borderColor: pillBorder,
+            } : {
+              borderRadius: '0px',
+              backgroundColor: 'rgba(0,0,0,0)',
+              boxShadow: 'none',
+              borderWidth: '0px',
+              borderColor: 'rgba(0,0,0,0)',
+            }}
+            transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
+            style={{ borderStyle: 'solid', backdropFilter: isPill ? 'blur(20px) saturate(180%)' : 'none' }}
+          >
+            <nav
+              className="px-6 md:px-8 flex items-center justify-between"
+              style={{ height: isPill ? '56px' : '80px', transition: 'height 0.45s cubic-bezier(0.25,0.46,0.45,0.94)' }}
+            >
+              {/* Logo */}
+              <Link href="/" className="flex-shrink-0 flex items-center">
+                <Image
+                  src="https://media.egorealestate.com/ORIGINAL/ab9a/2a120afd-2b27-49b5-8934-8237e1cbab9a.png"
+                  alt="Covialvi"
+                  width={200}
+                  height={70}
+                  className={cn(
+                    'w-auto transition-all duration-500',
+                    isTransparent
+                      ? 'h-11 brightness-0 invert'
+                      : mounted && theme === 'dark'
+                        ? 'h-9 brightness-0 invert'
+                        : 'h-9'
+                  )}
+                  priority
+                />
+              </Link>
+
+              {/* Desktop Nav Links */}
+              <div className="hidden lg:flex items-center space-x-6">
+                {navigation.map((item) => (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={cn(
+                      'text-sm font-medium transition-colors whitespace-nowrap',
+                      isTransparent
+                        ? 'text-white/90 hover:text-white'
+                        : mounted && theme === 'dark'
+                          ? 'text-gray-100 hover:text-yellow-400'
+                          : 'text-gray-900 hover:text-yellow-500'
+                    )}
+                  >
+                    {item.name}
+                  </Link>
+                ))}
+              </div>
+
+              {/* Desktop Actions */}
+              <div className="hidden lg:flex items-center gap-1.5">
+                {/* Tools visible only in transparent (hero) mode */}
+                {isTransparent && (
+                  <>
+                    <button
+                      onClick={toggleTheme}
+                      className="p-2 rounded-full text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+                    >
+                      {mounted && theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                    </button>
+                    <button
+                      onClick={() => setShowFilters(!showFilters)}
+                      className="p-2 rounded-full text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+                    >
+                      <Search className="h-4 w-4" />
+                    </button>
+                    <div className="relative" data-dropdown>
+                      <button
+                        onClick={() => setFerramentasOpen(!ferramentasOpen)}
+                        className="flex items-center gap-1 px-4 py-2 rounded-full bg-yellow-500 text-white font-medium text-sm hover:bg-yellow-600 transition-colors"
+                      >
+                        Ferramentas
+                        <ChevronDown className={cn('h-4 w-4 transition-transform', ferramentasOpen && 'rotate-180')} />
+                      </button>
+                      {ferramentasOpen && (
+                        <div className="absolute right-0 mt-2 w-56 bg-card rounded-xl shadow-lg border border-border py-2 z-50">
+                          <a
+                            href="https://simuladores.bancomontepio.pt/ITSCredit.External/Calculator/ITSCredit.Calculator.UI.External/calculator/HOUSINGJOURNEY"
+                            target="_blank" rel="noopener noreferrer"
+                            className="flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-secondary"
+                            onClick={() => setFerramentasOpen(false)}
+                          >
+                            <Calculator className="h-4 w-4 text-yellow-500" />
+                            <div>
+                              <div className="font-medium">Simulador de Crédito</div>
+                              <div className="text-xs text-muted-foreground">Calcule a sua prestação</div>
+                            </div>
+                          </a>
+                          <Link
+                            href="/avaliacao-completa"
+                            className="flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-secondary"
+                            onClick={() => setFerramentasOpen(false)}
+                          >
+                            <ClipboardList className="h-4 w-4 text-yellow-500" />
+                            <div>
+                              <div className="font-medium">Avaliação de Imóvel</div>
+                              <div className="text-xs text-muted-foreground">Questionário completo</div>
+                            </div>
+                          </Link>
+                        </div>
+                      )}
+                    </div>
+                    <Link
+                      href="/contacto"
+                      className="px-4 py-1.5 rounded-full font-medium text-sm bg-white/15 text-white hover:bg-white/25 border border-white/20 transition-all"
+                    >
+                      Contacto
+                    </Link>
+                  </>
+                )}
+
+                {/* User icon — always visible */}
+                {user ? (
+                  <div className="relative" data-dropdown>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setUserMenuOpen(!userMenuOpen); }}
+                      className={cn(
+                        'p-2 rounded-full transition-colors cursor-pointer',
+                        isTransparent
+                          ? 'text-white/70 hover:text-white hover:bg-white/10'
+                          : mounted && theme === 'dark'
+                            ? 'text-gray-300 hover:text-white hover:bg-white/10'
+                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                      )}
+                    >
+                      <User className="h-4 w-4" />
+                    </button>
+                    {userMenuOpen && (
+                      <div className="absolute right-0 mt-2 w-52 bg-card rounded-xl shadow-lg border border-border py-2 z-[70]">
+                        <Link href="/conta" className="block px-4 py-2.5 text-sm text-foreground hover:bg-secondary" onClick={() => setUserMenuOpen(false)}>Minha Conta</Link>
+                        <Link href="/conta/favoritos" className="block px-4 py-2.5 text-sm text-foreground hover:bg-secondary" onClick={() => setUserMenuOpen(false)}>Favoritos</Link>
+                        {isAdmin && <Link href="/admin" className="block px-4 py-2.5 text-sm text-foreground hover:bg-secondary" onClick={() => setUserMenuOpen(false)}>Painel Admin</Link>}
+                        <hr className="my-2 border-border" />
+                        <button onClick={() => { setUserMenuOpen(false); window.location.href = '/auth/logout'; }} className="block w-full text-left px-4 py-2.5 text-sm text-destructive hover:bg-destructive/10">Sair</button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <Link
+                    href="/auth/login"
+                    className={cn(
+                      'p-2 rounded-full transition-colors flex items-center justify-center',
+                      isTransparent
+                        ? 'text-white/70 hover:text-white hover:bg-white/10'
+                        : mounted && theme === 'dark'
+                          ? 'text-gray-300 hover:text-white hover:bg-white/10'
+                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                    )}
+                  >
+                    <User className="h-4 w-4" />
+                  </Link>
+                )}
+              </div>
+
+              {/* Mobile hamburger */}
+              <button
+                className={cn(
+                  'lg:hidden p-2 rounded-lg transition-colors',
+                  isTransparent
+                    ? 'text-white hover:bg-white/10'
+                    : mounted && theme === 'dark'
+                      ? 'text-gray-200 hover:bg-white/10'
+                      : 'text-gray-800 hover:bg-gray-100'
+                )}
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              >
+                {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </button>
+            </nav>
+
+            {/* Filter Bar — inside pill shell */}
+            {showFilters && (
+              <div className="border-t border-border/50 px-6 py-4">
+                <div className="flex flex-wrap md:flex-nowrap items-center gap-3">
+                  <input
+                    type="text"
+                    placeholder="Localização..."
+                    value={searchLocation}
+                    onChange={(e) => setSearchLocation(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                    className="flex-1 min-w-[180px] px-4 py-2.5 rounded-full border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20"
+                  />
+                  <Select value={searchNature} onValueChange={setSearchNature}>
+                    <SelectTrigger className="rounded-full border-border min-w-[140px]"><SelectValue placeholder="Tipo de Imóvel" /></SelectTrigger>
+                    <SelectContent className="rounded-xl">
+                      <SelectItem value="all">Todos os Tipos</SelectItem>
+                      <SelectItem value="apartment">Apartamento</SelectItem>
+                      <SelectItem value="house">Moradia</SelectItem>
+                      <SelectItem value="land">Terreno</SelectItem>
+                      <SelectItem value="commercial">Comercial</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select value={searchBusinessType} onValueChange={setSearchBusinessType}>
+                    <SelectTrigger className="rounded-full border-border min-w-[110px]"><SelectValue placeholder="Negócio" /></SelectTrigger>
+                    <SelectContent className="rounded-xl">
+                      <SelectItem value="all">Todos</SelectItem>
+                      <SelectItem value="sale">Comprar</SelectItem>
+                      <SelectItem value="rent">Arrendar</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <button onClick={handleSearch} className="bg-foreground text-background rounded-full px-5 py-2.5 font-medium hover:opacity-90 flex items-center gap-2">
+                    <Search className="h-4 w-4" /> Pesquisar
+                  </button>
+                </div>
+              </div>
+            )}
+          </motion.div>
+        </motion.div>
+      </div>
+
+      {/* Mobile Menu — full width dropdown below navbar */}
+      <div
+        className={cn(
+          'lg:hidden fixed inset-x-0 bg-background border-b border-border shadow-lg transition-all duration-300 ease-in-out z-40',
+          isPill ? 'top-[68px]' : 'top-[80px]',
+          mobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none invisible'
         )}
       >
         <div className="px-6 py-6 space-y-4">
@@ -406,164 +355,59 @@ export function Header() {
             <Link
               key={item.name}
               href={item.href}
-              className="block text-lg font-medium text-foreground hover:text-primary transition-colors"
+              className="block text-base font-medium text-foreground hover:text-yellow-500 transition-colors"
               onClick={() => setMobileMenuOpen(false)}
             >
               {item.name}
             </Link>
           ))}
-          
-          {/* Mobile Theme Toggle */}
-          <div className="flex justify-end py-2">
-            <button
-              onClick={toggleTheme}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary text-foreground"
-            >
-              {mounted && theme === 'dark' ? (
-                <>
-                  <Sun className="h-4 w-4" />
-                  <span className="text-sm">Claro</span>
-                </>
-              ) : (
-                <>
-                  <Moon className="h-4 w-4" />
-                  <span className="text-sm">Escuro</span>
-                </>
-              )}
+
+          <div className="flex items-center justify-between pt-2">
+            <button onClick={toggleTheme} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary text-foreground text-sm">
+              {mounted && theme === 'dark' ? <><Sun className="h-4 w-4" /><span>Modo Claro</span></> : <><Moon className="h-4 w-4" /><span>Modo Escuro</span></>}
             </button>
           </div>
-          
-          {/* Mobile Ferramentas */}
+
           <div className="space-y-2">
-            <p className="text-sm font-medium text-muted-foreground">Ferramentas</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Ferramentas</p>
             <a
               href="https://simuladores.bancomontepio.pt/ITSCredit.External/Calculator/ITSCredit.Calculator.UI.External/calculator/HOUSINGJOURNEY"
-              target="_blank"
-              rel="noopener noreferrer"
+              target="_blank" rel="noopener noreferrer"
               onClick={() => setMobileMenuOpen(false)}
               className="flex items-center gap-3 py-3 px-4 rounded-xl bg-yellow-500/10 text-foreground"
             >
               <Calculator className="h-5 w-5 text-yellow-500" />
               <div>
-                <div className="font-medium">Simulador de Crédito</div>
+                <div className="font-medium text-sm">Simulador de Crédito</div>
                 <div className="text-xs text-muted-foreground">Calcule a sua prestação</div>
               </div>
             </a>
-            <Link
-              href="/avaliacao-completa"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-3 py-3 px-4 rounded-xl bg-yellow-500/10 text-foreground"
-            >
+            <Link href="/avaliacao-completa" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 py-3 px-4 rounded-xl bg-yellow-500/10 text-foreground">
               <ClipboardList className="h-5 w-5 text-yellow-500" />
               <div>
-                <div className="font-medium">Avaliação de Imóvel</div>
+                <div className="font-medium text-sm">Avaliação de Imóvel</div>
                 <div className="text-xs text-muted-foreground">Questionário completo</div>
               </div>
             </Link>
           </div>
-          
-          {/* Mobile Contact Button */}
-          <Link
-            href="/contacto"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block text-center py-3 rounded-xl bg-foreground text-background font-medium"
-          >
+
+          <Link href="/contacto" onClick={() => setMobileMenuOpen(false)} className="block text-center py-3 rounded-xl bg-foreground text-background font-medium text-sm">
             Contacto
           </Link>
-          
+
           <hr className="border-border" />
-          
-          {/* Mobile Filter */}
-          <div className="space-y-3">
-            <input
-              type="text"
-              placeholder="Localização..."
-              value={searchLocation}
-              onChange={(e) => setSearchLocation(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20"
-            />
-            <div className="grid grid-cols-2 gap-3">
-              <Select value={searchNature} onValueChange={setSearchNature}>
-                <SelectTrigger className="rounded-xl">
-                  <SelectValue placeholder="Tipo" />
-                </SelectTrigger>
-                <SelectContent className="rounded-xl">
-                  <SelectItem value="all">Todos</SelectItem>
-                  <SelectItem value="apartment">Apartamento</SelectItem>
-                  <SelectItem value="house">Moradia</SelectItem>
-                  <SelectItem value="land">Terreno</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={searchBusinessType} onValueChange={setSearchBusinessType}>
-                <SelectTrigger className="rounded-xl">
-                  <SelectValue placeholder="Negócio" />
-                </SelectTrigger>
-                <SelectContent className="rounded-xl">
-                  <SelectItem value="all">Todos</SelectItem>
-                  <SelectItem value="sale">Comprar</SelectItem>
-                  <SelectItem value="rent">Arrendar</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <button
-              onClick={() => {
-                handleSearch();
-                setMobileMenuOpen(false);
-              }}
-              className="w-full bg-foreground text-background rounded-xl py-3 font-medium"
-            >
-              Pesquisar
-            </button>
-          </div>
-          
-          <hr className="border-border" />
+
           {user ? (
-            <>
-              <Link
-                href="/conta"
-                className="block text-lg font-medium text-foreground"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Minha Conta
-              </Link>
-              <Link
-                href="/conta/favoritos"
-                className="block text-lg font-medium text-foreground"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Favoritos
-              </Link>
-              {isAdmin && (
-                <Link
-                  href="/admin"
-                  className="block text-lg font-medium text-foreground"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Painel Admin
-                </Link>
-              )}
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  window.location.href = '/auth/logout';
-                }}
-                className="block text-lg font-medium text-destructive"
-              >
-                Sair
-              </button>
-            </>
+            <div className="space-y-2">
+              <Link href="/conta" className="block py-2 text-sm font-medium text-foreground" onClick={() => setMobileMenuOpen(false)}>Minha Conta</Link>
+              <Link href="/conta/favoritos" className="block py-2 text-sm font-medium text-foreground" onClick={() => setMobileMenuOpen(false)}>Favoritos</Link>
+              {isAdmin && <Link href="/admin" className="block py-2 text-sm font-medium text-foreground" onClick={() => setMobileMenuOpen(false)}>Painel Admin</Link>}
+              <button onClick={() => { setMobileMenuOpen(false); window.location.href = '/auth/logout'; }} className="block py-2 text-sm font-medium text-destructive">Sair</button>
+            </div>
           ) : (
-            <div className="flex flex-col space-y-3">
-              <Link href="/auth/login" onClick={() => setMobileMenuOpen(false)}>
-                <Button variant="outline" className="w-full">
-                  Entrar
-                </Button>
-              </Link>
-              <Link href="/auth/registar" onClick={() => setMobileMenuOpen(false)}>
-                <Button className="w-full bg-foreground text-background">
-                  Criar Conta
-                </Button>
-              </Link>
+            <div className="flex flex-col gap-3">
+              <Link href="/auth/login" onClick={() => setMobileMenuOpen(false)}><Button variant="outline" className="w-full">Entrar</Button></Link>
+              <Link href="/auth/registar" onClick={() => setMobileMenuOpen(false)}><Button className="w-full">Criar Conta</Button></Link>
             </div>
           )}
         </div>
