@@ -263,7 +263,7 @@ export default async function PropertiesPage({
                     {/* Vendido Ribbon */}
                     {property.construction_status === 'sold' && (
                       <div className="absolute top-0 left-0 z-20 overflow-hidden w-32 h-32 pointer-events-none">
-                        <div className="absolute top-[18px] left-[-30px] w-[170px] text-center transform -rotate-45 bg-red-600 text-white text-xs font-bold py-1.5 shadow-lg">
+                        <div className="absolute top-[20px] left-[-26px] w-[170px] text-center transform -rotate-45 bg-red-600 text-white text-xs font-bold py-1.5 shadow-lg">
                           100% Vendido
                         </div>
                       </div>
