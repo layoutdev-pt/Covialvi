@@ -149,14 +149,15 @@ export function Header() {
                   alt="Covialvi"
                   width={200}
                   height={70}
-                  className={cn(
-                    'w-auto transition-all duration-500',
-                    isTransparent
-                      ? 'h-11 brightness-0 invert'
-                      : mounted && theme === 'dark'
-                        ? 'h-9 brightness-0 invert'
-                        : 'h-9'
-                  )}
+                  className="w-auto transition-all duration-500"
+                  style={{
+                    height: isTransparent ? '44px' : '36px',
+                    filter: isTransparent
+                      ? 'brightness(0) invert(1)'
+                      : (mounted && theme === 'dark')
+                        ? 'brightness(0) invert(1)'
+                        : 'none',
+                  }}
                   priority
                 />
               </Link>
@@ -167,14 +168,14 @@ export function Header() {
                   <Link
                     key={item.name}
                     href={item.href}
-                    className={cn(
-                      'text-sm font-medium transition-colors whitespace-nowrap',
-                      isTransparent
-                        ? 'text-white/90 hover:text-white'
-                        : mounted && theme === 'dark'
-                          ? 'text-gray-100 hover:text-yellow-400'
-                          : 'text-gray-900 hover:text-yellow-500'
-                    )}
+                    className="text-sm font-medium transition-colors whitespace-nowrap hover:text-yellow-500"
+                    style={{
+                      color: isTransparent
+                        ? 'rgba(255,255,255,0.90)'
+                        : (mounted && theme === 'dark')
+                          ? 'rgb(243,244,246)'
+                          : 'rgb(17,24,39)',
+                    }}
                   >
                     {item.name}
                   </Link>
