@@ -255,7 +255,7 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
       <section className="bg-background pt-3">
         <div className="px-3 md:px-5">
           {/* Rounded video container */}
-          <div className="relative rounded-2xl overflow-hidden" style={{ height: '52vh', minHeight: '360px' }}>
+          <div className="relative rounded-2xl overflow-hidden" style={{ height: '65vh', minHeight: '420px' }}>
             <video
               autoPlay
               muted
