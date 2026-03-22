@@ -252,7 +252,7 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
   return (
     <main className="bg-background overflow-hidden">
       {/* Hero Section - Rounded container with margins */}
-      <section className="bg-background pt-20">
+      <section className="bg-background pt-3">
         <div className="px-3 md:px-5">
           {/* Rounded video container */}
           <div className="relative rounded-2xl overflow-hidden" style={{ height: '52vh', minHeight: '360px' }}>
@@ -268,14 +268,14 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
             <div className="absolute inset-0 bg-gradient-to-br from-black/65 via-black/35 to-black/10" />
 
             {/* Hero Content overlay */}
-            <div className="relative z-10 h-full flex flex-col px-8 md:px-12 lg:px-14">
-              <div className="flex-1 flex flex-col justify-center max-w-2xl">
+            <div className="relative z-10 h-full flex flex-col px-8 md:px-12 lg:px-14 pt-20">
+              <div className="flex-1 flex flex-col justify-center items-center text-center w-full">
                 <motion.div
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: 0.2 }}
                 >
-                  <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-[1.1] mb-4 tracking-tight">
+                  <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-[1.1] mb-4 tracking-tight text-center">
                     ENCONTRE A SUA<br />
                     CASA IDEAL<br />
                     HOJE
@@ -286,7 +286,7 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: 0.4 }}
-                  className="text-white/70 text-base md:text-lg max-w-xl mb-8 leading-relaxed"
+                  className="text-white/70 text-base md:text-lg max-w-xl mb-8 leading-relaxed text-center"
                 >
                   Oferecemos soluções imobiliárias personalizadas, guiando-o em cada passo com experiências que atendem às suas necessidades e aspirações únicas.
                 </motion.p>
@@ -296,7 +296,7 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: 0.6 }}
-                  className="w-full max-w-3xl"
+                  className="w-full max-w-3xl mx-auto"
                 >
                   <div className="relative rounded-2xl md:rounded-full p-[1px] flex flex-col md:flex-row" style={{background: 'linear-gradient(135deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.25) 100%)'}}>
                     <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 w-full rounded-2xl md:rounded-full px-2 py-2"
@@ -394,7 +394,7 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
                 transition={{ duration: 0.8, delay: 0.8 }}
                 className="pb-5 pt-3"
               >
-                <div className="flex flex-wrap gap-8 md:gap-14">
+                <div className="flex flex-wrap justify-center gap-8 md:gap-14">
                   <div>
                     <p className="text-2xl md:text-3xl font-bold text-white mb-0">
                       <AnimatedCounter value={stats.properties} suffix="+" />
