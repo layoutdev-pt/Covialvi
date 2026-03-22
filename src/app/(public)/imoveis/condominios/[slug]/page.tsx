@@ -120,8 +120,8 @@ export default async function CondominioPage({ params }: { params: { slug: strin
                         </div>
                       )}
                       {isSold && (
-                        <div className="absolute top-0 left-0 z-20 overflow-hidden w-40 h-40 pointer-events-none">
-                          <div className="absolute top-[26px] left-[-36px] w-[220px] text-center transform -rotate-45 bg-red-600 text-white text-xs font-bold py-2.5 shadow-lg tracking-wide">
+                        <div className="absolute inset-0 z-20 overflow-hidden pointer-events-none">
+                          <div className="absolute text-center transform -rotate-45 bg-red-600 text-white text-sm font-bold py-4 shadow-lg tracking-wide" style={{ width: '320px', top: '52px', left: '-85px' }}>
                             100% Vendido
                           </div>
                         </div>

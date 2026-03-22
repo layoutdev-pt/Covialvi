@@ -1007,8 +1007,8 @@ function PropertyCard({
         
         {/* Vendido Ribbon */}
         {property.construction_status === 'sold' && (
-          <div className="absolute top-0 left-0 z-30 overflow-hidden w-44 h-44 pointer-events-none">
-            <div className="absolute top-[71px] left-[-42px] w-[260px] text-center transform -rotate-45 bg-red-600 text-white text-xs font-bold py-2.5 shadow-lg tracking-wide">
+          <div className="absolute inset-0 z-30 overflow-hidden pointer-events-none">
+            <div className="absolute text-center transform -rotate-45 bg-red-600 text-white text-sm font-bold py-4 shadow-lg tracking-wide" style={{ width: '320px', top: '52px', left: '-85px' }}>
               100% Vendido
             </div>
           </div>
@@ -1169,8 +1169,8 @@ function HeroPropertyCard({
           
           {/* Vendido Ribbon */}
           {property.construction_status === 'sold' && (
-            <div className="absolute top-0 left-0 z-30 overflow-hidden w-44 h-44 pointer-events-none">
-              <div className="absolute top-[71px] left-[-42px] w-[260px] text-center transform -rotate-45 bg-red-600 text-white text-[11px] font-bold py-2.5 shadow-lg tracking-wide">
+            <div className="absolute inset-0 z-30 overflow-hidden pointer-events-none">
+              <div className="absolute text-center transform -rotate-45 bg-red-600 text-white text-sm font-bold py-4 shadow-lg tracking-wide" style={{ width: '320px', top: '52px', left: '-85px' }}>
                 100% Vendido
               </div>
             </div>
