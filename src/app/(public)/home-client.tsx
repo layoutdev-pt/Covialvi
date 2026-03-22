@@ -251,62 +251,62 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
 
   return (
     <main className="bg-background overflow-hidden">
-      {/* Hero Section - Full Width Video Background */}
-      <section className="relative w-full" style={{ minHeight: '78vh', maxHeight: '88vh' }}>
-        <div className="absolute inset-0 w-full h-full overflow-hidden">
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="absolute inset-0 w-full h-full object-cover"
-          >
-            <source src="https://ge1temxvqllmetmu.public.blob.vercel-storage.com/video%20site%20covialvi%20%281%29_1%20%281%29.mp4" type="video/mp4" />
-          </video>
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-br from-black/55 via-black/30 to-black/10" />
-          
-          {/* Hero Content */}
-          <div className="relative z-10 h-full flex flex-col justify-center px-8 md:px-12 lg:px-16 pt-[120px] pb-12" style={{ minHeight: '78vh', maxHeight: '88vh' }}>
-            <div className="max-w-2xl">
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
-              >
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.1] mb-6 tracking-tight">
-                  ENCONTRE A SUA<br />
-                  CASA IDEAL<br />
-                  HOJE
-                </h1>
-              </motion.div>
-            
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="text-white/70 text-lg md:text-xl max-w-xl mb-10 leading-relaxed"
+      {/* Hero Section - Rounded container with margins */}
+      <section className="bg-background pt-20">
+        <div className="px-3 md:px-5">
+          {/* Rounded video container */}
+          <div className="relative rounded-2xl overflow-hidden" style={{ height: '58vh', minHeight: '420px' }}>
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="absolute inset-0 w-full h-full object-cover"
             >
-              Oferecemos soluções imobiliárias personalizadas, guiando-o em cada passo com experiências que atendem às suas necessidades e aspirações únicas.
-            </motion.p>
-            
-            {/* Search Bar */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-              className="w-full max-w-3xl"
-            >
-              <div className="relative rounded-2xl md:rounded-full p-[1px] flex flex-col md:flex-row" style={{background: 'linear-gradient(135deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.25) 100%)'}}
-              >
-                <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 w-full rounded-2xl md:rounded-full px-2 py-2"
-                  style={{
-                    background: 'rgba(255,255,255,0.12)',
-                    backdropFilter: 'blur(40px) saturate(180%)',
-                    WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-                    boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.4), inset 0 -1px 1px rgba(0,0,0,0.1), 0 8px 32px rgba(0,0,0,0.25), 0 2px 8px rgba(0,0,0,0.15)'
-                  }}
+              <source src="https://ge1temxvqllmetmu.public.blob.vercel-storage.com/video%20site%20covialvi%20%281%29_1%20%281%29.mp4" type="video/mp4" />
+            </video>
+            <div className="absolute inset-0 bg-gradient-to-br from-black/65 via-black/35 to-black/10" />
+
+            {/* Hero Content overlay */}
+            <div className="relative z-10 h-full flex flex-col justify-center px-8 md:px-12 lg:px-14 pb-8">
+              <div className="max-w-2xl">
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.2 }}
                 >
+                  <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-[1.1] mb-4 tracking-tight">
+                    ENCONTRE A SUA<br />
+                    CASA IDEAL<br />
+                    HOJE
+                  </h1>
+                </motion.div>
+
+                <motion.p
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.4 }}
+                  className="text-white/70 text-base md:text-lg max-w-xl mb-8 leading-relaxed"
+                >
+                  Oferecemos soluções imobiliárias personalizadas, guiando-o em cada passo com experiências que atendem às suas necessidades e aspirações únicas.
+                </motion.p>
+
+                {/* Search Bar */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.6 }}
+                  className="w-full max-w-3xl"
+                >
+                  <div className="relative rounded-2xl md:rounded-full p-[1px] flex flex-col md:flex-row" style={{background: 'linear-gradient(135deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.25) 100%)'}}>
+                    <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 w-full rounded-2xl md:rounded-full px-2 py-2"
+                      style={{
+                        background: 'rgba(255,255,255,0.12)',
+                        backdropFilter: 'blur(40px) saturate(180%)',
+                        WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+                        boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.4), inset 0 -1px 1px rgba(0,0,0,0.1), 0 8px 32px rgba(0,0,0,0.25), 0 2px 8px rgba(0,0,0,0.15)'
+                      }}
+                    >
                 <div className="flex-1">
                   <Select value={searchLocation} onValueChange={setSearchLocation}>
                     <SelectTrigger className="border-0 bg-transparent shadow-none focus:ring-0 w-full md:min-w-[160px] text-sm text-white/90 font-medium [&>svg]:text-white/50 placeholder:text-white/50">
@@ -381,40 +381,43 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
                   <span className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center group-hover:bg-white/30 transition-colors">
                     <Search className="h-4 w-4" />
                   </span>
-                </motion.button>
+                    </motion.button>
+                    </div>
+                  </div>
+                </motion.div>
               </div>
-              </div>
-            </motion.div>
-            {/* Stats Row — directly below search bar */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.8 }}
-              className="mt-6"
-            >
-              <div className="flex flex-wrap gap-8 md:gap-14">
-                <div className="group">
-                  <p className="text-3xl md:text-4xl font-bold text-white mb-0.5">
-                    <AnimatedCounter value={stats.properties} suffix="+" />
-                  </p>
-                  <p className="text-white/50 text-xs uppercase tracking-wide">Imóveis</p>
-                </div>
-                <div className="group">
-                  <p className="text-3xl md:text-4xl font-bold text-white mb-0.5">
-                    <AnimatedCounter value={stats.clients} suffix="+" />
-                  </p>
-                  <p className="text-white/50 text-xs uppercase tracking-wide">Clientes</p>
-                </div>
-                <div className="group">
-                  <p className="text-3xl md:text-4xl font-bold text-white mb-0.5">
-                    $<AnimatedCounter value={10} suffix="M+" />
-                  </p>
-                  <p className="text-white/50 text-xs uppercase tracking-wide">Valor</p>
-                </div>
-              </div>
-            </motion.div>
+            </div>
+          </div>{/* end rounded video container */}
+        </div>
+
+        {/* Stats Row — outside video, below it */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.8 }}
+          className="px-6 md:px-10 py-6"
+        >
+          <div className="flex flex-wrap gap-8 md:gap-14">
+            <div>
+              <p className="text-3xl md:text-4xl font-bold text-foreground mb-0.5">
+                <AnimatedCounter value={stats.properties} suffix="+" />
+              </p>
+              <p className="text-muted-foreground text-xs uppercase tracking-wide">Imóveis</p>
+            </div>
+            <div>
+              <p className="text-3xl md:text-4xl font-bold text-foreground mb-0.5">
+                <AnimatedCounter value={stats.clients} suffix="+" />
+              </p>
+              <p className="text-muted-foreground text-xs uppercase tracking-wide">Clientes</p>
+            </div>
+            <div>
+              <p className="text-3xl md:text-4xl font-bold text-foreground mb-0.5">
+                $<AnimatedCounter value={10} suffix="M+" />
+              </p>
+              <p className="text-muted-foreground text-xs uppercase tracking-wide">Valor</p>
             </div>
           </div>
+        </motion.div>
       </section>
         
       {/* Featured Properties Below Hero */}
