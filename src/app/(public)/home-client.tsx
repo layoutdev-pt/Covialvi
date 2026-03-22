@@ -89,6 +89,7 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
   const router = useRouter();
   const [activeService, setActiveService] = useState(0);
   const { scrollYProgress } = useScroll();
+  const resultsRef = useRef<HTMLDivElement>(null);
   
   // Search filter states
   const [searchLocation, setSearchLocation] = useState('');
@@ -177,22 +178,7 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
   const heroProperties = filteredProperties.slice(0, 3);
   
   const handleSearch = () => {
-    const params = new URLSearchParams();
-    if (searchLocation && searchLocation !== 'all') {
-      // Extract the actual location value without prefix for URL
-      if (searchLocation.startsWith('municipality:')) {
-        params.set('municipality', searchLocation.replace('municipality:', ''));
-      } else if (searchLocation.startsWith('district:')) {
-        params.set('district', searchLocation.replace('district:', ''));
-      } else {
-        params.set('location', searchLocation);
-      }
-    }
-    if (searchNature && searchNature !== 'all') params.set('nature', searchNature);
-    if (searchBusinessType && searchBusinessType !== 'all') params.set('business_type', searchBusinessType);
-    
-    const queryString = params.toString();
-    router.push(`/imoveis${queryString ? `?${queryString}` : ''}`);
+    resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   const formatPrice = (price: number | null) => {
@@ -266,7 +252,7 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
   return (
     <main className="bg-background overflow-hidden">
       {/* Hero Section - Full Width Video Background */}
-      <section className="relative w-full min-h-screen">
+      <section className="relative w-full" style={{ minHeight: '78vh', maxHeight: '88vh' }}>
         <div className="absolute inset-0 w-full h-full overflow-hidden">
           <video
             autoPlay
@@ -275,13 +261,13 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
             playsInline
             className="absolute inset-0 w-full h-full object-cover"
           >
-            <source src="/video/hero.mp4" type="video/mp4" />
+            <source src="/video/hero-covialvi.mp4" type="video/mp4" />
           </video>
         </div>
         <div className="absolute inset-0 bg-gradient-to-br from-black/55 via-black/30 to-black/10" />
           
           {/* Hero Content */}
-          <div className="relative z-10 h-full flex flex-col justify-center px-8 md:px-12 lg:px-16 pt-[120px] pb-12 min-h-screen">
+          <div className="relative z-10 h-full flex flex-col justify-center px-8 md:px-12 lg:px-16 pt-[120px] pb-12" style={{ minHeight: '78vh', maxHeight: '88vh' }}>
             <div className="max-w-2xl">
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
@@ -399,41 +385,40 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
               </div>
               </div>
             </motion.div>
-            </div>
-            
-            {/* Stats Row */}
+            {/* Stats Row — directly below search bar */}
             <motion.div
-              initial={{ opacity: 0, y: 40 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.8 }}
-              className="mt-auto pt-12"
+              className="mt-6"
             >
-              <div className="flex flex-wrap gap-8 md:gap-16">
+              <div className="flex flex-wrap gap-8 md:gap-14">
                 <div className="group">
-                  <p className="text-4xl md:text-5xl font-bold text-white mb-1">
+                  <p className="text-3xl md:text-4xl font-bold text-white mb-0.5">
                     <AnimatedCounter value={stats.properties} suffix="+" />
                   </p>
-                  <p className="text-white/50 text-sm">Projects Complete</p>
+                  <p className="text-white/50 text-xs uppercase tracking-wide">Imóveis</p>
                 </div>
                 <div className="group">
-                  <p className="text-4xl md:text-5xl font-bold text-white mb-1">
+                  <p className="text-3xl md:text-4xl font-bold text-white mb-0.5">
                     <AnimatedCounter value={stats.clients} suffix="+" />
                   </p>
-                  <p className="text-white/50 text-sm">Happy Clients</p>
+                  <p className="text-white/50 text-xs uppercase tracking-wide">Clientes</p>
                 </div>
                 <div className="group">
-                  <p className="text-4xl md:text-5xl font-bold text-white mb-1">
+                  <p className="text-3xl md:text-4xl font-bold text-white mb-0.5">
                     $<AnimatedCounter value={10} suffix="M+" />
                   </p>
-                  <p className="text-white/50 text-sm">Project Value</p>
+                  <p className="text-white/50 text-xs uppercase tracking-wide">Valor</p>
                 </div>
               </div>
             </motion.div>
+            </div>
           </div>
       </section>
         
       {/* Featured Properties Below Hero */}
-      <section className="py-12 px-6 md:px-12 lg:px-20 bg-background">
+      <section ref={resultsRef} className="py-12 px-6 md:px-12 lg:px-20 bg-background">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
