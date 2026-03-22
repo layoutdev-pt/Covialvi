@@ -347,7 +347,7 @@ export function Header() {
       {/* Mobile Menu — full width dropdown below navbar */}
       <div
         className={cn(
-          'lg:hidden fixed inset-x-0 bg-background border-b border-border shadow-lg transition-all duration-300 ease-in-out z-40',
+          'lg:hidden fixed inset-x-0 bg-background border-b border-border shadow-lg transition-all duration-300 ease-in-out z-40 pointer-events-auto',
           isPill ? 'top-[68px]' : 'top-[80px]',
           mobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none invisible'
         )}
