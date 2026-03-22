@@ -261,7 +261,7 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
             playsInline
             className="absolute inset-0 w-full h-full object-cover"
           >
-            <source src="/video/hero-covialvi.mp4" type="video/mp4" />
+            <source src="https://ge1temxvqllmetmu.public.blob.vercel-storage.com/video%20site%20covialvi%20%281%29_1%20%281%29.mp4" type="video/mp4" />
           </video>
         </div>
         <div className="absolute inset-0 bg-gradient-to-br from-black/55 via-black/30 to-black/10" />
