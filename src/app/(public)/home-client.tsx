@@ -255,7 +255,7 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
       <section className="bg-background pt-20">
         <div className="px-3 md:px-5">
           {/* Rounded video container */}
-          <div className="relative rounded-2xl overflow-hidden" style={{ height: '58vh', minHeight: '420px' }}>
+          <div className="relative rounded-2xl overflow-hidden" style={{ height: '52vh', minHeight: '360px' }}>
             <video
               autoPlay
               muted
@@ -268,8 +268,8 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
             <div className="absolute inset-0 bg-gradient-to-br from-black/65 via-black/35 to-black/10" />
 
             {/* Hero Content overlay */}
-            <div className="relative z-10 h-full flex flex-col justify-center px-8 md:px-12 lg:px-14 pb-8">
-              <div className="max-w-2xl">
+            <div className="relative z-10 h-full flex flex-col px-8 md:px-12 lg:px-14">
+              <div className="flex-1 flex flex-col justify-center max-w-2xl">
                 <motion.div
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -386,42 +386,42 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
                   </div>
                 </motion.div>
               </div>
+
+              {/* Stats pinned to bottom inside video */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.8 }}
+                className="pb-5 pt-3"
+              >
+                <div className="flex flex-wrap gap-8 md:gap-14">
+                  <div>
+                    <p className="text-2xl md:text-3xl font-bold text-white mb-0">
+                      <AnimatedCounter value={stats.properties} suffix="+" />
+                    </p>
+                    <p className="text-white/50 text-xs uppercase tracking-wide">Imóveis</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl md:text-3xl font-bold text-white mb-0">
+                      <AnimatedCounter value={stats.clients} suffix="+" />
+                    </p>
+                    <p className="text-white/50 text-xs uppercase tracking-wide">Clientes</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl md:text-3xl font-bold text-white mb-0">
+                      $<AnimatedCounter value={10} suffix="M+" />
+                    </p>
+                    <p className="text-white/50 text-xs uppercase tracking-wide">Valor</p>
+                  </div>
+                </div>
+              </motion.div>
             </div>
           </div>{/* end rounded video container */}
         </div>
-
-        {/* Stats Row — outside video, below it */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
-          className="px-6 md:px-10 py-6"
-        >
-          <div className="flex flex-wrap gap-8 md:gap-14">
-            <div>
-              <p className="text-3xl md:text-4xl font-bold text-foreground mb-0.5">
-                <AnimatedCounter value={stats.properties} suffix="+" />
-              </p>
-              <p className="text-muted-foreground text-xs uppercase tracking-wide">Imóveis</p>
-            </div>
-            <div>
-              <p className="text-3xl md:text-4xl font-bold text-foreground mb-0.5">
-                <AnimatedCounter value={stats.clients} suffix="+" />
-              </p>
-              <p className="text-muted-foreground text-xs uppercase tracking-wide">Clientes</p>
-            </div>
-            <div>
-              <p className="text-3xl md:text-4xl font-bold text-foreground mb-0.5">
-                $<AnimatedCounter value={10} suffix="M+" />
-              </p>
-              <p className="text-muted-foreground text-xs uppercase tracking-wide">Valor</p>
-            </div>
-          </div>
-        </motion.div>
       </section>
         
       {/* Featured Properties Below Hero */}
-      <section ref={resultsRef} className="py-12 px-6 md:px-12 lg:px-20 bg-background">
+      <section ref={resultsRef} className="py-5 px-6 md:px-12 lg:px-20 bg-background">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
