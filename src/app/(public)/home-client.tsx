@@ -254,6 +254,7 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
       {/* Hero Section - Rounded container with margins */}
       <section className="bg-background pt-3">
         <div className="px-6 md:px-12 lg:px-20">
+          <div className="max-w-7xl mx-auto">
           {/* Rounded video container */}
           <div className="relative rounded-2xl overflow-hidden" style={{ height: '65vh', minHeight: '420px' }}>
             <video
@@ -417,6 +418,7 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
               </motion.div>
             </div>
           </div>{/* end rounded video container */}
+          </div>{/* end max-w-7xl */}
         </div>
       </section>
         
