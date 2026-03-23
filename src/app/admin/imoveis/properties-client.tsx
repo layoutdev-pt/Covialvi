@@ -51,6 +51,7 @@ interface Property {
   id: string;
   title: string;
   slug: string;
+  reference: string;
   status: string;
   business_type: string;
   nature: string;
@@ -115,7 +116,7 @@ export function PropertiesClient({ properties: initialProperties }: PropertiesCl
   const filteredProperties = properties.filter((property) => {
     const matchesSearch = property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       property.municipality?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      property.slug.toLowerCase().includes(searchTerm.toLowerCase());
+      property.reference?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = !statusFilter || property.status === statusFilter;
     const matchesBusinessType = !businessTypeFilter || property.business_type === businessTypeFilter;
     return matchesSearch && matchesStatus && matchesBusinessType;
@@ -315,7 +316,7 @@ export function PropertiesClient({ properties: initialProperties }: PropertiesCl
                           <span className="text-border">|</span>
                           <span>{businessTypeLabels[property.business_type] || property.business_type}</span>
                         </div>
-                        <p className="text-xs text-muted-foreground/60 mt-1 font-mono">Ref: {property.slug}</p>
+                        <p className="text-xs text-muted-foreground/60 mt-1 font-mono">Ref: {property.reference}</p>
                       </div>
                       
                       {/* Actions Dropdown */}
