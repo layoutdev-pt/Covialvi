@@ -200,7 +200,7 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
       icon: Home,
       title: 'Residências de Luxo',
       shortTitle: 'LUXO',
-      description: 'Experimente elegância incomparável nas nossas residências de luxo, com design requintado, comodidades premium e localizações privilegiadas para os gostos mais exigentes.',
+      description: 'Propriedades exclusivas com design premium e localizações privilegiadas em Portugal.',
       image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2075',
     },
     {
@@ -208,7 +208,7 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
       icon: Leaf,
       title: 'Edifícios Sustentáveis',
       shortTitle: 'ECO',
-      description: 'Invista em propriedades eco-friendly com certificação energética de topo, materiais sustentáveis e tecnologia verde integrada para um futuro melhor.',
+      description: 'Imóveis com certificação energética A+, materiais eco e tecnologia verde integrada.',
       image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=2053',
     },
     {
@@ -216,7 +216,7 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
       icon: Palmtree,
       title: 'Casas de Férias',
       shortTitle: 'FÉRIAS',
-      description: 'Descubra propriedades de férias em localizações deslumbrantes, perfeitas para relaxar ou como investimento rentável com retorno garantido.',
+      description: 'Casas de férias em destinos premium — ideal para uso próprio ou arrendamento de alto retorno.',
       image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070',
     },
   ];
