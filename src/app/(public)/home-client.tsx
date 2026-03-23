@@ -313,7 +313,7 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
                     <SelectTrigger className="border-0 bg-transparent shadow-none focus:ring-0 w-full md:min-w-[160px] text-sm text-white/90 font-medium [&>svg]:text-white/50 placeholder:text-white/50">
                       <SelectValue placeholder="Localização" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border border-gray-200 shadow-xl rounded-xl max-h-[300px]">
+                    <SelectContent position="popper" sideOffset={4} className="bg-white border border-gray-200 shadow-xl rounded-xl max-h-[300px]">
                       <SelectItem value="all" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Todas as localizações</SelectItem>
                       {availableLocations.municipalities.length > 0 && (
                         <>
@@ -344,7 +344,7 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
                     <SelectTrigger className="border-0 bg-transparent shadow-none focus:ring-0 flex-1 md:min-w-[130px] text-sm text-white/90 font-medium [&>svg]:text-white/50">
                       <SelectValue placeholder="Tipo" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border border-gray-200 shadow-xl rounded-xl">
+                    <SelectContent position="popper" sideOffset={4} className="bg-white border border-gray-200 shadow-xl rounded-xl">
                       <SelectItem value="all" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Todos</SelectItem>
                       <SelectItem value="apartment" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Apartamento</SelectItem>
                       <SelectItem value="house" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Moradia</SelectItem>
@@ -359,7 +359,7 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
                     <SelectTrigger className="border-0 bg-transparent shadow-none focus:ring-0 flex-1 md:min-w-[100px] text-sm text-white/90 font-medium [&>svg]:text-white/50">
                       <SelectValue placeholder="Negócio" />
                     </SelectTrigger>
-                  <SelectContent className="bg-white border border-gray-200 shadow-xl rounded-xl">
+                  <SelectContent position="popper" sideOffset={4} className="bg-white border border-gray-200 shadow-xl rounded-xl">
                     <SelectItem value="all" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Todos</SelectItem>
                     <SelectItem value="sale" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Comprar</SelectItem>
                     <SelectItem value="rent" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Arrendar</SelectItem>
