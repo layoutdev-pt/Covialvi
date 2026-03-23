@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import { MapPin, Phone, Mail, Clock, Smartphone, Building2 } from 'lucide-react';
 import { company } from '@/lib/company';
@@ -124,29 +123,6 @@ export default async function ContactPage() {
           </div>
         </div>
 
-      </div>
-
-      {/* QR Code Section - Full Width Dark Background */}
-      <div className="bg-gray-900 dark:bg-gray-800 py-16 mt-16">
-        <div className="container-wide">
-          <div className="flex flex-col md:flex-row items-center gap-10">
-            <div className="flex-shrink-0">
-              <Image
-                src="https://image-charts.com/chart?chs=300x300&cht=qr&chld=L%7C0&chl=BEGIN%253AVCARD%250AVERSION%253A3.0%250AFN%253ACovialvi+-+Constru%25C3%25A7%25C3%25B5es%252C+Lda.%250ATEL%253BTYPE%253DCELL%252CVOICE%253A%252B351+967+138+116%250ATEL%253BTYPE%253DWORK%252CVOICE%253A%252B351+275+971+394%250AEMAIL%253BTYPE%253DPREF%252CINTERNET%253Acovialvi%2540gmail.com%250AURL%253Ahttp%253A%252F%252Fwww.covialvi.com%250AADR%253AParque+Industrial+do+Tortosendo%252C+Lote+75+-+Rua+E%252C+6200-683+Tortosendo%250AEND%253AVCARD"
-                alt="QR Code - Contactos Covialvi"
-                width={180}
-                height={180}
-                className="rounded-lg bg-white p-3"
-              />
-            </div>
-            <div>
-              <h3 className="text-2xl font-semibold text-white mb-4">Guarde os nossos contactos</h3>
-              <p className="text-gray-300 max-w-lg">
-                Descarregue os nossos contactos para o seu smartphone. Basta apontar a câmara do seu telemóvel para o código QR.
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
