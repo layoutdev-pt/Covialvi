@@ -18,10 +18,11 @@ export default function TermosCondicoesPage() {
             <h2 className="text-2xl font-semibold text-foreground mb-4">1. Identificação da Entidade</h2>
             <p className="text-muted-foreground leading-relaxed">
               O presente website é propriedade e gerido pela <strong>{company.name}</strong>,
-              sociedade comercial por quotas, com sede em {company.address.full},
-              registada na Conservatória do Registo Comercial da Covilhã, titular de licença de
-              Construção Civil e Mediador Imobiliário, emitida pelo Instituto dos Mercados Públicos,
-              do Imobiliário e da Construção (IMPIC).
+              sociedade por quotas, com sede no Parque Industrial do Tortosendo, Lote 75, Rua E,
+              6200-823 Tortosendo, Covilhã, registada na Conservatória do Registo Comercial
+              da Covilhã, com o número de pessoa coletiva (NIF) <strong>503 982 920</strong>,
+              com capital social de € 124.939,90, com atividade principal de Construção de Edifícios
+              (CAE 41200) e compra, venda e revenda de imóveis.
               Contactos: <strong>{company.email}</strong> | <strong>{company.phone}</strong>
             </p>
           </section>

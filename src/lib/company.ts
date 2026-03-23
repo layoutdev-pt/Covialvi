@@ -15,12 +15,12 @@ export const company = {
   address: {
     street: 'Parque Industrial do Tortosendo',
     detail: 'Lote 75 – Rua E',
-    postalCode: '6200-683',
+    postalCode: '6200-823',
     locality: 'Tortosendo',
     district: 'Castelo Branco',
     country: 'PT',
     /** One-liner for compact usage */
-    full: 'Parque Industrial do Tortosendo, Lote 75 – Rua E, 6200-683 Tortosendo',
+    full: 'Parque Industrial do Tortosendo, Lote 75 – Rua E, 6200-823 Tortosendo',
   },
   website: 'https://covialvi.com',
   hours: 'Segunda a Sexta: 9h às 13h e das 14h às 18h',

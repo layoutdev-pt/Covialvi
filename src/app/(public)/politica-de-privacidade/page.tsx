@@ -17,7 +17,7 @@ export default function PoliticaPrivacidadePage() {
           <section>
             <h2 className="text-2xl font-semibold text-foreground mb-4">1. Responsável pelo Tratamento</h2>
             <p className="text-muted-foreground leading-relaxed">
-              A <strong>{company.name}</strong>, com sede em {company.address.full}, NIF 123456789, 
+              A <strong>{company.name}</strong>, com sede em {company.address.full}, NIF <strong>503 982 920</strong>, 
               é a entidade responsável pelo tratamento dos dados pessoais recolhidos através deste website, em conformidade 
               com o Regulamento (UE) 2016/679 do Parlamento Europeu e do Conselho, de 27 de abril de 2016 (Regulamento 
               Geral sobre a Proteção de Dados - RGPD) e a Lei n.º 58/2019, de 8 de agosto.
