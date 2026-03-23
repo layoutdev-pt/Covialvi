@@ -287,7 +287,7 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: 0.4 }}
-                  className="text-white/70 text-base md:text-lg max-w-xl mb-8 leading-relaxed"
+                  className="hidden md:block text-white/70 text-base md:text-lg max-w-xl mb-8 leading-relaxed"
                 >
                   Oferecemos soluções imobiliárias personalizadas, guiando-o em cada passo com experiências que atendem às suas necessidades e aspirações únicas.
                 </motion.p>
