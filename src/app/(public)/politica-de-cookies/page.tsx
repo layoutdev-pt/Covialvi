@@ -11,7 +11,7 @@ export default function PoliticaCookiesPage() {
     <main className="min-h-screen bg-background pt-24 pb-16">
       <div className="max-w-4xl mx-auto px-4 md:px-8">
         <h1 className="text-4xl font-bold text-foreground mb-8">Política de Cookies</h1>
-        <p className="text-muted-foreground mb-8">Última atualização: Janeiro de 2026</p>
+        <p className="text-muted-foreground mb-8">Última atualização: Março de 2026</p>
 
         <div className="prose prose-gray dark:prose-invert max-w-none space-y-8">
           <section>
@@ -40,34 +40,56 @@ export default function PoliticaCookiesPage() {
               <div className="bg-secondary/50 rounded-xl p-6">
                 <h3 className="text-lg font-semibold text-foreground mb-3">3.1 Cookies Estritamente Necessários</h3>
                 <p className="text-muted-foreground leading-relaxed mb-3">
-                  Estes cookies são essenciais para o funcionamento do website e não podem ser desativados. São 
-                  geralmente definidos apenas em resposta a ações suas, como definir as suas preferências de 
-                  privacidade, iniciar sessão ou preencher formulários.
+                  Essenciais para o funcionamento do website. Não podem ser desativados, pois sem eles
+                  funcionalidades como autenticação e preferências de segurança não funcionam. Base legal:
+                  interesse legítimo e execução contratual (art. 6.º, n.º 1, al. b) e f) do RGPD).
                 </p>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-border">
-                        <th className="text-left py-2 text-foreground">Cookie</th>
+                        <th className="text-left py-2 text-foreground">Cookie / Chave</th>
+                        <th className="text-left py-2 text-foreground">Fornecedor</th>
                         <th className="text-left py-2 text-foreground">Finalidade</th>
+                        <th className="text-left py-2 text-foreground">Tipo</th>
                         <th className="text-left py-2 text-foreground">Duração</th>
                       </tr>
                     </thead>
                     <tbody className="text-muted-foreground">
                       <tr className="border-b border-border/50">
-                        <td className="py-2">session_id</td>
-                        <td className="py-2">Identificação de sessão do utilizador</td>
+                        <td className="py-2 font-mono text-xs">sb-[id]-auth-token</td>
+                        <td className="py-2">Supabase</td>
+                        <td className="py-2">Autenticação — mantém a sessão ativa após início de sessão</td>
+                        <td className="py-2">Cookie HTTP (httpOnly)</td>
+                        <td className="py-2">Sessão / até expirar token</td>
+                      </tr>
+                      <tr className="border-b border-border/50">
+                        <td className="py-2 font-mono text-xs">sb-[id]-auth-token-code-verifier</td>
+                        <td className="py-2">Supabase</td>
+                        <td className="py-2">Verificação PKCE durante fluxo OAuth</td>
+                        <td className="py-2">Cookie HTTP</td>
                         <td className="py-2">Sessão</td>
                       </tr>
                       <tr className="border-b border-border/50">
-                        <td className="py-2">csrf_token</td>
-                        <td className="py-2">Proteção contra ataques CSRF</td>
-                        <td className="py-2">Sessão</td>
+                        <td className="py-2 font-mono text-xs">covialvi_cookie_consent</td>
+                        <td className="py-2">Covialvi</td>
+                        <td className="py-2">Registo do consentimento de cookies dado pelo utilizador</td>
+                        <td className="py-2">localStorage</td>
+                        <td className="py-2">Persistente</td>
+                      </tr>
+                      <tr className="border-b border-border/50">
+                        <td className="py-2 font-mono text-xs">covialvi_cookie_preferences</td>
+                        <td className="py-2">Covialvi</td>
+                        <td className="py-2">Preferências detalhadas de cookies (essenciais/análise)</td>
+                        <td className="py-2">localStorage</td>
+                        <td className="py-2">Persistente</td>
                       </tr>
                       <tr>
-                        <td className="py-2">cookie_consent</td>
-                        <td className="py-2">Armazenamento das preferências de cookies</td>
-                        <td className="py-2">1 ano</td>
+                        <td className="py-2 font-mono text-xs">theme</td>
+                        <td className="py-2">Covialvi</td>
+                        <td className="py-2">Preferência de tema visual (claro/escuro)</td>
+                        <td className="py-2">localStorage</td>
+                        <td className="py-2">Persistente</td>
                       </tr>
                     </tbody>
                   </table>
@@ -75,103 +97,58 @@ export default function PoliticaCookiesPage() {
               </div>
 
               <div className="bg-secondary/50 rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-foreground mb-3">3.2 Cookies de Desempenho/Analíticos</h3>
+                <h3 className="text-lg font-semibold text-foreground mb-3">3.2 Cookies de Análise e Desempenho</h3>
                 <p className="text-muted-foreground leading-relaxed mb-3">
-                  Estes cookies permitem-nos contar visitas e fontes de tráfego para podermos medir e melhorar o 
-                  desempenho do nosso website. Ajudam-nos a saber quais as páginas mais e menos populares e a ver 
-                  como os visitantes navegam pelo website.
+                  Utilizados apenas com o seu consentimento (art. 6.º, n.º 1, al. a) do RGPD e Lei n.º 41/2004).
+                  Permitem compreender como os visitantes utilizam o website para o melhorarmos.
+                  <strong> Todos os dados são completamente anónimos e agregados — nenhuma informação pessoal é recolhida ou armazenada.</strong>
                 </p>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-border">
-                        <th className="text-left py-2 text-foreground">Cookie</th>
+                        <th className="text-left py-2 text-foreground">Serviço</th>
+                        <th className="text-left py-2 text-foreground">Fornecedor</th>
                         <th className="text-left py-2 text-foreground">Finalidade</th>
-                        <th className="text-left py-2 text-foreground">Duração</th>
+                        <th className="text-left py-2 text-foreground">Cookies / Identificadores</th>
+                        <th className="text-left py-2 text-foreground">Retenção</th>
                       </tr>
                     </thead>
                     <tbody className="text-muted-foreground">
                       <tr className="border-b border-border/50">
-                        <td className="py-2">_ga</td>
-                        <td className="py-2">Google Analytics - Distinção de utilizadores</td>
-                        <td className="py-2">2 anos</td>
-                      </tr>
-                      <tr className="border-b border-border/50">
-                        <td className="py-2">_gid</td>
-                        <td className="py-2">Google Analytics - Distinção de utilizadores</td>
-                        <td className="py-2">24 horas</td>
+                        <td className="py-2">Vercel Web Analytics</td>
+                        <td className="py-2">Vercel Inc. (EUA — DPA/SCCs)</td>
+                        <td className="py-2">Estatísticas anónimas: páginas vistas, fontes de tráfego, país. Sem IP, sem dados pessoais.</td>
+                        <td className="py-2">Sem cookies — hash anónimo temporário gerado a partir do pedido HTTP</td>
+                        <td className="py-2">Sessão descartada em 24h</td>
                       </tr>
                       <tr>
-                        <td className="py-2">_gat</td>
-                        <td className="py-2">Google Analytics - Limitação de pedidos</td>
-                        <td className="py-2">1 minuto</td>
+                        <td className="py-2">Vercel Speed Insights</td>
+                        <td className="py-2">Vercel Inc. (EUA — DPA/SCCs)</td>
+                        <td className="py-2">Métricas de desempenho (Core Web Vitals: LCP, FID, CLS). Dados anónimos.</td>
+                        <td className="py-2">Sem cookies — API nativa do browser</td>
+                        <td className="py-2">Dados anónimos agregados</td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
+                <p className="text-muted-foreground leading-relaxed mt-3 text-sm">
+                  O Vercel Analytics e Speed Insights são <strong>cookieless</strong> por design e conformes com o RGPD.
+                  Mais informação: <a href="https://vercel.com/docs/analytics/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-yellow-500 hover:underline">Vercel Analytics Privacy Policy</a>.
+                </p>
               </div>
 
-              <div className="bg-secondary/50 rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-foreground mb-3">3.3 Cookies de Funcionalidade</h3>
+              <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-xl p-6">
+                <h3 className="text-lg font-semibold text-foreground mb-3">Cookies que NÃO Utilizamos</h3>
                 <p className="text-muted-foreground leading-relaxed mb-3">
-                  Estes cookies permitem que o website forneça funcionalidades e personalização melhoradas. Podem ser 
-                  definidos por nós ou por fornecedores terceiros cujos serviços adicionámos às nossas páginas.
+                  Para total transparência, confirmamos que este website <strong>não utiliza</strong>:
                 </p>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-border">
-                        <th className="text-left py-2 text-foreground">Cookie</th>
-                        <th className="text-left py-2 text-foreground">Finalidade</th>
-                        <th className="text-left py-2 text-foreground">Duração</th>
-                      </tr>
-                    </thead>
-                    <tbody className="text-muted-foreground">
-                      <tr className="border-b border-border/50">
-                        <td className="py-2">theme</td>
-                        <td className="py-2">Preferência de tema (claro/escuro)</td>
-                        <td className="py-2">1 ano</td>
-                      </tr>
-                      <tr>
-                        <td className="py-2">favorites</td>
-                        <td className="py-2">Imóveis favoritos (utilizadores não autenticados)</td>
-                        <td className="py-2">30 dias</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <div className="bg-secondary/50 rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-foreground mb-3">3.4 Cookies de Marketing/Publicidade</h3>
-                <p className="text-muted-foreground leading-relaxed mb-3">
-                  Estes cookies podem ser definidos através do nosso website pelos nossos parceiros de publicidade. 
-                  Podem ser utilizados por essas empresas para construir um perfil dos seus interesses e mostrar-lhe 
-                  anúncios relevantes em outros websites.
-                </p>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-border">
-                        <th className="text-left py-2 text-foreground">Cookie</th>
-                        <th className="text-left py-2 text-foreground">Finalidade</th>
-                        <th className="text-left py-2 text-foreground">Duração</th>
-                      </tr>
-                    </thead>
-                    <tbody className="text-muted-foreground">
-                      <tr className="border-b border-border/50">
-                        <td className="py-2">_fbp</td>
-                        <td className="py-2">Facebook Pixel - Rastreamento de conversões</td>
-                        <td className="py-2">3 meses</td>
-                      </tr>
-                      <tr>
-                        <td className="py-2">_gcl_au</td>
-                        <td className="py-2">Google Ads - Rastreamento de conversões</td>
-                        <td className="py-2">3 meses</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
+                <ul className="list-disc list-inside text-muted-foreground space-y-1">
+                  <li>Google Analytics (<code>_ga</code>, <code>_gid</code>, <code>_gat</code>)</li>
+                  <li>Google Ads (<code>_gcl_au</code>)</li>
+                  <li>Facebook Pixel (<code>_fbp</code>)</li>
+                  <li>Cookies de publicidade, retargeting ou redes sociais de terceiros</li>
+                </ul>
               </div>
             </div>
           </section>

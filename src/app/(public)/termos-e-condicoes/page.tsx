@@ -11,16 +11,18 @@ export default function TermosCondicoesPage() {
     <main className="min-h-screen bg-background pt-24 pb-16">
       <div className="max-w-4xl mx-auto px-4 md:px-8">
         <h1 className="text-4xl font-bold text-foreground mb-8">Termos e Condições</h1>
-        <p className="text-muted-foreground mb-8">Última atualização: Janeiro de 2026</p>
+        <p className="text-muted-foreground mb-8">Última atualização: Março de 2026</p>
 
         <div className="prose prose-gray dark:prose-invert max-w-none space-y-8">
           <section>
             <h2 className="text-2xl font-semibold text-foreground mb-4">1. Identificação da Entidade</h2>
             <p className="text-muted-foreground leading-relaxed">
-              O presente website é propriedade e gerido pela <strong>{company.name}</strong>, 
-              sociedade comercial por quotas, com sede em {company.address.full}, registada na Conservatória do Registo Comercial 
-              da Covilhã, com o número de pessoa coletiva (NIF) 123456789, titular da Licença AMI n.º 12345, emitida pelo 
-              Instituto dos Mercados Públicos, do Imobiliário e da Construção (IMPIC).
+              O presente website é propriedade e gerido pela <strong>{company.name}</strong>,
+              sociedade comercial por quotas, com sede em {company.address.full},
+              registada na Conservatória do Registo Comercial da Covilhã, titular de licença de
+              Construção Civil e Mediador Imobiliário, emitida pelo Instituto dos Mercados Públicos,
+              do Imobiliário e da Construção (IMPIC).
+              Contactos: <strong>{company.email}</strong> | <strong>{company.phone}</strong>
             </p>
           </section>
 
@@ -111,11 +113,18 @@ export default function TermosCondicoesPage() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold text-foreground mb-4">10. Proteção de Dados</h2>
+            <h2 className="text-2xl font-semibold text-foreground mb-4">10. Proteção de Dados e Cookies</h2>
+            <p className="text-muted-foreground leading-relaxed mb-3">
+              O tratamento de dados pessoais efetuado através deste website está sujeito à nossa{' '}
+              <a href="/politica-de-privacidade" className="text-yellow-500 hover:underline">Política de Privacidade</a>,
+              que constitui parte integrante dos presentes Termos e Condições, em conformidade com o
+              Regulamento (UE) 2016/679 (RGPD) e a Lei n.º 58/2019, de 8 de agosto.
+            </p>
             <p className="text-muted-foreground leading-relaxed">
-              O tratamento de dados pessoais efetuado através deste website está sujeito à nossa Política de Privacidade, 
-              que constitui parte integrante dos presentes Termos e Condições, em conformidade com o Regulamento Geral 
-              sobre a Proteção de Dados (RGPD) - Regulamento (UE) 2016/679 - e a Lei n.º 58/2019, de 8 de agosto.
+              A utilização de cookies e tecnologias similares está sujeita à nossa{' '}
+              <a href="/politica-de-cookies" className="text-yellow-500 hover:underline">Política de Cookies</a>,
+              em conformidade com a Lei n.º 41/2004, de 18 de agosto (transposição da Diretiva ePrivacy),
+              alterada pela Lei n.º 46/2012, de 29 de agosto.
             </p>
           </section>
 

@@ -11,7 +11,7 @@ export default function PoliticaPrivacidadePage() {
     <main className="min-h-screen bg-background pt-24 pb-16">
       <div className="max-w-4xl mx-auto px-4 md:px-8">
         <h1 className="text-4xl font-bold text-foreground mb-8">Política de Privacidade</h1>
-        <p className="text-muted-foreground mb-8">Última atualização: Janeiro de 2026</p>
+        <p className="text-muted-foreground mb-8">Última atualização: Março de 2026</p>
 
         <div className="prose prose-gray dark:prose-invert max-w-none space-y-8">
           <section>
@@ -32,7 +32,7 @@ export default function PoliticaPrivacidadePage() {
             <ul className="list-disc list-inside text-muted-foreground space-y-2">
               <li><strong>Dados de identificação:</strong> nome, apelido, NIF</li>
               <li><strong>Dados de contacto:</strong> endereço de email, número de telefone, morada</li>
-              <li><strong>Dados de navegação:</strong> endereço IP, tipo de navegador, páginas visitadas, tempo de permanência</li>
+              <li><strong>Dados de navegação anónimos:</strong> tipo de navegador, país de acesso, páginas visitadas (sem endereço IP — veja secção 8)</li>
               <li><strong>Dados de preferências:</strong> imóveis favoritos, pesquisas guardadas, alertas configurados</li>
               <li><strong>Dados de comunicação:</strong> mensagens enviadas através dos formulários de contacto</li>
             </ul>
@@ -51,7 +51,7 @@ export default function PoliticaPrivacidadePage() {
               <li>Envio de alertas de novos imóveis (mediante consentimento)</li>
               <li>Cumprimento de obrigações legais e regulamentares</li>
               <li>Melhoria dos serviços e experiência do utilizador</li>
-              <li>Análise estatística e de desempenho do website</li>
+              <li>Análise estatística e de desempenho do website (dados exclusivamente anónimos e agregados)</li>
             </ul>
           </section>
 
@@ -97,12 +97,24 @@ export default function PoliticaPrivacidadePage() {
 
           <section>
             <h2 className="text-2xl font-semibold text-foreground mb-4">7. Transferências Internacionais</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              Alguns dos nossos prestadores de serviços podem estar localizados fora do Espaço Económico Europeu. 
-              Nestes casos, a Covialvi assegura que as transferências de dados são realizadas em conformidade com o 
-              RGPD, nomeadamente através de decisões de adequação da Comissão Europeia ou de cláusulas contratuais-tipo 
-              aprovadas pela Comissão Europeia.
+            <p className="text-muted-foreground leading-relaxed mb-4">
+              Os seguintes subcontratantes podem estar localizados fora do Espaço Económico Europeu (EEE).
+              A Covialvi assegura que as transferências se realizam em conformidade com o RGPD, através de
+              Cláusulas Contratuais-Tipo (SCCs) aprovadas pela Comissão Europeia e/ou Acordo de Processamento
+              de Dados (DPA) com cada fornecedor:
             </p>
+            <ul className="list-disc list-inside text-muted-foreground space-y-2">
+              <li>
+                <strong>Vercel Inc.</strong> (EUA) — alojamento do website, Vercel Web Analytics e Speed Insights.
+                Dados de análise são anónimos e cookieless; sem transferência de dados pessoais para fins de análise.
+                DPA disponível em: <a href="https://vercel.com/legal/dpa" target="_blank" rel="noopener noreferrer" className="text-yellow-500 hover:underline">vercel.com/legal/dpa</a>
+              </li>
+              <li>
+                <strong>Supabase Inc.</strong> (EUA) — base de dados e autenticação.
+                Os dados são armazenados em servidores na UE (Frankfurt, AWS eu-central-1) por defeito.
+                DPA disponível em: <a href="https://supabase.com/privacy" target="_blank" rel="noopener noreferrer" className="text-yellow-500 hover:underline">supabase.com/privacy</a>
+              </li>
+            </ul>
           </section>
 
           <section>
@@ -143,10 +155,23 @@ export default function PoliticaPrivacidadePage() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold text-foreground mb-4">11. Cookies</h2>
+            <h2 className="text-2xl font-semibold text-foreground mb-4">8. Análise de Dados de Navegação</h2>
             <p className="text-muted-foreground leading-relaxed">
-              Este website utiliza cookies. Para mais informações sobre os cookies utilizados e como os pode gerir, 
-              consulte a nossa <a href="/politica-de-cookies" className="text-yellow-500 hover:underline">Política de Cookies</a>.
+              Este website utiliza <strong>Vercel Web Analytics</strong> e <strong>Vercel Speed Insights</strong> para análise
+              de desempenho e tráfego. Estes serviços são <strong>cookieless</strong> por design:
+              não recolhem endereços IP, não armazenam dados pessoais identificáveis e identificam visitantes
+              através de um hash anónimo temporário descartado ao fim de 24 horas. Os dados são
+              exclusivamente agregados e não permitem reconstituir sessões individuais.
+              Base legal: consentimento (art. 6.º, n.º 1, al. a) do RGPD).
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-semibold text-foreground mb-4">11. Cookies e localStorage</h2>
+            <p className="text-muted-foreground leading-relaxed">
+              Este website utiliza cookies e armazenamento local. Para informação detalhada sobre cada
+              tecnologia utilizada, base legal e como gerir as suas preferências, consulte a nossa{' '}
+              <a href="/politica-de-cookies" className="text-yellow-500 hover:underline">Política de Cookies</a>.
             </p>
           </section>
 
