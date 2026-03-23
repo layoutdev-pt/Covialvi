@@ -16,7 +16,6 @@ import {
   Maximize,
   Eye,
   Target,
-  Heart,
   Leaf,
   Palmtree,
   ChevronRight,
@@ -1024,14 +1023,6 @@ function PropertyCard({
           </span>
         </div>
         
-        {/* Favorite Button */}
-        <motion.button
-          whileHover={{ scale: 1.2 }}
-          whileTap={{ scale: 0.9 }}
-          className="absolute top-14 left-4 w-10 h-10 rounded-full bg-white/95 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-lg hover:bg-yellow-500 hover:text-white z-20"
-        >
-          <Heart className="h-5 w-5 text-gray-700" />
-        </motion.button>
         
         {/* Quick View on Hover */}
         <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0 z-20">
@@ -1181,16 +1172,6 @@ function HeroPropertyCard({
             {businessTypeLabels[property.business_type] || 'Venda'}
           </span>
           
-          {/* Heart/Save Button */}
-          <button 
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-            className="absolute top-10 left-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-yellow-500 hover:text-white transition-colors z-20 opacity-0 group-hover:opacity-100"
-          >
-            <Heart className="h-4 w-4 text-gray-700" />
-          </button>
         </div>
         
         <div className="absolute bottom-0 left-0 right-0 p-4 z-20">
