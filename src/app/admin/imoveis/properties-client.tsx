@@ -114,7 +114,8 @@ export function PropertiesClient({ properties: initialProperties }: PropertiesCl
 
   const filteredProperties = properties.filter((property) => {
     const matchesSearch = property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      property.municipality?.toLowerCase().includes(searchTerm.toLowerCase());
+      property.municipality?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      property.slug.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = !statusFilter || property.status === statusFilter;
     const matchesBusinessType = !businessTypeFilter || property.business_type === businessTypeFilter;
     return matchesSearch && matchesStatus && matchesBusinessType;
@@ -199,7 +200,7 @@ export function PropertiesClient({ properties: initialProperties }: PropertiesCl
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Pesquisar imóveis..."
+            placeholder="Pesquisar por título, localização ou referência..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-12 pr-4 py-3 bg-card border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
@@ -314,6 +315,7 @@ export function PropertiesClient({ properties: initialProperties }: PropertiesCl
                           <span className="text-border">|</span>
                           <span>{businessTypeLabels[property.business_type] || property.business_type}</span>
                         </div>
+                        <p className="text-xs text-muted-foreground/60 mt-1 font-mono">Ref: {property.slug}</p>
                       </div>
                       
                       {/* Actions Dropdown */}
