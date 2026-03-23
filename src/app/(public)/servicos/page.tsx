@@ -142,7 +142,7 @@ export default function ServicosPage() {
                       fill
                       className="object-cover"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                     <div className="absolute bottom-6 left-6">
                       <span className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-white/90 backdrop-blur-sm shadow-lg">
                         <service.icon className="h-7 w-7 text-gray-900" />

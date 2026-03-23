@@ -512,14 +512,14 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
                 transition={{ duration: 0.5 }}
                 className="relative"
               >
-                <div className="relative aspect-[16/10] rounded-3xl overflow-hidden shadow-2xl">
+                <div className="relative aspect-[4/3] md:aspect-[16/10] rounded-3xl overflow-hidden shadow-2xl">
                   <Image
                     src={services[activeService].image}
                     alt={services[activeService].title}
                     fill
                     className="object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                   
                   {/* Content Overlay */}
                   <div className="absolute bottom-0 left-0 right-0 p-8">
