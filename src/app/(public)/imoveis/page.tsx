@@ -330,6 +330,9 @@ export default async function PropertiesPage({
                     <div className="pt-4 border-t border-border">
                       <p className="text-xl font-bold text-foreground">
                         {property.price_on_request ? 'Sob Consulta' : formatPrice(property.price)}
+                        {!property.price_on_request && property.business_type === 'rent' && (
+                          <span className="text-sm font-normal text-muted-foreground"> /mês</span>
+                        )}
                       </p>
                     </div>
                   </div>

@@ -1072,6 +1072,9 @@ function PropertyCard({
         
         <p className="text-2xl font-bold text-foreground">
           {property.price_on_request ? 'Sob Consulta' : formatPrice(property.price)}
+          {!property.price_on_request && property.business_type === 'rent' && (
+            <span className="text-sm font-normal text-muted-foreground"> /mês</span>
+          )}
         </p>
       </div>
     </motion.article>
@@ -1184,6 +1187,9 @@ function HeroPropertyCard({
           </h3>
           <p className="text-white font-bold text-lg">
             {property.price_on_request ? 'Sob Consulta' : formatPrice(property.price)}
+            {!property.price_on_request && property.business_type === 'rent' && (
+              <span className="text-sm font-normal opacity-80"> /mês</span>
+            )}
           </p>
         </div>
       </motion.div>
