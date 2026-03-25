@@ -266,7 +266,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
           <div className="lg:col-span-2 space-y-8">
             {/* Property Details Table */}
             <div className="space-y-4">
-              <DetailRow label={businessTypeLabels[property.business_type] || 'Venda'} value={property.price ? formatPrice(property.price) : 'Sob Consulta'} />
+              <DetailRow label={businessTypeLabels[property.business_type] || 'Venda'} value={property.price_on_request ? 'Sob Consulta' : formatPrice(property.price)} />
               <DetailRow label="Distrito" value={property.district || '-'} />
               <DetailRow label="Concelho" value={property.municipality || '-'} />
               <DetailRow label="Freguesia" value={property.parish || '-'} />
