@@ -298,13 +298,13 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
                   transition={{ duration: 0.8, delay: 0.6 }}
                   className="w-full max-w-3xl"
                 >
-                  <div className="relative rounded-2xl md:rounded-full p-[1px] flex flex-col md:flex-row" style={{background: 'linear-gradient(135deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.25) 100%)'}}>
-                    <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 w-full rounded-2xl md:rounded-full px-2 py-2"
+                  <div className="relative rounded-2xl md:rounded-full p-[1px] flex flex-col md:flex-row" style={{background: 'linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0.12) 100%)'}}>
+                    <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 w-full rounded-2xl md:rounded-full px-2 py-2 search-bar-glass"
                       style={{
-                        background: 'rgba(255,255,255,0.12)',
-                        backdropFilter: 'blur(40px) saturate(180%)',
-                        WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-                        boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.4), inset 0 -1px 1px rgba(0,0,0,0.1), 0 8px 32px rgba(0,0,0,0.25), 0 2px 8px rgba(0,0,0,0.15)'
+                        background: 'rgba(255,255,255,0.06)',
+                        backdropFilter: 'blur(16px) saturate(140%)',
+                        WebkitBackdropFilter: 'blur(16px) saturate(140%)',
+                        boxShadow: '0 4px 16px rgba(0,0,0,0.15)'
                       }}
                     >
                 <div className="flex-1">
