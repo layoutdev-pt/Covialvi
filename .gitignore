@@ -49,4 +49,5 @@ supabase/.temp
 
 # Large video source files
 src/video/
+public/video/hero-covialvi.mp4
 .env*.local
