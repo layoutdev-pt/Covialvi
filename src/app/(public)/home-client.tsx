@@ -388,36 +388,36 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
                     </div>
                   </div>
                 </motion.div>
-              </div>
 
-              {/* Stats pinned to bottom inside video */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.8 }}
-                className="pb-5 pt-3"
-              >
-                <div className="flex flex-wrap gap-8 md:gap-14">
-                  <div>
-                    <p className="text-2xl md:text-3xl font-bold text-white mb-0">
-                      <AnimatedCounter value={stats.properties} suffix="+" />
-                    </p>
-                    <p className="text-white/50 text-xs uppercase tracking-wide">Imóveis</p>
+                {/* Stats — right below search bar */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.8 }}
+                  className="pt-6"
+                >
+                  <div className="flex flex-wrap gap-8 md:gap-14">
+                    <div>
+                      <p className="text-2xl md:text-3xl font-bold text-white mb-0">
+                        <AnimatedCounter value={stats.properties} suffix="+" />
+                      </p>
+                      <p className="text-white/50 text-xs uppercase tracking-wide">Imóveis</p>
+                    </div>
+                    <div>
+                      <p className="text-2xl md:text-3xl font-bold text-white mb-0">
+                        <AnimatedCounter value={stats.clients} suffix="+" />
+                      </p>
+                      <p className="text-white/50 text-xs uppercase tracking-wide">Clientes</p>
+                    </div>
+                    <div>
+                      <p className="text-2xl md:text-3xl font-bold text-white mb-0">
+                        $<AnimatedCounter value={10} suffix="M+" />
+                      </p>
+                      <p className="text-white/50 text-xs uppercase tracking-wide">Valor</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-2xl md:text-3xl font-bold text-white mb-0">
-                      <AnimatedCounter value={stats.clients} suffix="+" />
-                    </p>
-                    <p className="text-white/50 text-xs uppercase tracking-wide">Clientes</p>
-                  </div>
-                  <div>
-                    <p className="text-2xl md:text-3xl font-bold text-white mb-0">
-                      $<AnimatedCounter value={10} suffix="M+" />
-                    </p>
-                    <p className="text-white/50 text-xs uppercase tracking-wide">Valor</p>
-                  </div>
-                </div>
-              </motion.div>
+                </motion.div>
+              </div>
             </div>
           </div>{/* end rounded video container */}
           </div>{/* end max-w-7xl */}
