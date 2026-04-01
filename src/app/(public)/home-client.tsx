@@ -4,105 +4,162 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { 
-  ArrowRight, 
-  ArrowUpRight,
-  Building2, 
-  Home, 
-  Star, 
+import {
+  Building2,
+  Home,
+  Leaf,
+  Palmtree,
+  Search,
   MapPin,
   Bed,
   Bath,
   Maximize,
   Eye,
   Target,
-  Leaf,
-  Palmtree,
-  ChevronRight,
-  Search,
-  Play
+  ArrowRight,
+  ArrowUpRight,
+  Play,
+  Star,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { 
-  FadeInUp, 
-  SlideInLeft, 
-  SlideInRight, 
-  ScaleIn,
-  StaggerContainer,
-  StaggerItem
-} from '@/components/ui/motion';
 import dynamic from 'next/dynamic';
-import { motion, useScroll, useTransform, useInView, useSpring } from 'framer-motion';
 
-const WhatsAppButton = dynamic(() => import('@/components/ui/whatsapp-button').then(mod => mod.WhatsAppButton), {
-  ssr: false,
-});
+const WhatsAppButton = dynamic(() => import('@/components/ui/whatsapp-button').then(mod => mod.WhatsAppButton), { ssr: false });
 
 interface HomeClientProps {
   properties: any[];
   featuredProperties: any[];
-  stats: {
-    properties: number;
-    projects: number;
-    clients: number;
-    value: string;
-  };
+  stats: { properties: number; projects: number; clients: number; value: string; };
   heroProperty: any | null;
-  availableLocations: {
-    districts: string[];
-    municipalities: string[];
-  };
+  availableLocations: { districts: string[]; municipalities: string[]; };
 }
 
-// Animated Counter Component
-function AnimatedCounter({ value, suffix = '', duration = 2 }: { value: number; suffix?: string; duration?: number }) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
+// ─── Win2K primitives ────────────────────────────────────────────────────────
+
+function WinWindow({ title, children, className = '', icon }: { title: string; children: React.ReactNode; className?: string; icon?: React.ReactNode }) {
+  return (
+    <div
+      className={className}
+      style={{
+        background: '#d4d0c8',
+        borderTop: '2px solid #ffffff',
+        borderLeft: '2px solid #ffffff',
+        borderRight: '2px solid #404040',
+        borderBottom: '2px solid #404040',
+        boxShadow: '2px 2px 0 rgba(0,0,0,0.3)',
+      }}
+    >
+      {/* Title bar */}
+      <div
+        style={{
+          background: 'linear-gradient(to right, #0a246a 0%, #a6caf0 100%)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '3px 6px',
+          height: '24px',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          {icon && <span style={{ fontSize: '12px' }}>{icon}</span>}
+          <span style={{ color: '#fff', fontFamily: 'Tahoma, Arial, sans-serif', fontSize: '12px', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+            {title}
+          </span>
+        </div>
+        <div style={{ display: 'flex', gap: '2px' }}>
+          {['_', '□', '✕'].map((c) => (
+            <span key={c} style={{
+              width: '16px', height: '14px',
+              background: '#d4d0c8',
+              borderTop: '1px solid #fff', borderLeft: '1px solid #fff',
+              borderRight: '1px solid #808080', borderBottom: '1px solid #808080',
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '9px', fontWeight: 'bold', cursor: 'pointer', color: '#000',
+            }}>{c}</span>
+          ))}
+        </div>
+      </div>
+      {/* Content */}
+      <div style={{ padding: '8px' }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function WinBtn({ children, onClick, primary = false, style = {} }: { children: React.ReactNode; onClick?: () => void; primary?: boolean; style?: React.CSSProperties }) {
+  const [active, setActive] = useState(false);
+  return (
+    <button
+      onClick={onClick}
+      onMouseDown={() => setActive(true)}
+      onMouseUp={() => setActive(false)}
+      onMouseLeave={() => setActive(false)}
+      style={{
+        background: '#d4d0c8',
+        borderTop: active ? '2px solid #808080' : '2px solid #ffffff',
+        borderLeft: active ? '2px solid #808080' : '2px solid #ffffff',
+        borderRight: active ? '2px solid #ffffff' : '2px solid #808080',
+        borderBottom: active ? '2px solid #ffffff' : '2px solid #808080',
+        padding: active ? '4px 11px 2px 13px' : '3px 16px',
+        fontFamily: 'Tahoma, Arial, sans-serif',
+        fontSize: '13px',
+        cursor: 'pointer',
+        color: '#000',
+        outline: 'none',
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '4px',
+        minWidth: '80px',
+        justifyContent: 'center',
+        boxShadow: primary ? 'inset 0 0 0 1px #000' : 'none',
+        ...style,
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+function WinSeparator() {
+  return (
+    <div style={{ height: '2px', borderTop: '1px solid #808080', borderBottom: '1px solid #ffffff', margin: '6px 0' }} />
+  );
+}
+
+function WinLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <span style={{ fontFamily: 'Tahoma, Arial, sans-serif', fontSize: '13px', color: '#000' }}>
+      {children}
+    </span>
+  );
+}
+
+// Animated Counter
+function AnimatedCounter({ value, suffix = '' }: { value: number; suffix?: string }) {
   const [count, setCount] = useState(0);
-
+  const ref = useRef<HTMLSpanElement>(null);
   useEffect(() => {
-    if (isInView) {
-      let start = 0;
-      const end = value;
-      const incrementTime = (duration * 1000) / end;
-      const timer = setInterval(() => {
-        start += 1;
-        setCount(start);
-        if (start >= end) clearInterval(timer);
-      }, Math.max(incrementTime, 10));
-      return () => clearInterval(timer);
-    }
-  }, [isInView, value, duration]);
-
+    let start = 0;
+    const increment = Math.ceil(value / 60);
+    const timer = setInterval(() => {
+      start += increment;
+      if (start >= value) { setCount(value); clearInterval(timer); } else { setCount(start); }
+    }, 30);
+    return () => clearInterval(timer);
+  }, [value]);
   return <span ref={ref}>{count}{suffix}</span>;
 }
 
+// ─── Main Component ──────────────────────────────────────────────────────────
+
 export function HomeClient({ properties, featuredProperties, stats, heroProperty, availableLocations }: HomeClientProps) {
   const router = useRouter();
-  const [activeService, setActiveService] = useState(0);
-  const { scrollYProgress } = useScroll();
   const resultsRef = useRef<HTMLDivElement>(null);
-  
-  // Search filter states
   const [searchLocation, setSearchLocation] = useState('');
   const [searchNature, setSearchNature] = useState('');
   const [searchBusinessType, setSearchBusinessType] = useState('');
-  
-  // Contact form states
-  const [contactForm, setContactForm] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    message: '',
-  });
+  const [activeService, setActiveService] = useState(0);
+  const [contactForm, setContactForm] = useState({ firstName: '', lastName: '', email: '', phone: '', message: '' });
   const [contactLoading, setContactLoading] = useState(false);
   const [contactSuccess, setContactSuccess] = useState(false);
   const [contactError, setContactError] = useState('');
@@ -112,25 +169,14 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
     setContactLoading(true);
     setContactError('');
     setContactSuccess(false);
-
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: `${contactForm.firstName} ${contactForm.lastName}`.trim(),
-          email: contactForm.email,
-          phone: contactForm.phone,
-          message: contactForm.message,
-        }),
+        body: JSON.stringify({ name: `${contactForm.firstName} ${contactForm.lastName}`.trim(), email: contactForm.email, phone: contactForm.phone, message: contactForm.message }),
       });
-
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Erro ao enviar mensagem');
-      }
-
+      if (!response.ok) throw new Error(data.error || 'Erro ao enviar mensagem');
       setContactSuccess(true);
       setContactForm({ firstName: '', lastName: '', email: '', phone: '', message: '' });
     } catch (err: any) {
@@ -139,16 +185,10 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
       setContactLoading(false);
     }
   };
-  
-  // Parallax effect for hero
-  const y = useTransform(scrollYProgress, [0, 0.5], [0, 150]);
-  const opacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
-  
-  // Filter properties based on search for hero section
+
   const filteredProperties = properties.filter((property: any) => {
     let matches = true;
     if (searchLocation && searchLocation !== 'all') {
-      // Check if it's a municipality or district selection (prefixed)
       if (searchLocation.startsWith('municipality:')) {
         const municipality = searchLocation.replace('municipality:', '');
         matches = matches && property.municipality === municipality;
@@ -156,969 +196,554 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
         const district = searchLocation.replace('district:', '');
         matches = matches && property.district === district;
       } else {
-        // Fallback for unprefixed values
         const loc = searchLocation.toLowerCase();
-        matches = matches && (
-          property.municipality?.toLowerCase() === loc ||
-          property.district?.toLowerCase() === loc
-        );
+        matches = matches && (property.municipality?.toLowerCase() === loc || property.district?.toLowerCase() === loc);
       }
     }
-    if (searchNature && searchNature !== 'all') {
-      matches = matches && property.nature === searchNature;
-    }
-    if (searchBusinessType && searchBusinessType !== 'all') {
-      matches = matches && property.business_type === searchBusinessType;
-    }
+    if (searchNature && searchNature !== 'all') matches = matches && property.nature === searchNature;
+    if (searchBusinessType && searchBusinessType !== 'all') matches = matches && property.business_type === searchBusinessType;
     return matches;
   });
-  
-  // Get hero properties (filtered)
+
   const heroProperties = filteredProperties.slice(0, 3);
-  
+
   const handleSearch = () => {
     resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   const formatPrice = (price: number | null) => {
     if (price === null) return 'Sob Consulta';
-    return new Intl.NumberFormat('pt-PT', {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(price) + ' €';
+    return new Intl.NumberFormat('pt-PT', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(price) + ' €';
   };
 
-  const businessTypeLabels: Record<string, string> = {
-    sale: 'Venda',
-    rent: 'Arrendamento',
-    transfer: 'Trespasse',
-  };
+  const businessTypeLabels: Record<string, string> = { sale: 'Venda', rent: 'Arrendamento', transfer: 'Trespasse' };
 
   const services = [
-    {
-      id: 0,
-      icon: Home,
-      title: 'Residências de Luxo',
-      shortTitle: 'LUXO',
-      description: 'Propriedades exclusivas com design premium e localizações privilegiadas em Portugal.',
-      image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2075',
-    },
-    {
-      id: 1,
-      icon: Leaf,
-      title: 'Edifícios Sustentáveis',
-      shortTitle: 'ECO',
-      description: 'Imóveis com certificação energética A+, materiais eco e tecnologia verde integrada.',
-      image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=2053',
-    },
-    {
-      id: 2,
-      icon: Palmtree,
-      title: 'Casas de Férias',
-      shortTitle: 'FÉRIAS',
-      description: 'Casas de férias em destinos premium — ideal para uso próprio ou arrendamento de alto retorno.',
-      image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070',
-    },
+    { id: 0, icon: Home, title: 'Residências de Luxo', shortTitle: 'LUXO', description: 'Propriedades exclusivas com design premium e localizações privilegiadas em Portugal.', image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2075' },
+    { id: 1, icon: Leaf, title: 'Edifícios Sustentáveis', shortTitle: 'ECO', description: 'Imóveis com certificação energética A+, materiais eco e tecnologia verde integrada.', image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=2053' },
+    { id: 2, icon: Palmtree, title: 'Casas de Férias', shortTitle: 'FÉRIAS', description: 'Casas de férias em destinos premium — ideal para uso próprio ou arrendamento de alto retorno.', image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070' },
   ];
 
-  const futureProjects = [
-    {
-      id: 1,
-      title: 'Residencial Vila Nova',
-      description: 'Empreendimento moderno com 50 unidades habitacionais, incluindo apartamentos T2 e T3 com acabamentos de luxo e áreas comuns premium.',
-      status: 'Início em 2026',
-      location: 'Covilhã',
-      image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=2070',
-    },
-    {
-      id: 2,
-      title: 'Condomínio Jardim das Flores',
-      description: 'Projeto residencial sustentável com certificação energética A+, espaços verdes e infraestruturas eco-friendly para famílias modernas.',
-      status: 'Em Breve',
-      location: 'Fundão',
-      image: 'https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=2070',
-    },
-    {
-      id: 3,
-      title: 'Loteamento Serra da Estrela',
-      description: 'Lotes para construção em localização privilegiada com vista panorâmica para a Serra da Estrela, ideal para moradias unifamiliares.',
-      status: '2026',
-      location: 'Belmonte',
-      image: 'https://images.unsplash.com/photo-1600607687644-c7171b42498f?q=80&w=2070',
-    },
-  ];
+  // Windows desktop tiled background
+  const desktopStyle: React.CSSProperties = {
+    background: '#008080',          // classic Win2K teal desktop
+    minHeight: '100vh',
+    padding: '8px',
+    fontFamily: 'Tahoma, Arial, sans-serif',
+  };
 
   return (
-    <main className="bg-background overflow-hidden">
-      {/* Hero Section - Rounded container with margins */}
-      <section className="bg-background pt-3">
-        <div className="px-6 md:px-12 lg:px-20">
-          <div className="max-w-7xl mx-auto">
-          {/* Rounded video container */}
-          <div className="relative rounded-2xl overflow-hidden" style={{ height: '65vh', minHeight: '420px' }}>
+    <main style={desktopStyle}>
+
+      {/* ── HERO WINDOW ── */}
+      <WinWindow
+        title="Covialvi Imobiliária - Pesquisa de Imóveis"
+        icon="🏠"
+        className="mb-4 w-full"
+      >
+        <div style={{ display: 'flex', gap: '0', flexWrap: 'wrap' }}>
+          {/* Left panel - video/image */}
+          <div style={{ flex: '1 1 400px', minHeight: '340px', position: 'relative', background: '#000', border: '2px inset #808080' }}>
             <video
-              autoPlay
-              muted
-              loop
-              playsInline
+              autoPlay muted loop playsInline
               poster="https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=1973"
-              className="absolute inset-0 w-full h-full object-cover"
-              style={{ zIndex: 0 }}
-              onCanPlay={(e) => { (e.target as HTMLVideoElement).play().catch(() => {}); }}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', minHeight: '340px' }}
             >
               <source src="/video/hero.mp4" type="video/mp4" />
             </video>
-            <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/30 to-transparent" style={{ zIndex: 1 }} />
+            {/* Marquee-style overlay */}
+            <div style={{
+              position: 'absolute', bottom: 0, left: 0, right: 0,
+              background: 'rgba(0,36,106,0.85)',
+              borderTop: '2px solid #a6caf0',
+              padding: '4px 8px',
+              overflow: 'hidden',
+            }}>
+              <marquee style={{ color: '#fff', fontFamily: 'Tahoma, Arial', fontSize: '12px' }}>
+                🏠 Covialvi Imobiliária — Encontre a sua casa ideal hoje! | {stats.properties}+ imóveis disponíveis | {stats.clients}+ clientes satisfeitos | Valor em projetos: {stats.value}€ | Contacte-nos agora!
+              </marquee>
+            </div>
+          </div>
 
-            {/* Hero Content overlay */}
-            <div className="relative z-10 h-full flex flex-col px-8 md:px-12 lg:px-14 pt-20">
-              <div className="flex-1 flex flex-col justify-center max-w-2xl">
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.2 }}
-                >
-                  <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-[1.1] mb-4 tracking-tight">
-                    ENCONTRE A SUA<br />
-                    CASA IDEAL<br />
-                    HOJE
-                  </h1>
-                </motion.div>
-
-                <motion.p
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.4 }}
-                  className="hidden md:block text-white/70 text-base md:text-lg max-w-xl mb-8 leading-relaxed"
-                >
-                  Oferecemos soluções imobiliárias personalizadas, guiando-o em cada passo com experiências que atendem às suas necessidades e aspirações únicas.
-                </motion.p>
-
-                {/* Search Bar */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.6 }}
-                  className="w-full max-w-3xl mt-4 md:mt-0"
-                >
-                  <div className="relative rounded-2xl md:rounded-full p-[1px] flex flex-col md:flex-row" style={{background: 'rgba(255,255,255,0.06)'}}>
-                    <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 w-full rounded-2xl md:rounded-full px-2 py-2"
-                      style={{
-                        background: 'rgba(0,0,0,0.03)',
-                        backdropFilter: 'blur(4px)',
-                        WebkitBackdropFilter: 'blur(4px)',
-                        boxShadow: 'none'
-                      }}
-                    >
-                <div className="flex-1">
-                  <Select value={searchLocation} onValueChange={setSearchLocation}>
-                    <SelectTrigger className="border-0 bg-transparent shadow-none focus:ring-0 w-full md:min-w-[160px] text-sm text-white/90 font-medium [&>svg]:text-white/50 placeholder:text-white/50">
-                      <SelectValue placeholder="Localização" />
-                    </SelectTrigger>
-                    <SelectContent position="popper" sideOffset={4} className="bg-white border border-gray-200 shadow-xl rounded-xl max-h-[300px]">
-                      <SelectItem value="all" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Todas as localizações</SelectItem>
-                      {availableLocations.municipalities.length > 0 && (
-                        <>
-                          <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 bg-gray-50">Concelhos</div>
-                          {availableLocations.municipalities.map((municipality) => (
-                            <SelectItem key={`municipality:${municipality}`} value={`municipality:${municipality}`} className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">
-                              {municipality}
-                            </SelectItem>
-                          ))}
-                        </>
-                      )}
-                      {availableLocations.districts.length > 0 && (
-                        <>
-                          <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 bg-gray-50">Distritos</div>
-                          {availableLocations.districts.map((district) => (
-                            <SelectItem key={`district:${district}`} value={`district:${district}`} className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">
-                              {district}
-                            </SelectItem>
-                          ))}
-                        </>
-                      )}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="hidden md:block w-px h-8 bg-white/20" />
-                <div className="flex gap-2">
-                  <Select value={searchNature} onValueChange={setSearchNature}>
-                    <SelectTrigger className="border-0 bg-transparent shadow-none focus:ring-0 flex-1 md:min-w-[130px] text-sm text-white/90 font-medium [&>svg]:text-white/50">
-                      <SelectValue placeholder="Tipo" />
-                    </SelectTrigger>
-                    <SelectContent position="popper" sideOffset={4} className="bg-white border border-gray-200 shadow-xl rounded-xl">
-                      <SelectItem value="all" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Todos</SelectItem>
-                      <SelectItem value="apartment" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Apartamento</SelectItem>
-                      <SelectItem value="house" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Moradia</SelectItem>
-                      <SelectItem value="land" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Terreno</SelectItem>
-                      <SelectItem value="commercial" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Comercial</SelectItem>
-                      <SelectItem value="warehouse" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Armazém</SelectItem>
-                      <SelectItem value="shop" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Loja</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <div className="hidden md:block w-px h-8 bg-white/20" />
-                  <Select value={searchBusinessType} onValueChange={setSearchBusinessType}>
-                    <SelectTrigger className="border-0 bg-transparent shadow-none focus:ring-0 flex-1 md:min-w-[100px] text-sm text-white/90 font-medium [&>svg]:text-white/50">
-                      <SelectValue placeholder="Negócio" />
-                    </SelectTrigger>
-                  <SelectContent position="popper" sideOffset={4} className="bg-white border border-gray-200 shadow-xl rounded-xl">
-                    <SelectItem value="all" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Todos</SelectItem>
-                    <SelectItem value="sale" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Comprar</SelectItem>
-                    <SelectItem value="rent" className="text-gray-900 focus:bg-yellow-50 focus:text-gray-900 cursor-pointer">Arrendar</SelectItem>
-                  </SelectContent>
-                </Select>
-                </div>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleSearch}
-                  className="group flex items-center gap-2 rounded-full pl-5 pr-2 py-2 font-medium transition-all duration-300 hover:bg-yellow-500 text-white"
-                  style={{
-                    background: 'rgba(255,255,255,0.22)',
-                    backdropFilter: 'blur(20px) saturate(180%)',
-                    WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-                    boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.5), inset 0 -1px 1px rgba(0,0,0,0.1), 0 4px 12px rgba(0,0,0,0.2)'
-                  }}
-                >
-                  <span className="hidden sm:inline">Pesquisar</span>
-                  <span className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center group-hover:bg-white/30 transition-colors">
-                    <Search className="h-4 w-4" />
-                  </span>
-                    </motion.button>
-                    </div>
-                  </div>
-                </motion.div>
-
-                {/* Stats — right below search bar */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.8 }}
-                  className="pt-6"
-                >
-                  <div className="flex flex-wrap gap-8 md:gap-14">
-                    <div>
-                      <p className="text-2xl md:text-3xl font-bold text-white mb-0">
-                        <AnimatedCounter value={stats.properties} suffix="+" />
-                      </p>
-                      <p className="text-white/50 text-xs uppercase tracking-wide">Imóveis</p>
-                    </div>
-                    <div>
-                      <p className="text-2xl md:text-3xl font-bold text-white mb-0">
-                        <AnimatedCounter value={stats.clients} suffix="+" />
-                      </p>
-                      <p className="text-white/50 text-xs uppercase tracking-wide">Clientes</p>
-                    </div>
-                    <div>
-                      <p className="text-2xl md:text-3xl font-bold text-white mb-0">
-                        $<AnimatedCounter value={10} suffix="M+" />
-                      </p>
-                      <p className="text-white/50 text-xs uppercase tracking-wide">Valor</p>
-                    </div>
-                  </div>
-                </motion.div>
+          {/* Right panel - search */}
+          <div style={{ flex: '0 0 280px', padding: '8px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {/* Welcome message box */}
+            <div style={{
+              background: '#fff', border: '2px inset #808080',
+              padding: '8px', fontFamily: 'Tahoma, Arial', fontSize: '13px', color: '#000'
+            }}>
+              <div style={{ fontWeight: 'bold', marginBottom: '4px', color: '#0a246a' }}>
+                Bem-vindo à Covialvi!
+              </div>
+              <div style={{ fontSize: '12px', color: '#444' }}>
+                Oferecemos soluções imobiliárias personalizadas em Portugal. Utilize a pesquisa abaixo para encontrar o seu imóvel ideal.
               </div>
             </div>
-          </div>{/* end rounded video container */}
-          </div>{/* end max-w-7xl */}
+
+            {/* Stats group */}
+            <fieldset style={{ border: '2px groove #808080', padding: '8px', fontFamily: 'Tahoma, Arial' }}>
+              <legend style={{ fontWeight: 'bold', fontSize: '12px', padding: '0 4px' }}>Estatísticas</legend>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+                {[
+                  { label: 'Imóveis', value: stats.properties, suffix: '+' },
+                  { label: 'Clientes', value: stats.clients, suffix: '+' },
+                  { label: 'Valor', value: 10, suffix: 'M€+' },
+                  { label: 'Anos exp.', value: 30, suffix: '+' },
+                ].map((s) => (
+                  <div key={s.label} style={{ textAlign: 'center', background: '#fff', border: '1px inset #808080', padding: '4px 2px' }}>
+                    <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#0a246a' }}>
+                      <AnimatedCounter value={s.value} suffix={s.suffix} />
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#555' }}>{s.label}</div>
+                  </div>
+                ))}
+              </div>
+            </fieldset>
+
+            {/* Search group */}
+            <fieldset style={{ border: '2px groove #808080', padding: '8px', fontFamily: 'Tahoma, Arial' }}>
+              <legend style={{ fontWeight: 'bold', fontSize: '12px', padding: '0 4px' }}>Pesquisar Imóveis</legend>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label style={{ fontSize: '12px', fontWeight: 'bold' }}>Localização:</label>
+                <select
+                  value={searchLocation}
+                  onChange={(e) => setSearchLocation(e.target.value)}
+                  className="win-select"
+                  style={{ width: '100%' }}
+                >
+                  <option value="">Todas as localizações</option>
+                  {availableLocations.municipalities.map((m) => (
+                    <option key={`municipality:${m}`} value={`municipality:${m}`}>{m}</option>
+                  ))}
+                  {availableLocations.districts.map((d) => (
+                    <option key={`district:${d}`} value={`district:${d}`}>{d}</option>
+                  ))}
+                </select>
+                <label style={{ fontSize: '12px', fontWeight: 'bold' }}>Tipo:</label>
+                <select value={searchNature} onChange={(e) => setSearchNature(e.target.value)} className="win-select" style={{ width: '100%' }}>
+                  <option value="">Todos</option>
+                  <option value="apartment">Apartamento</option>
+                  <option value="house">Moradia</option>
+                  <option value="land">Terreno</option>
+                  <option value="commercial">Comercial</option>
+                  <option value="warehouse">Armazém</option>
+                  <option value="shop">Loja</option>
+                </select>
+                <label style={{ fontSize: '12px', fontWeight: 'bold' }}>Negócio:</label>
+                <select value={searchBusinessType} onChange={(e) => setSearchBusinessType(e.target.value)} className="win-select" style={{ width: '100%' }}>
+                  <option value="">Todos</option>
+                  <option value="sale">Comprar</option>
+                  <option value="rent">Arrendar</option>
+                </select>
+                <WinBtn onClick={handleSearch} primary>
+                  <Search className="h-3 w-3" /> Pesquisar
+                </WinBtn>
+              </div>
+            </fieldset>
+          </div>
         </div>
-      </section>
-        
-      {/* Featured Properties Below Hero */}
-      <section ref={resultsRef} className="py-5 px-6 md:px-12 lg:px-20 bg-background">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1 }}
-          className="max-w-7xl mx-auto"
-        >
+      </WinWindow>
+
+      {/* ── FEATURED PROPERTIES WINDOW ── */}
+      <div ref={resultsRef}>
+        <WinWindow title="Imóveis em Destaque — Resultados" icon="🔍" className="mb-4 w-full">
           {heroProperties.length > 0 ? (
-            <div className="grid md:grid-cols-3 gap-6">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '8px' }}>
               {heroProperties.map((property: any) => (
-                <HeroPropertyCard 
-                  key={property.id} 
-                  property={property} 
-                  formatPrice={formatPrice}
-                  businessTypeLabels={businessTypeLabels}
-                />
+                <HeroPropertyCard key={property.id} property={property} formatPrice={formatPrice} businessTypeLabels={businessTypeLabels} />
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 bg-secondary/50 rounded-2xl">
-              <Building2 className="h-10 w-10 text-muted-foreground/40 mx-auto mb-2" />
-              <p className="text-muted-foreground text-sm">Nenhum imóvel encontrado com os filtros selecionados</p>
+            <div style={{ padding: '24px', textAlign: 'center', background: '#fff', border: '2px inset #808080' }}>
+              <Building2 className="h-10 w-10 mx-auto mb-2" style={{ color: '#808080' }} />
+              <p style={{ fontFamily: 'Tahoma, Arial', fontSize: '13px', color: '#444' }}>Nenhum imóvel encontrado com os filtros selecionados.</p>
             </div>
           )}
-        </motion.div>
-      </section>
+        </WinWindow>
+      </div>
 
-      {/* Services Section - Premium Tabs */}
-      <section className="py-28 px-6 md:px-12 lg:px-20 bg-background relative overflow-hidden">
-        {/* Subtle Background Pattern */}
-        <div className="absolute inset-0 opacity-[0.02]" style={{
-          backgroundImage: `radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)`,
-          backgroundSize: '40px 40px'
-        }} />
-        
-        <div className="max-w-7xl mx-auto relative">
-          <FadeInUp>
-            <span className="inline-block px-4 py-2 rounded-full border border-border text-sm text-muted-foreground mb-6">
-              Os Nossos Serviços
-            </span>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4 tracking-tight leading-tight">
-              SOLUÇÕES IMOBILIÁRIAS<br />
-              <span className="text-muted-foreground">COMPLETAS</span>
-            </h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mb-16">
-              Os nossos serviços abrangem vendas de propriedades de luxo, investimentos em edifícios sustentáveis e arrendamentos de férias premium.
-            </p>
-          </FadeInUp>
-          
-          <div className="grid lg:grid-cols-12 gap-12 items-start">
-            {/* Service Tabs */}
-            <div className="lg:col-span-4 space-y-4">
-              {services.map((service, index) => (
-                <motion.button
-                  key={service.id}
-                  onClick={() => setActiveService(index)}
-                  whileHover={{ x: 10 }}
-                  className={`w-full text-left p-6 rounded-2xl transition-all duration-300 ${
-                    activeService === index 
-                      ? 'bg-foreground text-background shadow-xl' 
-                      : 'bg-secondary/50 text-foreground hover:bg-secondary'
-                  }`}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                      activeService === index ? 'bg-background/20' : 'bg-background'
-                    }`}>
-                      <service.icon className={`h-6 w-6 ${activeService === index ? 'text-background' : 'text-foreground'}`} />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-bold text-lg">{service.title}</h3>
-                      <p className={`text-sm ${activeService === index ? 'text-background/60' : 'text-muted-foreground'}`}>
-                        {service.shortTitle}
-                      </p>
-                    </div>
-                    <ChevronRight className={`h-5 w-5 transition-transform ${activeService === index ? 'rotate-90' : ''}`} />
-                  </div>
-                </motion.button>
+      {/* ── TWO-COLUMN ROW: Services + About ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '8px' }} className="flex-wrap-win">
+
+        {/* Services Window */}
+        <WinWindow title="Os Nossos Serviços" icon="⚙️">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            {services.map((service, index) => (
+              <button
+                key={service.id}
+                onClick={() => setActiveService(index)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '8px',
+                  padding: '6px 8px', cursor: 'pointer', fontFamily: 'Tahoma, Arial', fontSize: '13px',
+                  background: activeService === index ? '#0a246a' : '#d4d0c8',
+                  color: activeService === index ? '#fff' : '#000',
+                  borderTop: '1px solid ' + (activeService === index ? '#0a246a' : '#fff'),
+                  borderLeft: '1px solid ' + (activeService === index ? '#0a246a' : '#fff'),
+                  borderRight: '1px solid ' + (activeService === index ? '#0a246a' : '#808080'),
+                  borderBottom: '1px solid ' + (activeService === index ? '#0a246a' : '#808080'),
+                  textAlign: 'left',
+                  width: '100%',
+                }}
+              >
+                <service.icon style={{ width: '16px', height: '16px', flexShrink: 0 }} />
+                <div>
+                  <div style={{ fontWeight: 'bold', fontSize: '12px' }}>{service.title}</div>
+                  <div style={{ fontSize: '11px', opacity: 0.8 }}>{service.shortTitle}</div>
+                </div>
+              </button>
+            ))}
+            <WinSeparator />
+            <div style={{ background: '#fff', border: '2px inset #808080', padding: '6px', fontSize: '12px', color: '#000', fontFamily: 'Tahoma, Arial' }}>
+              {services[activeService].description}
+            </div>
+            <div style={{ position: 'relative', aspectRatio: '16/9', overflow: 'hidden', border: '2px inset #808080' }}>
+              <Image src={services[activeService].image} alt={services[activeService].title} fill className="object-cover" />
+            </div>
+          </div>
+        </WinWindow>
+
+        {/* About Window */}
+        <WinWindow title="Quem Somos — Covialvi Imobiliária" icon="ℹ️">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ position: 'relative', height: '180px', border: '2px inset #808080', overflow: 'hidden' }}>
+              <Image src="/team-covialvi.png" alt="Equipa Covialvi" fill className="object-cover" />
+              {/* Floating badge */}
+              <div style={{
+                position: 'absolute', bottom: '8px', right: '8px',
+                background: '#0a246a', color: '#fff',
+                fontFamily: 'Tahoma, Arial', fontSize: '13px', fontWeight: 'bold',
+                padding: '6px 10px',
+                borderTop: '2px solid #a6caf0', borderLeft: '2px solid #a6caf0',
+                borderRight: '2px solid #040e2e', borderBottom: '2px solid #040e2e',
+              }}>
+                90%<br /><span style={{ fontSize: '10px', fontWeight: 'normal' }}>Retenção</span>
+              </div>
+            </div>
+            <div style={{ background: '#fff', border: '2px inset #808080', padding: '8px', fontFamily: 'Tahoma, Arial', fontSize: '12px', color: '#000' }}>
+              <strong style={{ color: '#0a246a' }}>REDEFININDO EXCELÊNCIA NO IMOBILIÁRIO</strong>
+              <p style={{ marginTop: '4px' }}>Especializamo-nos em propriedades de luxo, casas sustentáveis e arrendamentos de férias — movidos pela paixão por uma vida excecional.</p>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px' }}>
+              {[
+                { label: 'Visão', icon: '👁️', text: 'Ser líder no mercado imobiliário, oferecendo serviços incomparáveis.' },
+                { label: 'Missão', icon: '🎯', text: 'Criar experiências de vida excecionais através de inovação e serviço personalizado.' },
+              ].map((item) => (
+                <div key={item.label} style={{
+                  background: '#d4d0c8',
+                  borderTop: '2px solid #fff', borderLeft: '2px solid #fff',
+                  borderRight: '2px solid #808080', borderBottom: '2px solid #808080',
+                  padding: '8px', fontFamily: 'Tahoma, Arial',
+                }}>
+                  <div style={{ fontSize: '16px', marginBottom: '4px' }}>{item.icon}</div>
+                  <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#0a246a', marginBottom: '2px' }}>A Nossa {item.label}</div>
+                  <div style={{ fontSize: '11px', color: '#444' }}>{item.text}</div>
+                </div>
               ))}
             </div>
-            
-            {/* Service Content */}
-            <div className="lg:col-span-8">
-              <motion.div 
-                key={activeService}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="relative"
-              >
-                <div className="relative aspect-[4/3] md:aspect-[16/10] rounded-3xl overflow-hidden shadow-2xl">
-                  <Image
-                    src={services[activeService].image}
-                    alt={services[activeService].title}
-                    fill
-                    className="object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/20" />
-                  
-                  {/* Content Overlay */}
-                  <div className="absolute bottom-0 left-0 right-0 p-8">
-                    <span className="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm mb-4">
-                      0{activeService + 1}
-                    </span>
-                    <h3 className="text-2xl md:text-3xl font-bold text-white mb-3">
-                      {services[activeService].title}
-                    </h3>
-                    <p className="text-white font-medium max-w-lg leading-relaxed">
-                      {services[activeService].description}
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Link href="/sobre"><WinBtn>Saber Mais &gt;</WinBtn></Link>
             </div>
           </div>
-        </div>
-      </section>
+        </WinWindow>
+      </div>
 
-      {/* Featured Properties Section */}
-      <section className="py-28 px-6 md:px-12 lg:px-20 bg-secondary/30 relative">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-16">
-            <FadeInUp>
-              <span className="inline-block px-4 py-2 rounded-full border border-border bg-background text-sm text-muted-foreground mb-4">
-                Imóveis em Destaque
-              </span>
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground tracking-tight leading-tight">
-                DESCUBRA IMÓVEIS<br />
-                <span className="text-muted-foreground">À SUA MEDIDA</span>
-              </h2>
-            </FadeInUp>
-            
-            <FadeInUp delay={0.2}>
-              <Link href="/imoveis">
-                <motion.button 
-                  whileHover={{ scale: 1.05, x: 5 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="group inline-flex items-center gap-3 bg-foreground text-background rounded-full pl-6 pr-2 py-2 font-medium hover:opacity-90 transition-all"
-                >
-                  Ver Todos
-                  <span className="w-10 h-10 rounded-full bg-background flex items-center justify-center">
-                    <ArrowRight className="h-5 w-5 text-foreground group-hover:translate-x-1 transition-transform" />
-                  </span>
-                </motion.button>
-              </Link>
-            </FadeInUp>
-          </div>
-          
-          <StaggerContainer className="grid md:grid-cols-2 lg:grid-cols-3 gap-8" staggerDelay={0.1}>
-            {featuredProperties.slice(0, 6).map((property) => (
-              <StaggerItem key={property.id}>
-                <PropertyCard 
-                  property={property} 
-                  formatPrice={formatPrice} 
-                  businessTypeLabels={businessTypeLabels} 
-                />
-              </StaggerItem>
+      {/* ── ALL FEATURED PROPERTIES ── */}
+      <WinWindow title="Imóveis Disponíveis — Covialvi.exe" icon="🏘️" className="mb-4 w-full">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+          <span style={{ fontFamily: 'Tahoma, Arial', fontSize: '12px', color: '#000' }}>
+            {featuredProperties.length} imóveis encontrados
+          </span>
+          <Link href="/imoveis">
+            <WinBtn>Ver Todos os Imóveis &gt;</WinBtn>
+          </Link>
+        </div>
+        <WinSeparator />
+        {featuredProperties.length > 0 ? (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '8px', marginTop: '8px' }}>
+            {featuredProperties.slice(0, 6).map((property: any) => (
+              <PropertyCard key={property.id} property={property} formatPrice={formatPrice} businessTypeLabels={businessTypeLabels} />
             ))}
-          </StaggerContainer>
-        </div>
-      </section>
+          </div>
+        ) : (
+          <div style={{ padding: '24px', textAlign: 'center', background: '#fff', border: '2px inset #808080', fontFamily: 'Tahoma, Arial', fontSize: '13px', color: '#444' }}>
+            Nenhum imóvel disponível de momento.
+          </div>
+        )}
+      </WinWindow>
 
-      
-      {/* About Section - Who We Are */}
-      <section className="py-28 px-6 md:px-12 lg:px-20 bg-background relative overflow-hidden">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-20 items-center">
-            {/* Left - Image */}
-            <SlideInLeft>
-              <div className="relative">
-                <motion.div 
-                  whileHover={{ scale: 1.02 }}
-                  className="relative aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl"
-                >
-                  <Image
-                    src="/team-covialvi.png"
-                    alt="Covialvi Imobiliário"
-                    fill
-                    className="object-cover"
-                  />
-                </motion.div>
-                {/* Floating Stats Card */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  className="absolute -bottom-8 -right-8 bg-foreground text-background rounded-2xl p-6 shadow-2xl"
-                >
-                  <p className="text-4xl font-bold mb-1">90%</p>
-                  <p className="text-sm text-background/60">Taxa de Retenção</p>
-                </motion.div>
-              </div>
-            </SlideInLeft>
-            
-            {/* Right - Text Content */}
-            <SlideInRight>
-              <span className="inline-block px-4 py-2 rounded-full border border-border text-sm text-muted-foreground mb-6">
-                Quem Somos
-              </span>
-              <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6 tracking-tight leading-tight">
-                REDEFININDO<br />
-                EXCELÊNCIA NO<br />
-                <span className="text-muted-foreground">IMOBILIÁRIO</span>
-              </h2>
-              <p className="text-muted-foreground text-lg leading-relaxed mb-10">
-                Especializamo-nos em propriedades de luxo, casas sustentáveis e arrendamentos de férias — movidos pela paixão por uma vida excecional e compromisso com qualidade, inovação e satisfação do cliente.
+      {/* ── CTA BUILD ── */}
+      <WinWindow title="Quer Construir a Sua Casa? — Parceiros" icon="🏗️" className="mb-4 w-full">
+        <div style={{ background: '#fff3cd', border: '2px inset #808080', padding: '12px', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+          <div style={{ fontFamily: 'Tahoma, Arial', fontSize: '13px', color: '#000' }}>
+            <strong>Quer construir a sua casa?</strong>
+            <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#555' }}>Conheça os nossos parceiros especializados em construção e torne o seu sonho realidade.</p>
+          </div>
+          <a href="https://www.virgilioroque.com" target="_blank" rel="noopener noreferrer">
+            <WinBtn style={{ background: '#fffbe6' }}>
+              Visitar Parceiro <ArrowUpRight className="h-3 w-3" />
+            </WinBtn>
+          </a>
+        </div>
+      </WinWindow>
+
+      {/* ── CONTACT FORM WINDOW ── */}
+      <WinWindow title="Contacte-nos — Enviar Mensagem" icon="✉️" className="mb-4 w-full">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', flexWrap: 'wrap' }} className="contact-grid">
+          {/* Background image side */}
+          <div style={{ position: 'relative', minHeight: '240px', border: '2px inset #808080', overflow: 'hidden' }}>
+            <Image src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=2053" alt="Modern architecture" fill className="object-cover" />
+            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,36,106,0.7)', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '20px' }}>
+              <p style={{ color: '#a6caf0', fontFamily: 'Tahoma, Arial', fontSize: '11px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '8px' }}>Contacte-nos</p>
+              <h3 style={{ color: '#fff', fontFamily: 'Tahoma, Arial', fontSize: '18px', fontWeight: 'bold', lineHeight: 1.3, marginBottom: '8px' }}>
+                Tem questões ou está pronto para o próximo passo?
+              </h3>
+              <p style={{ color: '#ccc', fontFamily: 'Tahoma, Arial', fontSize: '12px' }}>
+                A nossa equipa está aqui para o guiar em cada etapa.
               </p>
-              
-              {/* Stats Grid */}
-              <div className="grid grid-cols-2 gap-8 mb-10">
-                <div className="group">
-                  <p className="text-4xl font-bold text-foreground group-hover:text-yellow-500 transition-colors">
-                    <AnimatedCounter value={stats.properties} suffix="+" />
-                  </p>
-                  <p className="text-muted-foreground text-sm">Projetos Concluídos</p>
-                </div>
-                <div className="group">
-                  <p className="text-4xl font-bold text-foreground group-hover:text-yellow-500 transition-colors">
-                    <AnimatedCounter value={stats.clients} suffix="+" />
-                  </p>
-                  <p className="text-muted-foreground text-sm">Clientes Satisfeitos</p>
-                </div>
-                <div className="group">
-                  <p className="text-4xl font-bold text-foreground group-hover:text-yellow-500 transition-colors">
-                    <AnimatedCounter value={10} suffix="M+" />
-                  </p>
-                  <p className="text-muted-foreground text-sm">Valor em Projetos</p>
-                </div>
-                <div className="group">
-                  <p className="text-4xl font-bold text-foreground group-hover:text-yellow-500 transition-colors">
-                    <AnimatedCounter value={30} suffix="+" />
-                  </p>
-                  <p className="text-muted-foreground text-sm">Anos de Experiência</p>
-                </div>
-              </div>
-              
-              <Link href="/sobre">
-                <motion.button 
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="inline-flex items-center gap-2 text-foreground font-medium hover:text-yellow-500 transition-colors"
-                >
-                  Saber Mais Sobre Nós
-                  <ArrowRight className="h-4 w-4" />
-                </motion.button>
-              </Link>
-            </SlideInRight>
+            </div>
           </div>
-          
-          {/* Vision & Mission Cards */}
-          <div className="grid md:grid-cols-2 gap-8 mt-24">
-            <FadeInUp delay={0.2}>
-              <motion.div 
-                whileHover={{ y: -10 }}
-                className="bg-card border border-border rounded-3xl p-8 hover:shadow-xl transition-all"
-              >
-                <div className="w-14 h-14 rounded-2xl bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center mb-6">
-                  <Eye className="h-7 w-7 text-yellow-600" />
-                </div>
-                <h3 className="text-xl font-bold text-foreground mb-3">A Nossa Visão</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Ser líder no mercado imobiliário, oferecendo serviços incomparáveis em luxo, sustentabilidade e propriedades de férias.
-                </p>
-              </motion.div>
-            </FadeInUp>
-            
-            <FadeInUp delay={0.3}>
-              <motion.div 
-                whileHover={{ y: -10 }}
-                className="bg-card border border-border rounded-3xl p-8 hover:shadow-xl transition-all"
-              >
-                <div className="w-14 h-14 rounded-2xl bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center mb-6">
-                  <Target className="h-7 w-7 text-yellow-600" />
-                </div>
-                <h3 className="text-xl font-bold text-foreground mb-3">A Nossa Missão</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Criar experiências de vida excecionais através de inovação, sustentabilidade e serviço personalizado no imobiliário moderno.
-                </p>
-              </motion.div>
-            </FadeInUp>
-          </div>
-        </div>
-      </section>
 
-      {/* Build Your House CTA Section */}
-      <section className="py-20 px-6 md:px-12 lg:px-20 bg-gradient-to-r from-yellow-500 to-yellow-600">
-        <div className="max-w-4xl mx-auto text-center">
-          <FadeInUp>
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-              Quer construir a sua casa?
-            </h2>
-            <p className="text-white/90 text-lg mb-8 max-w-2xl mx-auto">
-              Conheça os nossos parceiros especializados em construção e torne o seu sonho realidade.
-            </p>
-            <a
-              href="https://www.virgilioroque.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 bg-white text-gray-900 rounded-full px-8 py-4 font-semibold hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl"
-            >
-              Quer construir a sua casa?
-              <ArrowUpRight className="h-5 w-5" />
-            </a>
-          </FadeInUp>
-        </div>
-      </section>
-
-      {/* Contact CTA Section */}
-      <section className="relative py-32 overflow-hidden">
-        {/* Background Image with Parallax */}
-        <div className="absolute inset-0">
-          <Image
-            src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=2053"
-            alt="Modern architecture"
-            fill
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-black/60" />
-        </div>
-        
-        <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12 lg:px-20">
-          <div className="max-w-2xl mx-auto">
-            <FadeInUp>
-              <div className="text-center mb-10">
-                <span className="inline-block px-4 py-2 rounded-full border border-white/20 text-sm text-white/70 mb-6">
-                  Contacte-nos
-                </span>
-                <h2 className="text-3xl md:text-5xl font-bold text-white mb-4 leading-tight">
-                  Tem questões ou está pronto<br />para dar o próximo passo?
-                </h2>
-                <p className="text-white/60">
-                  A nossa equipa está aqui para o guiar em cada etapa. Vamos transformar os seus objetivos imobiliários em realidade.
-                </p>
+          {/* Form side */}
+          <div>
+            {contactSuccess ? (
+              <div style={{ padding: '24px', textAlign: 'center', fontFamily: 'Tahoma, Arial' }}>
+                <div style={{ fontSize: '32px', marginBottom: '8px' }}>✅</div>
+                <strong style={{ fontSize: '14px' }}>Mensagem Enviada!</strong>
+                <p style={{ fontSize: '12px', color: '#555', marginTop: '4px' }}>Entraremos em contacto brevemente.</p>
+                <WinBtn onClick={() => setContactSuccess(false)} style={{ marginTop: '12px' }}>Enviar nova mensagem</WinBtn>
               </div>
-            </FadeInUp>
-            
-            <FadeInUp delay={0.2}>
-              <motion.div 
-                whileHover={{ y: -5 }}
-                className="bg-white rounded-3xl p-8 md:p-10 shadow-2xl"
-              >
-                {contactSuccess ? (
-                  <div className="text-center py-8">
-                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                    </div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">Mensagem Enviada!</h3>
-                    <p className="text-gray-600">Entraremos em contacto brevemente.</p>
-                    <button
-                      onClick={() => setContactSuccess(false)}
-                      className="mt-4 text-yellow-600 font-medium hover:text-yellow-700"
-                    >
-                      Enviar nova mensagem
-                    </button>
+            ) : (
+              <form onSubmit={handleContactSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontFamily: 'Tahoma, Arial', fontSize: '12px', marginBottom: '2px' }}>Primeiro Nome:</label>
+                    <input type="text" placeholder="João" value={contactForm.firstName} onChange={(e) => setContactForm({ ...contactForm, firstName: e.target.value })} required className="win-inset" style={{ width: '100%', padding: '3px 6px', fontFamily: 'Tahoma, Arial', fontSize: '12px' }} />
                   </div>
-                ) : (
-                  <form className="space-y-5" onSubmit={handleContactSubmit}>
-                    <div className="grid md:grid-cols-2 gap-5">
-                      <input
-                        type="text"
-                        placeholder="Primeiro Nome"
-                        value={contactForm.firstName}
-                        onChange={(e) => setContactForm({ ...contactForm, firstName: e.target.value })}
-                        required
-                        className="w-full px-5 py-4 border-b-2 border-gray-200 focus:border-gray-900 focus:outline-none transition-colors bg-transparent text-gray-900 placeholder:text-gray-400"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Último Nome"
-                        value={contactForm.lastName}
-                        onChange={(e) => setContactForm({ ...contactForm, lastName: e.target.value })}
-                        className="w-full px-5 py-4 border-b-2 border-gray-200 focus:border-gray-900 focus:outline-none transition-colors bg-transparent text-gray-900 placeholder:text-gray-400"
-                      />
-                    </div>
-                    <div className="grid md:grid-cols-2 gap-5">
-                      <input
-                        type="email"
-                        placeholder="Email"
-                        value={contactForm.email}
-                        onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
-                        required
-                        className="w-full px-5 py-4 border-b-2 border-gray-200 focus:border-gray-900 focus:outline-none transition-colors bg-transparent text-gray-900 placeholder:text-gray-400"
-                      />
-                      <input
-                        type="tel"
-                        placeholder="Telefone"
-                        value={contactForm.phone}
-                        onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value })}
-                        className="w-full px-5 py-4 border-b-2 border-gray-200 focus:border-gray-900 focus:outline-none transition-colors bg-transparent text-gray-900 placeholder:text-gray-400"
-                      />
-                    </div>
-                    <textarea
-                      placeholder="Como podemos ajudar?"
-                      rows={3}
-                      value={contactForm.message}
-                      onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
-                      className="w-full px-5 py-4 border-b-2 border-gray-200 focus:border-gray-900 focus:outline-none transition-colors bg-transparent text-gray-900 placeholder:text-gray-400 resize-none"
-                    />
-                    {contactError && (
-                      <p className="text-red-500 text-sm">{contactError}</p>
-                    )}
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      type="submit"
-                      disabled={contactLoading}
-                      className="w-full bg-gray-900 text-white rounded-full py-4 font-medium hover:bg-gray-800 transition-colors mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {contactLoading ? 'A enviar...' : 'Agendar Chamada'}
-                    </motion.button>
-                  </form>
-                )}
-              </motion.div>
-            </FadeInUp>
+                  <div>
+                    <label style={{ display: 'block', fontFamily: 'Tahoma, Arial', fontSize: '12px', marginBottom: '2px' }}>Último Nome:</label>
+                    <input type="text" placeholder="Silva" value={contactForm.lastName} onChange={(e) => setContactForm({ ...contactForm, lastName: e.target.value })} className="win-inset" style={{ width: '100%', padding: '3px 6px', fontFamily: 'Tahoma, Arial', fontSize: '12px' }} />
+                  </div>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontFamily: 'Tahoma, Arial', fontSize: '12px', marginBottom: '2px' }}>Email:</label>
+                  <input type="email" placeholder="joao@exemplo.pt" value={contactForm.email} onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })} required className="win-inset" style={{ width: '100%', padding: '3px 6px', fontFamily: 'Tahoma, Arial', fontSize: '12px' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontFamily: 'Tahoma, Arial', fontSize: '12px', marginBottom: '2px' }}>Telefone:</label>
+                  <input type="tel" placeholder="+351 000 000 000" value={contactForm.phone} onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value })} className="win-inset" style={{ width: '100%', padding: '3px 6px', fontFamily: 'Tahoma, Arial', fontSize: '12px' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontFamily: 'Tahoma, Arial', fontSize: '12px', marginBottom: '2px' }}>Mensagem:</label>
+                  <textarea rows={4} placeholder="Como podemos ajudar?" value={contactForm.message} onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })} className="win-inset" style={{ width: '100%', padding: '3px 6px', fontFamily: 'Tahoma, Arial', fontSize: '12px', resize: 'vertical' }} />
+                </div>
+                {contactError && <p style={{ color: '#c00', fontFamily: 'Tahoma, Arial', fontSize: '12px' }}>{contactError}</p>}
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px' }}>
+                  <WinBtn onClick={() => setContactForm({ firstName: '', lastName: '', email: '', phone: '', message: '' })}>Limpar</WinBtn>
+                  <WinBtn primary style={{ background: '#0a246a', color: '#fff', borderTop: '2px solid #4a7ad4', borderLeft: '2px solid #4a7ad4' }}>
+                    {contactLoading ? 'A enviar...' : 'Enviar'}
+                  </WinBtn>
+                </div>
+              </form>
+            )}
           </div>
         </div>
-      </section>
+      </WinWindow>
 
+      <WhatsAppButton />
+
+      <style>{`
+        @media (max-width: 640px) {
+          .contact-grid { grid-template-columns: 1fr !important; }
+          .flex-wrap-win { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </main>
   );
 }
 
-// Property Card Component - Premium Design
-function PropertyCard({ 
-  property, 
-  formatPrice, 
-  businessTypeLabels 
-}: { 
-  property: any; 
-  formatPrice: (price: number | null) => string;
-  businessTypeLabels: Record<string, string>;
-}) {
+// ─── Property Card ────────────────────────────────────────────────────────────
+function PropertyCard({ property, formatPrice, businessTypeLabels }: { property: any; formatPrice: (price: number | null) => string; businessTypeLabels: Record<string, string> }) {
   const [isHovered, setIsHovered] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  
-  const coverImage = property.property_images?.find((img: any) => img.is_cover) ||
-    property.property_images?.[0];
-  
+  const coverImage = property.property_images?.find((img: any) => img.is_cover) || property.property_images?.[0];
   const hasVideo = property.video_url;
-  
-  // Extract YouTube video ID if it's a YouTube URL
+
   const getYouTubeEmbedUrl = (url: string) => {
     if (!url) return null;
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
     const match = url.match(regExp);
-    if (match && match[2].length === 11) {
-      return `https://www.youtube.com/embed/${match[2]}?autoplay=1&mute=1&loop=1&playlist=${match[2]}&controls=0&showinfo=0`;
-    }
+    if (match && match[2].length === 11) return `https://www.youtube.com/embed/${match[2]}?autoplay=1&mute=1&loop=1&playlist=${match[2]}&controls=0&showinfo=0`;
     return url;
   };
-  
   const videoEmbedUrl = hasVideo ? getYouTubeEmbedUrl(property.video_url) : null;
 
   return (
-    <motion.article 
-      whileHover={{ y: -12 }}
+    <div
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="group bg-card rounded-3xl overflow-hidden border border-border hover:border-yellow-500/30 hover:shadow-2xl transition-all duration-500"
+      style={{
+        background: '#d4d0c8',
+        borderTop: '2px solid #ffffff',
+        borderLeft: '2px solid #ffffff',
+        borderRight: '2px solid #404040',
+        borderBottom: '2px solid #404040',
+        fontFamily: 'Tahoma, Arial, sans-serif',
+        cursor: 'pointer',
+      }}
     >
-      <div className="relative aspect-[4/3] overflow-hidden">
+      {/* Image area */}
+      <div style={{ position: 'relative', aspectRatio: '4/3', overflow: 'hidden', border: '2px inset #808080' }}>
         <Link href={`/imoveis/${property.slug}`}>
-          {/* Image - shown when not hovered or no video */}
-          <div className={`absolute inset-0 transition-opacity duration-500 ${isHovered && hasVideo ? 'opacity-0' : 'opacity-100'}`}>
+          <div style={{ position: 'absolute', inset: 0, transition: 'opacity 0.3s', opacity: isHovered && hasVideo ? 0 : 1 }}>
             {coverImage ? (
-              <Image
-                src={coverImage.url}
-                alt={property.title}
-                fill
-                className="object-cover transition-transform duration-700 group-hover:scale-110"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              />
+              <Image src={coverImage.url} alt={property.title} fill className="object-cover" sizes="(max-width: 768px) 100vw, 300px" />
             ) : (
-              <div className="w-full h-full bg-secondary flex items-center justify-center">
-                <Building2 className="h-12 w-12 text-muted-foreground/30" />
+              <div style={{ width: '100%', height: '100%', background: '#c0c0c0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Building2 style={{ width: '32px', height: '32px', color: '#808080' }} />
               </div>
             )}
           </div>
-          
-          {/* Video - shown on hover if property has video */}
           {hasVideo && isHovered && (
-            <div className="absolute inset-0 z-10">
-              <iframe
-                src={videoEmbedUrl || ''}
-                className="w-full h-full object-cover"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                style={{ border: 'none', pointerEvents: 'none' }}
-              />
+            <div style={{ position: 'absolute', inset: 0, zIndex: 10 }}>
+              <iframe src={videoEmbedUrl || ''} className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen style={{ border: 'none', pointerEvents: 'none', width: '100%', height: '100%' }} />
             </div>
           )}
         </Link>
-        
-        {/* Video indicator badge */}
-        {hasVideo && !isHovered && (
-          <div className="absolute top-4 left-4 z-20">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-black/70 backdrop-blur-sm px-3 py-1.5 text-xs font-medium text-white shadow-lg">
-              <Play className="h-3 w-3 fill-white" />
-              Vídeo
-            </span>
-          </div>
-        )}
-        
-        {/* Vendido Ribbon */}
+
+        {/* Sold ribbon */}
         {property.construction_status === 'sold' && (
-          <div className="absolute inset-0 z-30 overflow-hidden pointer-events-none">
-            <div className="absolute text-center transform -rotate-45 bg-red-600 text-white text-sm font-bold py-2 shadow-lg tracking-wide" style={{ width: '320px', top: '60px', left: '-85px' }}>
+          <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 30 }}>
+            <div style={{ position: 'absolute', textAlign: 'center', transform: 'rotate(-45deg)', background: '#c00', color: '#fff', fontSize: '12px', fontWeight: 'bold', padding: '6px 0', boxShadow: '0 2px 4px rgba(0,0,0,0.4)', width: '280px', top: '50px', left: '-70px' }}>
               100% Vendido
             </div>
           </div>
         )}
-        
-        {/* Gradient Overlay on Hover */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-20 pointer-events-none" />
-        
-        {/* Badge */}
-        <div className="absolute top-4 right-4 z-20">
-          <span className="inline-flex items-center rounded-full bg-white/95 backdrop-blur-sm px-4 py-1.5 text-sm font-medium text-gray-900 shadow-lg">
+
+        {/* Type badge */}
+        <div style={{ position: 'absolute', top: '4px', right: '4px', zIndex: 20 }}>
+          <span style={{
+            background: '#d4d0c8', color: '#000', fontSize: '11px',
+            padding: '2px 6px', fontFamily: 'Tahoma, Arial',
+            borderTop: '1px solid #fff', borderLeft: '1px solid #fff',
+            borderRight: '1px solid #808080', borderBottom: '1px solid #808080',
+          }}>
             {businessTypeLabels[property.business_type] || 'Venda'}
           </span>
         </div>
-        
-        
-        {/* Quick View on Hover */}
-        <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0 z-20">
-          <Link href={`/imoveis/${property.slug}`}>
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              className="w-full bg-white/95 backdrop-blur-sm text-gray-900 rounded-xl py-3 font-medium text-sm hover:bg-white transition-colors"
-            >
-              Ver Detalhes
-            </motion.button>
-          </Link>
-        </div>
+
+        {/* Video badge */}
+        {hasVideo && !isHovered && (
+          <div style={{ position: 'absolute', top: '4px', left: '4px', zIndex: 20 }}>
+            <span style={{ background: 'rgba(0,0,0,0.75)', color: '#fff', fontSize: '11px', padding: '2px 6px', fontFamily: 'Tahoma, Arial', display: 'flex', alignItems: 'center', gap: '3px' }}>
+              <Play style={{ width: '10px', height: '10px', fill: '#fff' }} /> Vídeo
+            </span>
+          </div>
+        )}
+
+        {/* Quick view on hover */}
+        {isHovered && (
+          <div style={{ position: 'absolute', bottom: '4px', left: '4px', right: '4px', zIndex: 20 }}>
+            <Link href={`/imoveis/${property.slug}`}>
+              <button className="win-btn" style={{ width: '100%', display: 'block', textAlign: 'center' }}>
+                Ver Detalhes
+              </button>
+            </Link>
+          </div>
+        )}
       </div>
-      
-      <div className="p-6">
-        <div className="flex items-center gap-2 text-muted-foreground mb-2">
-          <MapPin className="h-4 w-4 text-yellow-500" />
-          <span className="text-sm">{property.municipality || property.district || 'Portugal'}</span>
+
+      {/* Info area */}
+      <div style={{ padding: '6px 8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#555', fontSize: '11px', marginBottom: '2px' }}>
+          <MapPin style={{ width: '12px', height: '12px', color: '#0a246a' }} />
+          {property.municipality || property.district || 'Portugal'}
         </div>
-        
-        <Link href={`/imoveis/${property.slug}`}>
-          <h3 className="font-bold text-foreground text-lg mb-4 line-clamp-1 group-hover:text-yellow-500 transition-colors">
+        <Link href={`/imoveis/${property.slug}`} style={{ textDecoration: 'none' }}>
+          <h3 style={{ fontWeight: 'bold', fontSize: '13px', color: '#000', marginBottom: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {property.title}
           </h3>
         </Link>
-        
-        <div className="flex items-center gap-4 text-sm text-muted-foreground mb-5 pb-5 border-b border-border">
-          {property.bedrooms !== null && (
-            <span className="flex items-center gap-1.5">
-              <Bed className="h-4 w-4" />
-              {property.bedrooms}
-            </span>
-          )}
-          {property.bathrooms !== null && (
-            <span className="flex items-center gap-1.5">
-              <Bath className="h-4 w-4" />
-              {property.bathrooms}
-            </span>
-          )}
-          {property.gross_area !== null && (
-            <span className="flex items-center gap-1.5">
-              <Maximize className="h-4 w-4" />
-              {property.gross_area} m²
-            </span>
-          )}
+        <div style={{ display: 'flex', gap: '8px', fontSize: '11px', color: '#666', marginBottom: '4px', borderTop: '1px solid #808080', paddingTop: '4px' }}>
+          {property.bedrooms !== null && <span style={{ display: 'flex', alignItems: 'center', gap: '2px' }}><Bed style={{ width: '11px', height: '11px' }} />{property.bedrooms}</span>}
+          {property.bathrooms !== null && <span style={{ display: 'flex', alignItems: 'center', gap: '2px' }}><Bath style={{ width: '11px', height: '11px' }} />{property.bathrooms}</span>}
+          {property.gross_area !== null && <span style={{ display: 'flex', alignItems: 'center', gap: '2px' }}><Maximize style={{ width: '11px', height: '11px' }} />{property.gross_area}m²</span>}
         </div>
-        
-        <p className="text-2xl font-bold text-foreground">
+        <p style={{ fontSize: '14px', fontWeight: 'bold', color: '#0a246a' }}>
           {property.price_on_request ? 'Sob Consulta' : formatPrice(property.price)}
-          {!property.price_on_request && property.business_type === 'rent' && (
-            <span className="text-sm font-normal text-muted-foreground"> /mês</span>
-          )}
+          {!property.price_on_request && property.business_type === 'rent' && <span style={{ fontSize: '11px', fontWeight: 'normal', color: '#555' }}> /mês</span>}
         </p>
       </div>
-    </motion.article>
+    </div>
   );
 }
 
-// Hero Property Card Component - With Video Hover
-function HeroPropertyCard({ 
-  property, 
-  formatPrice, 
-  businessTypeLabels 
-}: { 
-  property: any; 
-  formatPrice: (price: number | null) => string;
-  businessTypeLabels: Record<string, string>;
-}) {
+// ─── Hero Property Card ───────────────────────────────────────────────────────
+function HeroPropertyCard({ property, formatPrice, businessTypeLabels }: { property: any; formatPrice: (price: number | null) => string; businessTypeLabels: Record<string, string> }) {
   const [isHovered, setIsHovered] = useState(false);
-  
-  const coverImage = property.property_images?.find((img: any) => img.is_cover) ||
-    property.property_images?.[0];
-  
+  const coverImage = property.property_images?.find((img: any) => img.is_cover) || property.property_images?.[0];
   const hasVideo = property.video_url;
-  
-  // Extract YouTube video ID if it's a YouTube URL
+
   const getYouTubeEmbedUrl = (url: string) => {
     if (!url) return null;
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
     const match = url.match(regExp);
-    if (match && match[2].length === 11) {
-      return `https://www.youtube.com/embed/${match[2]}?autoplay=1&mute=1&loop=1&playlist=${match[2]}&controls=0&showinfo=0`;
-    }
+    if (match && match[2].length === 11) return `https://www.youtube.com/embed/${match[2]}?autoplay=1&mute=1&loop=1&playlist=${match[2]}&controls=0&showinfo=0`;
     return url;
   };
-  
   const videoEmbedUrl = hasVideo ? getYouTubeEmbedUrl(property.video_url) : null;
 
   return (
-    <Link href={`/imoveis/${property.slug}`}>
-      <motion.div
-        whileHover={{ y: -5, scale: 1.02 }}
+    <Link href={`/imoveis/${property.slug}`} style={{ textDecoration: 'none' }}>
+      <div
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className="group relative bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all"
+        style={{
+          background: '#d4d0c8',
+          borderTop: '2px solid #fff',
+          borderLeft: '2px solid #fff',
+          borderRight: '2px solid #404040',
+          borderBottom: '2px solid #404040',
+          fontFamily: 'Tahoma, Arial, sans-serif',
+          cursor: 'pointer',
+          transform: isHovered ? 'translateY(-2px)' : 'none',
+          transition: 'transform 0.1s',
+        }}
       >
-        <div className="relative aspect-[16/10]">
-          {/* Image - shown when not hovered or no video */}
-          <div className={`absolute inset-0 transition-opacity duration-500 ${isHovered && hasVideo ? 'opacity-0' : 'opacity-100'}`}>
-            {coverImage ? (
-              <Image
-                src={coverImage.url}
-                alt={property.title}
-                fill
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-            ) : (
-              <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                <Building2 className="h-8 w-8 text-gray-300" />
+        <div style={{ position: 'relative', aspectRatio: '16/10', overflow: 'hidden', border: '2px inset #808080' }}>
+          <div style={{ position: 'absolute', inset: 0, transition: 'opacity 0.3s', opacity: isHovered && hasVideo ? 0 : 1 }}>
+            {coverImage ? <Image src={coverImage.url} alt={property.title} fill className="object-cover" /> : (
+              <div style={{ width: '100%', height: '100%', background: '#c0c0c0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Building2 style={{ width: '24px', height: '24px', color: '#808080' }} />
               </div>
             )}
           </div>
-          
-          {/* Video - shown on hover if property has video */}
           {hasVideo && isHovered && (
-            <div className="absolute inset-0 z-10">
-              <iframe
-                src={videoEmbedUrl || ''}
-                className="w-full h-full object-cover"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                style={{ border: 'none', pointerEvents: 'none' }}
-              />
+            <div style={{ position: 'absolute', inset: 0, zIndex: 10 }}>
+              <iframe src={videoEmbedUrl || ''} className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen style={{ border: 'none', pointerEvents: 'none', width: '100%', height: '100%' }} />
             </div>
           )}
-          
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-20 pointer-events-none" />
-          
-          {/* Video indicator badge */}
-          {hasVideo && !isHovered && (
-            <div className="absolute top-3 left-3 z-20">
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-black/70 backdrop-blur-sm rounded-full text-xs font-medium text-white">
-                <Play className="h-3 w-3 fill-white" />
-                Vídeo
-              </span>
-            </div>
-          )}
-          
-          {/* Vendido Ribbon */}
           {property.construction_status === 'sold' && (
-            <div className="absolute inset-0 z-30 overflow-hidden pointer-events-none">
-              <div className="absolute text-center transform -rotate-45 bg-red-600 text-white text-sm font-bold py-2 shadow-lg tracking-wide" style={{ width: '320px', top: '60px', left: '-85px' }}>
-                100% Vendido
-              </div>
+            <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 30 }}>
+              <div style={{ position: 'absolute', textAlign: 'center', transform: 'rotate(-45deg)', background: '#c00', color: '#fff', fontSize: '11px', fontWeight: 'bold', padding: '4px 0', width: '260px', top: '45px', left: '-60px' }}>100% Vendido</div>
             </div>
           )}
-          
-          {/* Badge */}
-          <span className="absolute top-3 right-3 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-xs font-medium text-gray-900 z-20">
+          <span style={{ position: 'absolute', top: '4px', right: '4px', background: '#d4d0c8', color: '#000', fontSize: '11px', padding: '1px 5px', zIndex: 20, borderTop: '1px solid #fff', borderLeft: '1px solid #fff', borderRight: '1px solid #808080', borderBottom: '1px solid #808080' }}>
             {businessTypeLabels[property.business_type] || 'Venda'}
           </span>
-          
         </div>
-        
-        <div className="absolute bottom-0 left-0 right-0 p-4 z-20">
-          <div className="flex items-center gap-1 text-white/80 text-xs mb-1">
-            <MapPin className="h-3 w-3" />
+        <div style={{ padding: '6px 8px', background: 'rgba(0,36,106,0.92)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#a6caf0', fontSize: '11px', marginBottom: '2px' }}>
+            <MapPin style={{ width: '11px', height: '11px' }} />
             {property.municipality || property.district || 'Portugal'}
           </div>
-          <h3 className="font-semibold text-white text-sm line-clamp-1 mb-1">
+          <h3 style={{ fontWeight: 'bold', fontSize: '13px', color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: '2px' }}>
             {property.title}
           </h3>
-          <p className="text-white font-bold text-lg">
+          <p style={{ fontSize: '14px', fontWeight: 'bold', color: '#a6caf0' }}>
             {property.price_on_request ? 'Sob Consulta' : formatPrice(property.price)}
-            {!property.price_on_request && property.business_type === 'rent' && (
-              <span className="text-sm font-normal opacity-80"> /mês</span>
-            )}
+            {!property.price_on_request && property.business_type === 'rent' && <span style={{ fontSize: '11px', fontWeight: 'normal', opacity: 0.8 }}> /mês</span>}
           </p>
         </div>
-      </motion.div>
+      </div>
     </Link>
   );
 }

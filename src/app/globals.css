@@ -4,68 +4,70 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 220 14% 10%;
+    /* Windows 2000 silver/teal palette */
+    --background: 210 17% 82%;       /* classic Win2K desktop silver-gray */
+    --foreground: 0 0% 0%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 14% 10%;
+    --card: 0 0% 93%;
+    --card-foreground: 0 0% 0%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 14% 10%;
+    --popover: 0 0% 93%;
+    --popover-foreground: 0 0% 0%;
 
-    --primary: 43 71% 47%;
+    --primary: 211 100% 29%;          /* Windows 2000 title-bar blue */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 220 14% 10%;
+    --secondary: 0 0% 85%;
+    --secondary-foreground: 0 0% 0%;
 
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 8% 46%;
+    --muted: 0 0% 80%;
+    --muted-foreground: 0 0% 30%;
 
-    --accent: 43 71% 47%;
+    --accent: 211 100% 29%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 84% 40%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 43 71% 47%;
+    --border: 0 0% 55%;
+    --input: 0 0% 100%;
+    --ring: 211 100% 29%;
 
-    --radius: 0.5rem;
+    --radius: 0px;   /* no rounding — Win2K was all sharp corners */
 
     --gold: 43 71% 47%;
     --gold-light: 43 71% 90%;
+
+    /* Win2K specific surface colors */
+    --win-face: #d4d0c8;      /* classic Win2K grey face */
+    --win-light: #ffffff;
+    --win-dark: #808080;
+    --win-darker: #404040;
+    --win-titlebar: #0a246a;
+    --win-titlebar2: #a6caf0;
+    --win-blue: #0055e5;
   }
 
   .dark {
-    --background: 220 14% 20%;
-    --foreground: 0 0% 98%;
-
-    --card: 220 14% 24%;
-    --card-foreground: 0 0% 98%;
-
-    --popover: 220 14% 24%;
-    --popover-foreground: 0 0% 98%;
-
-    --primary: 43 71% 47%;
-    --primary-foreground: 220 14% 10%;
-
-    --secondary: 220 14% 28%;
-    --secondary-foreground: 0 0% 98%;
-
-    --muted: 220 14% 28%;
-    --muted-foreground: 220 8% 65%;
-
-    --accent: 43 71% 47%;
-    --accent-foreground: 220 14% 10%;
-
-    --destructive: 0 62% 50%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 220 14% 32%;
-    --input: 220 14% 32%;
-    --ring: 43 71% 47%;
+    --background: 210 17% 82%;
+    --foreground: 0 0% 0%;
+    --card: 0 0% 93%;
+    --card-foreground: 0 0% 0%;
+    --popover: 0 0% 93%;
+    --popover-foreground: 0 0% 0%;
+    --primary: 211 100% 29%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 85%;
+    --secondary-foreground: 0 0% 0%;
+    --muted: 0 0% 80%;
+    --muted-foreground: 0 0% 30%;
+    --accent: 211 100% 29%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62% 40%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 55%;
+    --input: 0 0% 100%;
+    --ring: 211 100% 29%;
   }
 }
 
@@ -75,16 +77,123 @@
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    @apply bg-background text-foreground;
+    font-family: 'Tahoma', 'MS Sans Serif', Arial, sans-serif;
+    font-size: 13px;
+    background-color: var(--win-face);
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display tracking-tight;
+    font-family: 'Tahoma', 'MS Sans Serif', Arial, sans-serif;
   }
 }
 
+/* ─────────────────────────────────────────────
+   WINDOWS 2000 UI PRIMITIVES
+───────────────────────────────────────────── */
 @layer components {
+  /* Classic raised button bevel */
+  .win-btn {
+    background: var(--win-face);
+    border-top: 2px solid var(--win-light);
+    border-left: 2px solid var(--win-light);
+    border-right: 2px solid var(--win-dark);
+    border-bottom: 2px solid var(--win-dark);
+    padding: 3px 12px;
+    font-family: 'Tahoma', Arial, sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    display: inline-block;
+    color: #000;
+    outline: none;
+  }
+  .win-btn:active {
+    border-top: 2px solid var(--win-dark);
+    border-left: 2px solid var(--win-dark);
+    border-right: 2px solid var(--win-light);
+    border-bottom: 2px solid var(--win-light);
+    padding: 4px 11px 2px 13px;
+  }
+  .win-btn:focus {
+    outline: 1px dotted #000;
+    outline-offset: -4px;
+  }
+
+  /* Classic sunken inset (for inputs) */
+  .win-inset {
+    background: #fff;
+    border-top: 2px solid var(--win-dark);
+    border-left: 2px solid var(--win-dark);
+    border-right: 2px solid var(--win-light);
+    border-bottom: 2px solid var(--win-light);
+  }
+
+  /* Raised panel / window */
+  .win-panel {
+    background: var(--win-face);
+    border-top: 2px solid var(--win-light);
+    border-left: 2px solid var(--win-light);
+    border-right: 2px solid var(--win-darker);
+    border-bottom: 2px solid var(--win-darker);
+    box-shadow: inset 1px 1px 0 rgba(255,255,255,0.8);
+  }
+
+  /* Title bar gradient */
+  .win-titlebar {
+    background: linear-gradient(to right, var(--win-titlebar) 0%, var(--win-titlebar2) 100%);
+    color: white;
+    font-weight: bold;
+    font-family: 'Tahoma', Arial, sans-serif;
+    font-size: 12px;
+    padding: 3px 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    user-select: none;
+  }
+
+  /* Window title-bar control buttons */
+  .win-ctrl {
+    width: 16px;
+    height: 14px;
+    background: var(--win-face);
+    border-top: 1px solid var(--win-light);
+    border-left: 1px solid var(--win-light);
+    border-right: 1px solid var(--win-dark);
+    border-bottom: 1px solid var(--win-dark);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #000;
+  }
+
+  .win-separator {
+    height: 2px;
+    border-top: 1px solid var(--win-dark);
+    border-bottom: 1px solid var(--win-light);
+  }
+
+  .win-groupbox {
+    border: 2px groove var(--win-dark);
+    padding: 12px;
+    margin-top: 8px;
+  }
+
+  .win-select {
+    background: #fff;
+    border-top: 2px solid var(--win-dark);
+    border-left: 2px solid var(--win-dark);
+    border-right: 2px solid var(--win-light);
+    border-bottom: 2px solid var(--win-light);
+    padding: 2px 4px;
+    font-family: 'Tahoma', Arial, sans-serif;
+    font-size: 13px;
+    appearance: auto;
+  }
+
   .container-wide {
     @apply mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8;
   }
@@ -95,18 +204,6 @@
 
   .section-padding {
     @apply py-16 md:py-24 lg:py-32;
-  }
-
-  .text-gradient-gold {
-    @apply bg-gradient-to-r from-gold-500 via-gold-400 to-gold-500 bg-clip-text text-transparent;
-  }
-
-  .card-hover {
-    @apply transition-all duration-300 hover:shadow-soft-lg hover:-translate-y-1;
-  }
-
-  .link-underline {
-    @apply relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 after:bg-current after:transition-all after:duration-300 hover:after:w-full;
   }
 
   .skeleton {
