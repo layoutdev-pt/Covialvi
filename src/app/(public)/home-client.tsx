@@ -299,7 +299,7 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: 0.6 }}
-                  className="w-full max-w-3xl"
+                  className="w-full max-w-3xl mt-4 md:mt-0"
                 >
                   <div className="relative rounded-2xl md:rounded-full p-[1px] flex flex-col md:flex-row" style={{background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.02) 50%, rgba(255,255,255,0.06) 100%)'}}>
                     <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 w-full rounded-2xl md:rounded-full px-2 py-2"
