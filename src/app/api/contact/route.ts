@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, email, phone, message, propertyId, propertyTitle, propertyRef, source } = body;
+    const { name, email, phone, subject, message, propertyId, propertyTitle, propertyRef, source } = body;
 
     // Validate required fields
     if (!name || !email) {
@@ -65,11 +65,12 @@ export async function POST(request: NextRequest) {
       // Continue even if lead save fails - still send email
     }
 
-    // Send email notification to admin
+    // Send email notification to admin + confirmation to client
     const emailResult = await notifyNewLead({
       name,
       email,
       phone,
+      subject,
       message,
       propertyTitle,
       propertyRef,

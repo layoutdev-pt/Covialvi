@@ -14,7 +14,8 @@ const contactSchema = z.object({
   firstName: z.string().min(1, 'O nome é obrigatório.'),
   lastName: z.string().min(1, 'O apelido é obrigatório.'),
   email: z.string().email('Por favor, introduza um e-mail válido.'),
-  phone: z.string().optional(),
+  phone: z.string().min(9, 'O telefone é obrigatório.'),
+  subject: z.string().min(1, 'O assunto é obrigatório.'),
   message: z.string().min(10, 'A mensagem deve ter pelo menos 10 caracteres.'),
 });
 
@@ -47,7 +48,8 @@ export function ContactForm() {
         body: JSON.stringify({
           name: `${data.firstName} ${data.lastName}`.trim(),
           email: data.email,
-          phone: data.phone || null,
+          phone: data.phone,
+          subject: data.subject,
           message: data.message,
           source: 'contact',
         }),
@@ -122,12 +124,30 @@ export function ContactForm() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="phone">Telefone</Label>
+          <Label htmlFor="phone">Telefone <span className="text-destructive">*</span></Label>
           <Input
             id="phone"
             type="tel"
+            placeholder="+351 9XX XXX XXX"
             {...register('phone')}
+            className={errors.phone ? 'border-destructive' : ''}
           />
+          {errors.phone && (
+            <p className="text-sm text-destructive">{errors.phone.message}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="subject">Assunto <span className="text-destructive">*</span></Label>
+          <Input
+            id="subject"
+            placeholder="Ex: Informações sobre imóvel, Avaliação..."
+            {...register('subject')}
+            className={errors.subject ? 'border-destructive' : ''}
+          />
+          {errors.subject && (
+            <p className="text-sm text-destructive">{errors.subject.message}</p>
+          )}
         </div>
 
         <div className="space-y-2">

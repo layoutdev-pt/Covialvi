@@ -8,10 +8,8 @@ if (process.env.RESEND_API_KEY) {
   resend = new Resend(process.env.RESEND_API_KEY);
 }
 
-// Use Resend's onboarding email for testing (works without domain verification)
-// TODO: Change to 'Covialvi <noreply@covialvi.com>' after verifying domain in Resend
-const FROM_EMAIL = 'Covialvi <onboarding@resend.dev>';
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || company.email;
+const FROM_EMAIL = 'Covialvi <noreply@covialvi.pt>';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'geral@covialvi.pt';
 
 interface EmailOptions {
   to: string | string[];
@@ -54,6 +52,7 @@ export function newLeadEmailTemplate(data: {
   name: string;
   email: string;
   phone?: string;
+  subject?: string;
   message?: string;
   propertyTitle?: string;
   propertyRef?: string;
@@ -103,6 +102,12 @@ export function newLeadEmailTemplate(data: {
               <td style="padding: 12px 0; border-bottom: 1px solid #eee; color: #0a0a0a;">
                 <a href="tel:${data.phone}" style="color: #eab308;">${data.phone}</a>
               </td>
+            </tr>
+            ` : ''}
+            ${data.subject ? `
+            <tr>
+              <td style="padding: 12px 0; border-bottom: 1px solid #eee; color: #666;">Assunto:</td>
+              <td style="padding: 12px 0; border-bottom: 1px solid #eee; color: #0a0a0a; font-weight: 500;">${data.subject}</td>
             </tr>
             ` : ''}
           </table>
@@ -295,21 +300,81 @@ export function propertyAlertEmailTemplate(data: {
   `;
 }
 
+export function contactConfirmationEmailTemplate(data: {
+  name: string;
+  subject?: string;
+}) {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5;">
+      <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+        <div style="background-color: #0a0a0a; padding: 30px; text-align: center;">
+          <h1 style="color: #eab308; margin: 0; font-size: 28px;">Covialvi</h1>
+          <p style="color: #888; margin: 10px 0 0 0; font-size: 14px;">Mensagem Recebida</p>
+        </div>
+        <div style="padding: 40px 30px;">
+          <h2 style="color: #0a0a0a; margin: 0 0 16px 0; font-size: 22px;">Olá ${data.name}!</h2>
+          <p style="color: #555; margin: 0 0 20px 0; line-height: 1.6;">
+            Recebemos a sua mensagem${data.subject ? ` sobre <strong>${data.subject}</strong>` : ''} e entraremos em contacto consigo o mais brevemente possível.
+          </p>
+          <p style="color: #555; margin: 0 0 30px 0; line-height: 1.6;">
+            Se precisar de ajuda urgente, pode contactar-nos diretamente:
+          </p>
+          <div style="background-color: #f9fafb; border-radius: 12px; padding: 20px; margin-bottom: 30px;">
+            <p style="margin: 0 0 8px 0; color: #0a0a0a;">📞 <a href="tel:+351275971394" style="color: #eab308; text-decoration: none;">+351 275 971 394</a></p>
+            <p style="margin: 0 0 8px 0; color: #0a0a0a;">📱 <a href="tel:+351967138116" style="color: #eab308; text-decoration: none;">+351 967 138 116</a></p>
+            <p style="margin: 0; color: #0a0a0a;">📧 <a href="mailto:geral@covialvi.pt" style="color: #eab308; text-decoration: none;">geral@covialvi.pt</a></p>
+          </div>
+          <div style="text-align: center;">
+            <a href="https://covialvi.pt/imoveis" style="display: inline-block; background-color: #eab308; color: #0a0a0a; padding: 14px 30px; text-decoration: none; border-radius: 50px; font-weight: 600;">
+              Ver Imóveis Disponíveis
+            </a>
+          </div>
+        </div>
+        <div style="background-color: #f9fafb; padding: 20px 30px; text-align: center; border-top: 1px solid #eee;">
+          <p style="color: #888; font-size: 12px; margin: 0;">
+            © ${new Date().getFullYear()} Covialvi - Construções, Lda. | Parque Industrial do Tortosendo, Lote 75, Rua E, 6200-823 Tortosendo
+          </p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+}
+
 // Send notification to admin for new lead
 export async function notifyNewLead(leadData: {
   name: string;
   email: string;
   phone?: string;
+  subject?: string;
   message?: string;
   propertyTitle?: string;
   propertyRef?: string;
 }) {
-  return sendEmail({
+  // Notify admin
+  const adminResult = await sendEmail({
     to: ADMIN_EMAIL,
-    subject: `Novo Contacto: ${leadData.name}${leadData.propertyTitle ? ` - ${leadData.propertyTitle}` : ''}`,
+    subject: leadData.subject
+      ? `Novo Contacto [${leadData.subject}]: ${leadData.name}`
+      : `Novo Contacto: ${leadData.name}${leadData.propertyTitle ? ` - ${leadData.propertyTitle}` : ''}`,
     html: newLeadEmailTemplate(leadData),
     replyTo: leadData.email,
   });
+
+  // Send confirmation to client
+  await sendEmail({
+    to: leadData.email,
+    subject: 'Recebemos a sua mensagem — Covialvi',
+    html: contactConfirmationEmailTemplate({ name: leadData.name, subject: leadData.subject }),
+  });
+
+  return adminResult;
 }
 
 // Send visit confirmation to client
