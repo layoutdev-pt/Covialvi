@@ -376,13 +376,22 @@ export default function AvaliacaoCompletaPage() {
         body: JSON.stringify(formData),
       });
 
+      const result = await response.json().catch(() => ({}));
+
       if (!response.ok) {
-        throw new Error('Erro ao submeter o formulário');
+        if (response.status === 409) {
+          setErrors({ submit: result.error || 'Já recebemos o seu pedido recentemente. Entraremos em contacto em breve.' });
+        } else if (result.errors) {
+          setErrors(result.errors);
+        } else {
+          setErrors({ submit: result.error || 'Ocorreu um erro ao enviar o seu pedido. Por favor, tente novamente.' });
+        }
+        return;
       }
 
       setCurrentStep(WizardStep.SUCCESS);
     } catch (error) {
-      setErrors({ submit: 'Ocorreu um erro ao enviar o seu pedido. Por favor, tente novamente.' });
+      setErrors({ submit: 'Ocorreu um erro de ligação. Por favor, verifique a sua ligação e tente novamente.' });
     } finally {
       setIsSubmitting(false);
     }

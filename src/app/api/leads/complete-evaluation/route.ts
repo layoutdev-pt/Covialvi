@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
 import { getDistrictLabel, getMunicipalityLabel } from '@/lib/portugal-locations';
+import { sendEmail } from '@/lib/email';
 
 /**
  * API Route: POST /api/leads/complete-evaluation
@@ -114,14 +115,13 @@ export async function POST(request: NextRequest) {
     if (!body.condition) errors.condition = 'Estado do imóvel é obrigatório';
     if (!body.sellingStage) errors.sellingStage = 'Fase de venda é obrigatória';
     if (!body.name) errors.name = 'Nome é obrigatório';
-    if (!body.email) errors.email = 'Email é obrigatório';
     if (!body.phone) errors.phone = 'Telefone é obrigatório';
 
     if (body.phone && !validatePhone(body.phone)) {
       errors.phone = 'Número de telefone inválido';
     }
 
-    if (body.email && !validateEmail(body.email)) {
+    if (body.email && body.email.trim() && !validateEmail(body.email)) {
       errors.email = 'Endereço de email inválido';
     }
 
@@ -207,7 +207,7 @@ export async function POST(request: NextRequest) {
     const { data: lead, error: leadError } = await supabase
       .from('leads')
       .insert({
-        email: body.email,
+        email: body.email || `eval_${Date.now()}@temp.covialvi.com`,
         first_name: body.name,
         phone: sanitizedPhone,
         source: 'complete_evaluation',
@@ -257,6 +257,40 @@ export async function POST(request: NextRequest) {
       }));
 
       await supabase.from('notifications').insert(notifications);
+    }
+
+    // -------------------------------------------------------------------------
+    // SEND EMAIL NOTIFICATION TO ADMIN
+    // -------------------------------------------------------------------------
+
+    try {
+      const locationLabel = getMunicipalityLabel(body.district, body.municipality);
+      await sendEmail({
+        to: process.env.ADMIN_EMAIL || 'geral@covialvi.pt',
+        subject: `Nova Avaliação Completa: ${body.propertyType} em ${locationLabel} — ${body.name}`,
+        html: `
+          <div style="font-family:sans-serif;max-width:600px;margin:0 auto;">
+            <div style="background:#0a0a0a;padding:24px;text-align:center;"><h1 style="color:#eab308;margin:0;">Covialvi</h1><p style="color:#888;margin:8px 0 0;">Nova Avaliação de Imóvel</p></div>
+            <div style="padding:32px 24px;">
+              <h2 style="margin:0 0 20px;">Pedido de Avaliação Completa</h2>
+              <table style="width:100%;border-collapse:collapse;">
+                <tr><td style="padding:10px 0;border-bottom:1px solid #eee;color:#666;width:140px;">Nome:</td><td style="padding:10px 0;border-bottom:1px solid #eee;font-weight:500;">${body.name}</td></tr>
+                <tr><td style="padding:10px 0;border-bottom:1px solid #eee;color:#666;">Telefone:</td><td style="padding:10px 0;border-bottom:1px solid #eee;"><a href="tel:${sanitizedPhone}" style="color:#eab308;">${sanitizedPhone}</a></td></tr>
+                ${body.email ? `<tr><td style="padding:10px 0;border-bottom:1px solid #eee;color:#666;">Email:</td><td style="padding:10px 0;border-bottom:1px solid #eee;"><a href="mailto:${body.email}" style="color:#eab308;">${body.email}</a></td></tr>` : ''}
+                <tr><td style="padding:10px 0;border-bottom:1px solid #eee;color:#666;">Tipo Imóvel:</td><td style="padding:10px 0;border-bottom:1px solid #eee;">${body.propertyType}</td></tr>
+                <tr><td style="padding:10px 0;border-bottom:1px solid #eee;color:#666;">Localização:</td><td style="padding:10px 0;border-bottom:1px solid #eee;">${locationLabel}</td></tr>
+                <tr><td style="padding:10px 0;border-bottom:1px solid #eee;color:#666;">Estado:</td><td style="padding:10px 0;border-bottom:1px solid #eee;">${body.condition}</td></tr>
+                <tr><td style="padding:10px 0;border-bottom:1px solid #eee;color:#666;">Fase Venda:</td><td style="padding:10px 0;border-bottom:1px solid #eee;">${body.sellingStage}</td></tr>
+                ${body.estimatedValue ? `<tr><td style="padding:10px 0;border-bottom:1px solid #eee;color:#666;">Valor Est.:</td><td style="padding:10px 0;border-bottom:1px solid #eee;">${body.estimatedValue}</td></tr>` : ''}
+                ${body.additionalNotes ? `<tr><td style="padding:10px 0;border-bottom:1px solid #eee;color:#666;">Notas:</td><td style="padding:10px 0;border-bottom:1px solid #eee;">${body.additionalNotes}</td></tr>` : ''}
+              </table>
+              <div style="margin-top:24px;text-align:center;"><a href="mailto:${body.email || ''}" style="background:#eab308;color:#0a0a0a;padding:12px 28px;text-decoration:none;border-radius:50px;font-weight:600;display:inline-block;">Responder ao Cliente</a></div>
+            </div>
+          </div>`,
+        replyTo: body.email,
+      });
+    } catch (emailError) {
+      console.error('Error sending evaluation email:', emailError);
     }
 
     // -------------------------------------------------------------------------
