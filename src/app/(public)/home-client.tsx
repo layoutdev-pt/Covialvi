@@ -261,11 +261,15 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
               muted
               loop
               playsInline
+              poster="https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=1973"
               className="absolute inset-0 w-full h-full object-cover"
+              style={{ zIndex: 0 }}
+              onCanPlay={(e) => { (e.target as HTMLVideoElement).play().catch(() => {}); }}
             >
               <source src="https://ge1temxvqllmetmu.public.blob.vercel-storage.com/video%20site%20covialvi%20%281%29_1%20%281%29.mp4" type="video/mp4" />
+              <source src="/video/hero-covialvi.mp4" type="video/mp4" />
             </video>
-            <div className="absolute inset-0 bg-gradient-to-br from-black/65 via-black/35 to-black/10" />
+            <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/30 to-transparent" style={{ zIndex: 1 }} />
 
             {/* Hero Content overlay */}
             <div className="relative z-10 h-full flex flex-col px-8 md:px-12 lg:px-14 pt-20">
@@ -298,13 +302,13 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
                   transition={{ duration: 0.8, delay: 0.6 }}
                   className="w-full max-w-3xl"
                 >
-                  <div className="relative rounded-2xl md:rounded-full p-[1px] flex flex-col md:flex-row" style={{background: 'linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0.12) 100%)'}}>
-                    <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 w-full rounded-2xl md:rounded-full px-2 py-2 search-bar-glass"
+                  <div className="relative rounded-2xl md:rounded-full p-[1px] flex flex-col md:flex-row" style={{background: 'linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.15) 100%)'}}>
+                    <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 w-full rounded-2xl md:rounded-full px-2 py-2"
                       style={{
-                        background: 'rgba(255,255,255,0.06)',
-                        backdropFilter: 'blur(16px) saturate(140%)',
-                        WebkitBackdropFilter: 'blur(16px) saturate(140%)',
-                        boxShadow: '0 4px 16px rgba(0,0,0,0.15)'
+                        background: 'rgba(255,255,255,0.04)',
+                        backdropFilter: 'blur(24px) saturate(180%) brightness(1.1)',
+                        WebkitBackdropFilter: 'blur(24px) saturate(180%) brightness(1.1)',
+                        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3), inset 0 -1px 0 rgba(255,255,255,0.1), 0 4px 24px rgba(0,0,0,0.12)'
                       }}
                     >
                 <div className="flex-1">
