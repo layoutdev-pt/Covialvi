@@ -266,8 +266,7 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
               style={{ zIndex: 0 }}
               onCanPlay={(e) => { (e.target as HTMLVideoElement).play().catch(() => {}); }}
             >
-              <source src="https://ge1temxvqllmetmu.public.blob.vercel-storage.com/video%20site%20covialvi%20%281%29_1%20%281%29.mp4" type="video/mp4" />
-              <source src="/video/hero-covialvi.mp4" type="video/mp4" />
+              <source src="/video/hero.mp4" type="video/mp4" />
             </video>
             <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/30 to-transparent" style={{ zIndex: 1 }} />
 

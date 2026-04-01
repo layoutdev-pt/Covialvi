@@ -49,5 +49,4 @@ supabase/.temp
 
 # Large video source files
 src/video/
-public/video/
 .env*.local
