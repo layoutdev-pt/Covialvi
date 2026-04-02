@@ -15,6 +15,7 @@ const contactSchema = z.object({
   phone: z.string().min(9, 'O telefone é obrigatório.'),
   subject: z.string().min(1, 'O assunto é obrigatório.'),
   message: z.string().min(10, 'A mensagem deve ter pelo menos 10 caracteres.'),
+  consent: z.literal(true, { errorMap: () => ({ message: 'Deve aceitar os termos para continuar.' }) }),
 });
 
 type ContactFormData = z.infer<typeof contactSchema>;
@@ -215,6 +216,27 @@ export function ContactForm() {
             <p className="text-xs text-red-500">{errors.message.message}</p>
           )}
         </div>
+
+        {/* Consentimento RGPD */}
+        <div className={`flex items-start gap-3 p-4 rounded-xl border ${
+          errors.consent ? 'border-red-300 bg-red-50 dark:bg-red-900/10' : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/30'
+        }`}>
+          <input
+            type="checkbox"
+            id="consent"
+            {...register('consent')}
+            className="mt-0.5 h-4 w-4 rounded border-gray-300 accent-yellow-500 cursor-pointer flex-shrink-0"
+          />
+          <label htmlFor="consent" className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed cursor-pointer">
+            Concordo que a Covialvi armazene os meus dados pessoais para responder ao meu pedido de contacto, e que li e aceito a{' '}
+            <a href="/politica-privacidade" target="_blank" className="text-yellow-600 hover:text-yellow-700 underline underline-offset-2 font-medium">Política de Privacidade</a>{' '}e os{' '}
+            <a href="/termos-condicoes" target="_blank" className="text-yellow-600 hover:text-yellow-700 underline underline-offset-2 font-medium">Termos e Condições</a>.
+            <span className="text-red-500 ml-1">*</span>
+          </label>
+        </div>
+        {errors.consent && (
+          <p className="text-xs text-red-500 -mt-3">{errors.consent.message}</p>
+        )}
 
         <button
           type="submit"

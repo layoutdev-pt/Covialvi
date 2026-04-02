@@ -286,7 +286,7 @@ export async function POST(request: NextRequest) {
         : `🏡 Nova Avaliação: ${body.propertyType} em ${getMunicipalityLabel(body.district, body.municipality)}`;
 
       await sendEmail({
-        to: process.env.ADMIN_EMAIL || 'geral@covialvi.pt',
+        to: process.env.ADMIN_EMAIL || 'covialvi@gmail.com',
         subject: emailSubject,
         html: emailHTML,
         replyTo: body.email,

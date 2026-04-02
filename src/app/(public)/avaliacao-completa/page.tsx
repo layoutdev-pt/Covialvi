@@ -256,6 +256,8 @@ export default function AvaliacaoCompletaPage() {
   const [formData, setFormData] = useState<FormData>(INITIAL_FORM_DATA);
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [consent, setConsent] = useState(false);
+  const [consentError, setConsentError] = useState(false);
 
   const progressPercentage = Math.round((currentStep / TOTAL_STEPS) * 100);
   const isLastStep = currentStep === WizardStep.CONTACT_INFO;
@@ -315,11 +317,14 @@ export default function AvaliacaoCompletaPage() {
         if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
           newErrors.email = 'Por favor, indique um email válido.';
         }
+        if (!consent) {
+          newErrors.consent = 'Deve aceitar os termos para continuar.';
+        }
         break;
     }
     
     return newErrors;
-  }, [formData]);
+  }, [formData, consent]);
 
   const canProceed = useCallback((): boolean => {
     const stepErrors = validateStep(currentStep);
@@ -363,6 +368,7 @@ export default function AvaliacaoCompletaPage() {
     const stepErrors = validateStep(currentStep);
     if (Object.keys(stepErrors).length > 0) {
       setErrors(stepErrors);
+      if (stepErrors.consent) setConsentError(true);
       return;
     }
 
@@ -999,16 +1005,27 @@ export default function AvaliacaoCompletaPage() {
               </div>
             </div>
 
-            <div className="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 border border-gray-200 dark:border-gray-800">
-              <div className="flex items-start gap-3">
-                <div className="w-5 h-5 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <CheckCircle2 className="h-3 w-3 text-green-600" />
-                </div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                  Os seus dados são utilizados exclusivamente para este contacto e avaliação do imóvel.
-                </p>
-              </div>
+            {/* Consentimento RGPD */}
+            <div className={`flex items-start gap-3 p-4 rounded-xl border ${
+              consentError ? 'border-red-300 bg-red-50 dark:bg-red-900/10' : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/30'
+            }`}>
+              <input
+                type="checkbox"
+                id="evalConsent"
+                checked={consent}
+                onChange={(e) => { setConsent(e.target.checked); setConsentError(false); setErrors(prev => { const n = {...prev}; delete n.consent; return n; }); }}
+                className="mt-0.5 h-4 w-4 rounded border-gray-300 accent-yellow-500 cursor-pointer flex-shrink-0"
+              />
+              <label htmlFor="evalConsent" className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed cursor-pointer">
+                Li e aceito a{' '}
+                <a href="/politica-privacidade" target="_blank" className="text-yellow-600 hover:text-yellow-700 underline font-medium">Política de Privacidade</a>{' '}e os{' '}
+                <a href="/termos-condicoes" target="_blank" className="text-yellow-600 hover:text-yellow-700 underline font-medium">Termos e Condições</a>, e autorizo o armazenamento dos meus dados para avaliação do imóvel.
+                <span className="text-red-500 ml-1">*</span>
+              </label>
             </div>
+            {consentError && (
+              <p className="text-xs text-red-500">{errors.consent}</p>
+            )}
 
             <div className="flex gap-3 pt-2">
               <Button type="button" variant="outline" onClick={goToPreviousStep} disabled={isSubmitting} className="flex-1">

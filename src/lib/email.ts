@@ -9,7 +9,7 @@ if (process.env.RESEND_API_KEY) {
 }
 
 const FROM_EMAIL = 'Covialvi <noreply@covialvi.pt>';
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'geral@covialvi.pt';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'covialvi@gmail.com';
 
 interface EmailOptions {
   to: string | string[];

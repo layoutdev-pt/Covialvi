@@ -266,7 +266,7 @@ export async function POST(request: NextRequest) {
     try {
       const locationLabel = getMunicipalityLabel(body.district, body.municipality);
       await sendEmail({
-        to: process.env.ADMIN_EMAIL || 'geral@covialvi.pt',
+        to: process.env.ADMIN_EMAIL || 'covialvi@gmail.com',
         subject: `Nova Avaliação Completa: ${body.propertyType} em ${locationLabel} — ${body.name}`,
         html: `
           <div style="font-family:sans-serif;max-width:600px;margin:0 auto;">

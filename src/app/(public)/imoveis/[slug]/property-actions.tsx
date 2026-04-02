@@ -28,6 +28,8 @@ export function PropertyActions({
   const [visitorName, setVisitorName] = useState('');
   const [visitorEmail, setVisitorEmail] = useState('');
   const [visitorPhone, setVisitorPhone] = useState('');
+  const [visitConsent, setVisitConsent] = useState(false);
+  const [visitConsentError, setVisitConsentError] = useState(false);
 
   // Check if property is already favorited when user is available
   useEffect(() => {
@@ -96,6 +98,11 @@ export function PropertyActions({
       toast.error('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
+    if (!visitConsent) {
+      setVisitConsentError(true);
+      return;
+    }
+    setVisitConsentError(false);
 
     setIsSchedulingVisit(true);
     try {
@@ -130,6 +137,8 @@ export function PropertyActions({
       setVisitorName('');
       setVisitorEmail('');
       setVisitorPhone('');
+      setVisitConsent(false);
+      setVisitConsentError(false);
     } catch (error: any) {
       console.error('Error scheduling visit:', error);
       toast.error(error?.message || 'Não foi possível agendar a visita. Tente novamente.');
@@ -266,6 +275,28 @@ export function PropertyActions({
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent resize-none"
                 />
               </div>
+
+              {/* Consentimento RGPD */}
+              <div className={`flex items-start gap-3 p-3 rounded-xl border ${
+                visitConsentError ? 'border-red-300 bg-red-50 dark:bg-red-900/10' : 'border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/30'
+              }`}>
+                <input
+                  type="checkbox"
+                  id="visitConsent"
+                  checked={visitConsent}
+                  onChange={(e) => { setVisitConsent(e.target.checked); setVisitConsentError(false); }}
+                  className="mt-0.5 h-4 w-4 rounded border-gray-300 accent-yellow-500 cursor-pointer flex-shrink-0"
+                />
+                <label htmlFor="visitConsent" className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed cursor-pointer">
+                  Li e aceito a{' '}
+                  <a href="/politica-privacidade" target="_blank" className="text-yellow-600 hover:text-yellow-700 underline font-medium">Política de Privacidade</a>{' '}e os{' '}
+                  <a href="/termos-condicoes" target="_blank" className="text-yellow-600 hover:text-yellow-700 underline font-medium">Termos e Condições</a>, e autorizo o armazenamento dos meus dados para agendamento da visita.
+                  <span className="text-red-500 ml-1">*</span>
+                </label>
+              </div>
+              {visitConsentError && (
+                <p className="text-xs text-red-500">Deve aceitar os termos para continuar.</p>
+              )}
 
               <div className="flex gap-3 pt-2">
                 <button
