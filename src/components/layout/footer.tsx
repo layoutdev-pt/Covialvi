@@ -8,176 +8,182 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-gray-900 text-white">
-      <div className="max-w-7xl mx-auto px-4 md:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-          {/* Brand */}
-          <div className="space-y-4">
-            <Link href="/" className="inline-block">
+    <footer style={{ background: '#d4d0c8', borderTop: '2px solid #ffffff', fontFamily: 'Tahoma, Arial, sans-serif' }}>
+      {/* Status-bar style top strip */}
+      <div style={{
+        background: 'linear-gradient(to right, #0a246a 0%, #a6caf0 100%)',
+        height: '4px',
+      }} />
+
+      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+
+        {/* Main grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '12px' }}>
+
+          {/* Brand panel */}
+          <div style={{
+            background: '#c8c4bc',
+            borderTop: '2px solid #ffffff', borderLeft: '2px solid #ffffff',
+            borderRight: '2px solid #808080', borderBottom: '2px solid #808080',
+            padding: '12px',
+          }}>
+            {/* Title bar */}
+            <div style={{
+              background: 'linear-gradient(to right, #0a246a, #a6caf0)',
+              color: '#fff', fontWeight: 'bold', fontSize: '11px',
+              padding: '2px 6px', marginBottom: '8px',
+              display: 'flex', alignItems: 'center', gap: '6px',
+            }}>
+              <span>🏠</span> Covialvi.exe
+            </div>
+            <Link href="/" style={{ display: 'inline-block', marginBottom: '8px' }}>
               <Image
                 src="https://media.egorealestate.com/ORIGINAL/ab9a/2a120afd-2b27-49b5-8934-8237e1cbab9a.png"
                 alt="Covialvi"
-                width={150}
-                height={50}
-                className="h-10 w-auto brightness-0 invert"
+                width={120}
+                height={40}
+                style={{ height: '32px', width: 'auto', filter: 'brightness(0)' }}
               />
             </Link>
-            <p className="text-gray-400 text-sm leading-relaxed">
-              A Covialvi é o seu parceiro de confiança para encontrar, comprar ou arrendar o imóvel perfeito. Transformamos os seus sonhos imobiliários em realidade.
+            <p style={{ fontSize: '11px', color: '#444', lineHeight: 1.5 }}>
+              A Covialvi é o seu parceiro de confiança para encontrar, comprar ou arrendar o imóvel perfeito em Portugal.
             </p>
           </div>
 
-          {/* Páginas Principais */}
-          <div>
-            <h3 className="font-semibold text-sm text-gray-400 mb-4 uppercase tracking-wider">Navegação</h3>
-            <ul className="space-y-3">
-              <li>
-                <Link href="/" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  Início
-                </Link>
-              </li>
-              <li>
-                <Link href="/sobre" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  Sobre Nós
-                </Link>
-              </li>
-              <li>
-                <Link href="/servicos" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  Serviços
-                </Link>
-              </li>
-              <li>
-                <Link href="/imoveis" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  Imóveis
-                </Link>
-              </li>
-              <li>
-                <Link href="/procuro-imovel" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  Procuro Imóvel
-                </Link>
-              </li>
-              <li>
-                <a 
-                  href="https://simuladores.bancomontepio.pt/ITSCredit.External/Calculator/ITSCredit.Calculator.UI.External/calculator/HOUSINGJOURNEY"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-300 hover:text-white transition-colors text-sm"
-                >
-                  Simulador de Crédito
-                </a>
-              </li>
-              <li>
-                <Link href="/contacto" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  Contacto
-                </Link>
-              </li>
+          {/* Navigation panel */}
+          <div style={{
+            background: '#c8c4bc',
+            borderTop: '2px solid #ffffff', borderLeft: '2px solid #ffffff',
+            borderRight: '2px solid #808080', borderBottom: '2px solid #808080',
+            padding: '12px',
+          }}>
+            <div style={{ background: 'linear-gradient(to right, #0a246a, #a6caf0)', color: '#fff', fontWeight: 'bold', fontSize: '11px', padding: '2px 6px', marginBottom: '8px' }}>
+              Navegação
+            </div>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '2px' }}>
+              {[
+                { href: '/', label: 'Início' },
+                { href: '/sobre', label: 'Sobre Nós' },
+                { href: '/servicos', label: 'Serviços' },
+                { href: '/imoveis', label: 'Imóveis' },
+                { href: '/procuro-imovel', label: 'Procuro Imóvel' },
+                { href: '/contacto', label: 'Contacto' },
+              ].map((item) => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    style={{ display: 'block', padding: '3px 8px', fontSize: '12px', color: '#0000cc', textDecoration: 'underline' }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = '#0a246a'; (e.currentTarget as HTMLElement).style.color = '#fff'; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = '#0000cc'; }}
+                  >
+                    &gt; {item.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* Informações Legais */}
-          <div>
-            <h3 className="font-semibold text-sm text-gray-400 mb-4 uppercase tracking-wider">Informações</h3>
-            <ul className="space-y-3">
-              <li>
-                <Link href="/recrutamento" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  Recrutamento
-                </Link>
-              </li>
-              <li>
-                <Link href="/termos-e-condicoes" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  Termos e Condições
-                </Link>
-              </li>
-              <li>
-                <Link href="/politica-de-privacidade" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  Política de Privacidade
-                </Link>
-              </li>
-              <li>
-                <Link href="/politica-de-cookies" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  Política de Cookies
-                </Link>
-              </li>
+          {/* Legal panel */}
+          <div style={{
+            background: '#c8c4bc',
+            borderTop: '2px solid #ffffff', borderLeft: '2px solid #ffffff',
+            borderRight: '2px solid #808080', borderBottom: '2px solid #808080',
+            padding: '12px',
+          }}>
+            <div style={{ background: 'linear-gradient(to right, #0a246a, #a6caf0)', color: '#fff', fontWeight: 'bold', fontSize: '11px', padding: '2px 6px', marginBottom: '8px' }}>
+              Informações Legais
+            </div>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '2px' }}>
+              {[
+                { href: '/recrutamento', label: 'Recrutamento' },
+                { href: '/termos-e-condicoes', label: 'Termos e Condições' },
+                { href: '/politica-de-privacidade', label: 'Política de Privacidade' },
+                { href: '/politica-de-cookies', label: 'Política de Cookies' },
+              ].map((item) => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    style={{ display: 'block', padding: '3px 8px', fontSize: '12px', color: '#0000cc', textDecoration: 'underline' }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = '#0a246a'; (e.currentTarget as HTMLElement).style.color = '#fff'; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = '#0000cc'; }}
+                  >
+                    &gt; {item.label}
+                  </Link>
+                </li>
+              ))}
               <li>
                 <button
-                  onClick={() => {
-                    localStorage.removeItem('covialvi_cookie_consent');
-                    window.location.reload();
-                  }}
-                  className="text-gray-300 hover:text-white transition-colors text-sm"
+                  onClick={() => { localStorage.removeItem('covialvi_cookie_consent'); window.location.reload(); }}
+                  style={{ display: 'block', padding: '3px 8px', fontSize: '12px', color: '#0000cc', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'Tahoma, Arial', width: '100%', textAlign: 'left' }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = '#0a246a'; (e.currentTarget as HTMLElement).style.color = '#fff'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = '#0000cc'; }}
                 >
-                  Configurar Cookies
+                  &gt; Configurar Cookies
                 </button>
               </li>
-              <li className="pt-2">
-                <a 
-                  href="https://www.livroreclamacoes.pt/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Livro de Reclamações Online"
-                  className="inline-block hover:opacity-80 transition-opacity"
-                >
-                  <Image
-                    src="/images/footer/livro-reclamacoes.png"
-                    alt="Livro de Reclamações Eletrónico"
-                    width={120}
-                    height={40}
-                    className="w-auto h-8"
-                  />
-                </a>
-              </li>
             </ul>
+            <div style={{ marginTop: '8px' }}>
+              <a href="https://www.livroreclamacoes.pt/" target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', opacity: 0.9 }}>
+                <Image src="/images/footer/livro-reclamacoes.png" alt="Livro de Reclamações Eletrónico" width={100} height={34} style={{ height: '28px', width: 'auto' }} />
+              </a>
+            </div>
           </div>
 
-          {/* Contactos */}
-          <div>
-            <h3 className="font-semibold text-sm text-gray-400 mb-4 uppercase tracking-wider">Contactos</h3>
-            <ul className="space-y-3">
-              <li className="text-gray-300 text-sm">
-                {company.address.full}
-              </li>
-              <li>
-                <a href={`tel:${company.phoneTel}`} className="text-gray-300 hover:text-white transition-colors text-sm">
-                  {company.phone}
-                </a>
-              </li>
-              <li>
-                <a href={`mailto:${company.email}`} className="text-gray-300 hover:text-white transition-colors text-sm">
-                  {company.email}
-                </a>
-              </li>
-            </ul>
+          {/* Contacts panel */}
+          <div style={{
+            background: '#c8c4bc',
+            borderTop: '2px solid #ffffff', borderLeft: '2px solid #ffffff',
+            borderRight: '2px solid #808080', borderBottom: '2px solid #808080',
+            padding: '12px',
+          }}>
+            <div style={{ background: 'linear-gradient(to right, #0a246a, #a6caf0)', color: '#fff', fontWeight: 'bold', fontSize: '11px', padding: '2px 6px', marginBottom: '8px' }}>
+              Contactos
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '12px', color: '#000' }}>
+              <div style={{ background: '#fff', border: '1px inset #808080', padding: '4px 6px', fontSize: '11px' }}>
+                📍 {company.address.full}
+              </div>
+              <a href={`tel:${company.phoneTel}`} style={{ color: '#0000cc', textDecoration: 'underline', fontSize: '12px' }}>
+                📞 {company.phone}
+              </a>
+              <a href={`mailto:${company.email}`} style={{ color: '#0000cc', textDecoration: 'underline', fontSize: '12px' }}>
+                ✉️ {company.email}
+              </a>
+            </div>
           </div>
         </div>
 
         {/* Disclaimer */}
-        <div className="mt-12 pt-8 border-t border-gray-800">
-          <p className="text-gray-500 text-xs leading-relaxed text-center">
-            As imagens, simulações 3D e descrições técnicas apresentadas são meramente ilustrativas e podem não corresponder fielmente ao produto final. Todas as informações, incluindo dimensões, acabamentos e preços, estão sujeitas a confirmação e podem ser alteradas sem aviso prévio.
+        <div style={{ background: '#fff', border: '2px inset #808080', padding: '8px 12px' }}>
+          <p style={{ fontSize: '11px', color: '#555', lineHeight: 1.5, margin: 0 }}>
+            ⚠️ As imagens, simulações 3D e descrições técnicas apresentadas são meramente ilustrativas e podem não corresponder fielmente ao produto final. Todas as informações, incluindo dimensões, acabamentos e preços, estão sujeitas a confirmação e podem ser alteradas sem aviso prévio.
           </p>
         </div>
 
-        {/* Bottom */}
-        <div className="mt-8 pt-8 border-t border-gray-800">
-          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <p className="text-gray-500 text-sm">
-              © {currentYear} Covialvi - Construções, Lda. Todos os direitos reservados.
-            </p>
-            <div className="flex items-center gap-4">
-              <p className="text-gray-500 text-sm">
-                Mediação Imobiliária
-              </p>
-              <span className="text-gray-700">|</span>
-              <a
-                href="https://www.layoutagency.pt"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-500 hover:text-yellow-500 text-sm transition-colors"
-              >
-                Desenvolvido por: Layout Agency
-              </a>
+        {/* Status bar */}
+        <div style={{
+          background: '#c8c4bc',
+          borderTop: '1px solid #808080',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '4px 8px',
+          flexWrap: 'wrap', gap: '8px',
+        }}>
+          <div style={{ display: 'flex', gap: '2px', alignItems: 'center' }}>
+            <div style={{ border: '1px inset #808080', padding: '2px 8px', fontSize: '11px', color: '#000' }}>
+              © {currentYear} Covialvi - Construções, Lda.
+            </div>
+            <div style={{ border: '1px inset #808080', padding: '2px 8px', fontSize: '11px', color: '#000' }}>
+              Mediação Imobiliária
             </div>
           </div>
+          <a
+            href="https://www.layoutagency.pt"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ border: '1px inset #808080', padding: '2px 8px', fontSize: '11px', color: '#0000cc', textDecoration: 'none' }}
+          >
+            Desenvolvido por: Layout Agency
+          </a>
         </div>
       </div>
     </footer>
