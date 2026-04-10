@@ -176,13 +176,28 @@ export function PropertyActions({
 
       {/* Visit Modal */}
       {showVisitModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Agendar Visita</h3>
-            <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
-              {propertyTitle}
-            </p>
-
+        <div
+          className="fixed inset-0 bg-black/60 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4"
+          onClick={(e) => { if (e.target === e.currentTarget) setShowVisitModal(false); }}
+        >
+          <div className="bg-white dark:bg-gray-800 rounded-t-3xl sm:rounded-2xl w-full sm:max-w-lg flex flex-col max-h-[88vh] sm:max-h-[90vh]">
+            {/* Sticky header */}
+            <div className="flex items-start justify-between px-6 pt-5 pb-3 flex-shrink-0">
+              <div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Agendar Visita</h3>
+                <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5 line-clamp-1">{propertyTitle}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowVisitModal(false)}
+                className="ml-4 flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+                aria-label="Fechar"
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            {/* Scrollable body */}
+            <div className="overflow-y-auto flex-1 px-6 pb-6">
             <form onSubmit={handleScheduleVisit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -322,6 +337,7 @@ export function PropertyActions({
                 </button>
               </div>
             </form>
+            </div>
           </div>
         </div>
       )}
