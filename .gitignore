@@ -51,4 +51,3 @@ supabase/.temp
 src/video/
 public/video/hero-covialvi.mp4
 .env*.local
-.env*
