@@ -85,6 +85,7 @@ const estadoOptions = [
   { value: 'renovated', label: 'Renovado' },
   { value: 'used', label: 'Usado' },
   { value: 'sold', label: 'Vendido' },
+  { value: 'sold_100', label: '100% Vendido' },
 ];
 
 // Zona Envolvente options
@@ -206,6 +207,7 @@ const natureLabels: Record<string, string> = {
 const propertyStatusLabels: Record<string, string> = {
   usado: 'Usado',
   vendido: 'Vendido',
+  sold_100: '100% Vendido',
   renovado: 'Renovado',
   recuperado: 'Recuperado',
   por_recuperar: 'Por Recuperar',

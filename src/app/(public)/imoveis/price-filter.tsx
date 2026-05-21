@@ -48,6 +48,7 @@ const constructionStatuses = [
   { value: 'recovered', label: 'Recuperado' },
   { value: 'renovated', label: 'Renovado' },
   { value: 'sold', label: 'Vendido' },
+  { value: 'sold_100', label: '100% Vendido' },
 ];
 
 const MAX_PRICE = 3150000;

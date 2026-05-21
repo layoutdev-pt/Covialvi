@@ -94,6 +94,7 @@ const constructionStatusLabels: Record<string, string> = {
   recovered: 'Recuperado',
   renovated: 'Renovado',
   sold: 'Vendido',
+  sold_100: '100% Vendido',
 };
 
 const statusLabels: Record<string, string> = {
@@ -107,6 +108,7 @@ const statusLabels: Record<string, string> = {
 const propertyStatusLabels: Record<string, string> = {
   used: 'Usado',
   sold: 'Vendido',
+  sold_100: '100% Vendido',
   renovated: 'Renovado',
   recovered: 'Recuperado',
   to_recover: 'Para Recuperar',
@@ -116,7 +118,7 @@ const propertyStatusLabels: Record<string, string> = {
 };
 
 // Add these to the schema
-const propertyConditionStatus = ['used', 'sold', 'renovated', 'recovered', 'to_recover', 'new', 'in_project', 'under_construction'] as const;
+const propertyConditionStatus = ['used', 'sold', 'sold_100', 'renovated', 'recovered', 'to_recover', 'new', 'in_project', 'under_construction'] as const;
 
 function generateSlug(title: string): string {
   return title

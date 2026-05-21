@@ -100,7 +100,7 @@ export default async function CondominioPage({ params }: { params: { slug: strin
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {properties.map((property: any) => {
               const img = property.property_images?.find((i: any) => i.is_cover) || property.property_images?.[0];
-              const isSold = property.construction_status === 'sold';
+              const isSold = property.construction_status === 'sold' || property.construction_status === 'sold_100';
 
               return (
                 <Link key={property.id} href={`/imoveis/${property.slug}`} className="group">
@@ -122,7 +122,7 @@ export default async function CondominioPage({ params }: { params: { slug: strin
                       {isSold && (
                         <div className="absolute inset-0 z-20 overflow-hidden pointer-events-none">
                           <div className="absolute text-center transform -rotate-45 bg-red-600 text-white text-sm font-bold py-2 shadow-lg tracking-wide" style={{ width: '320px', top: '60px', left: '-85px' }}>
-                            100% Vendido
+                            {property.construction_status === 'sold' ? 'Vendido' : '100% Vendido'}
                           </div>
                         </div>
                       )}
