@@ -178,7 +178,7 @@ export function HomeClient({ properties, featuredProperties, premiumHighlights =
   // Get hero properties (filtered results or premium highlights)
   const heroProperties = isSearchActive 
     ? filteredProperties.slice(0, 3) 
-    : (premiumHighlights && premiumHighlights.length > 0 ? premiumHighlights : filteredProperties.slice(0, 3));
+    : (premiumHighlights || []);
   
   const handleSearch = () => {
     resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
