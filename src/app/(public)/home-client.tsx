@@ -440,8 +440,8 @@ export function HomeClient({ properties, featuredProperties, premiumHighlights =
             <>
               {!isSearchActive && premiumHighlights && premiumHighlights.length > 0 && (
                 <div className="flex items-center gap-2 mb-6">
-                  <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 tracking-tight leading-tight">
-                    OPORTUNIDADES ÚNICAS
+                  <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 mt-6 tracking-tight leading-tight">
+                    OPORTUNIDADES ÚNICAS <br />
                     <span className="text-muted-foreground">E IMPERDÍVEIS</span>
                   </h1>
                 </div>
