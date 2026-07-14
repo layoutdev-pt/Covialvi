@@ -51,6 +51,7 @@ const propertySchema = z.object({
   price: z.string().optional(),
   price_on_request: z.boolean().default(false),
   featured: z.boolean().default(false),
+  em_foco: z.boolean().default(false),
   district: z.string().optional(),
   municipality: z.string().optional(),
   parish: z.string().optional(),
@@ -67,7 +68,6 @@ const propertySchema = z.object({
   energy_certificate: z.string().optional(),
   video_url: z.string().optional(),
   virtual_tour_url: z.string().optional(),
-  em_foco: z.boolean().default(false),
 });
 
 // Division type for rooms with areas
@@ -274,6 +274,7 @@ export default function SimpleNewPropertyPage() {
       business_type: 'sale',
       price_on_request: false,
       featured: false,
+      em_foco: false,
     },
   });
 
@@ -488,6 +489,7 @@ export default function SimpleNewPropertyPage() {
         price: data.price ? parseFloat(data.price) : null,
         price_on_request: data.price_on_request,
         featured: data.featured || false,
+        em_foco: data.em_foco || false,
         district: data.district || null,
         municipality: data.municipality || null,
         parish: data.parish || null,
