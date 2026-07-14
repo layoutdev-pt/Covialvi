@@ -174,8 +174,11 @@ export function HomeClient({ properties, featuredProperties, premiumHighlights =
     return matches;
   });
   
-  // Get hero properties (filtered)
-  const heroProperties = filteredProperties.slice(0, 3);
+  const isSearchActive = searchLocation !== '' || searchNature !== '' || searchBusinessType !== '';
+  // Get hero properties (filtered results or premium highlights)
+  const heroProperties = isSearchActive 
+    ? filteredProperties.slice(0, 3) 
+    : (premiumHighlights && premiumHighlights.length > 0 ? premiumHighlights : filteredProperties.slice(0, 3));
   
   const handleSearch = () => {
     resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -425,38 +428,6 @@ export function HomeClient({ properties, featuredProperties, premiumHighlights =
         </div>
       </section>
 
-      {/* Em Foco Section */}
-      {premiumHighlights && premiumHighlights.length > 0 && (
-        <section className="py-12 px-6 md:px-12 lg:px-20 bg-background">
-          <div className="max-w-7xl mx-auto">
-            <FadeInUp>
-              <div className="flex items-center gap-2 mb-8">
-                <Star className="h-6 w-6 text-yellow-500 fill-yellow-500" />
-                <h2 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">
-                  Em Foco
-                </h2>
-              </div>
-            </FadeInUp>
-            
-            <div className="grid md:grid-cols-3 gap-6">
-              {premiumHighlights.map((property: any, index: number) => (
-                <motion.div
-                  key={property.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.1 * index }}
-                >
-                  <HeroPropertyCard 
-                    property={property} 
-                    formatPrice={formatPrice}
-                    businessTypeLabels={businessTypeLabels}
-                  />
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
       {/* Featured Properties Below Hero */}
       <section ref={resultsRef} className="py-5 px-6 md:px-12 lg:px-20 bg-background">
         <motion.div
@@ -466,16 +437,33 @@ export function HomeClient({ properties, featuredProperties, premiumHighlights =
           className="max-w-7xl mx-auto"
         >
           {heroProperties.length > 0 ? (
-            <div className="grid md:grid-cols-3 gap-6">
-              {heroProperties.map((property: any) => (
-                <HeroPropertyCard 
-                  key={property.id} 
-                  property={property} 
-                  formatPrice={formatPrice}
-                  businessTypeLabels={businessTypeLabels}
-                />
-              ))}
-            </div>
+            <>
+              {!isSearchActive && premiumHighlights && premiumHighlights.length > 0 && (
+                <div className="flex items-center gap-2 mb-6">
+                  <Star className="h-6 w-6 text-yellow-500 fill-yellow-500" />
+                  <h2 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">
+                    Em Foco
+                  </h2>
+                </div>
+              )}
+              {isSearchActive && (
+                <div className="flex items-center gap-2 mb-6">
+                  <h2 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">
+                    Resultados da Pesquisa
+                  </h2>
+                </div>
+              )}
+              <div className="grid md:grid-cols-3 gap-6">
+                {heroProperties.map((property: any) => (
+                  <HeroPropertyCard 
+                    key={property.id} 
+                    property={property} 
+                    formatPrice={formatPrice}
+                    businessTypeLabels={businessTypeLabels}
+                  />
+                ))}
+              </div>
+            </>
           ) : (
             <div className="text-center py-8 bg-secondary/50 rounded-2xl">
               <Building2 className="h-10 w-10 text-muted-foreground/40 mx-auto mb-2" />
