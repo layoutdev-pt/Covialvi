@@ -104,6 +104,7 @@ export interface Database {
           virtual_tour_url: string | null;
           brochure_url: string | null;
           featured: boolean;
+          em_foco: boolean;
           views_count: number;
           created_by: string | null;
           created_at: string;
@@ -145,6 +146,7 @@ export interface Database {
           virtual_tour_url?: string | null;
           brochure_url?: string | null;
           featured?: boolean;
+          em_foco?: boolean;
           views_count?: number;
           created_by?: string | null;
           created_at?: string;
@@ -186,6 +188,7 @@ export interface Database {
           virtual_tour_url?: string | null;
           brochure_url?: string | null;
           featured?: boolean;
+          em_foco?: boolean;
           views_count?: number;
           created_by?: string | null;
           created_at?: string;

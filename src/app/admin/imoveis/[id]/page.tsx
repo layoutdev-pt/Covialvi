@@ -1572,22 +1572,41 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                   Preço sob consulta
                 </Label>
               </div>
-              <div className="flex items-center space-x-2 pt-4 border-t">
-                <input
-                  type="checkbox"
-                  id="featured"
-                  {...register('featured')}
-                  className="h-4 w-4 rounded border-gray-300 text-yellow-500 focus:ring-yellow-500"
-                  onChange={(e) => {
-                    setValue('featured', e.target.checked);
-                    saveField('featured', e.target.checked);
-                  }}
-                />
-                <Label htmlFor="featured" className="text-sm font-normal flex items-center gap-2">
-                  <Star className="h-4 w-4 text-yellow-500" />
-                  Imóvel em Destaque
-                  <span className="text-xs text-muted-foreground">(máx. 6)</span>
-                </Label>
+              <div className="flex flex-col space-y-4 pt-4 border-t">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="featured"
+                    {...register('featured')}
+                    className="h-4 w-4 rounded border-gray-300 text-yellow-500 focus:ring-yellow-500"
+                    onChange={(e) => {
+                      setValue('featured', e.target.checked);
+                      saveField('featured', e.target.checked);
+                    }}
+                  />
+                  <Label htmlFor="featured" className="text-sm font-normal flex items-center gap-2">
+                    <Star className="h-4 w-4 text-yellow-500" />
+                    Imóvel em Destaque
+                    <span className="text-xs text-muted-foreground">(máx. 6)</span>
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="em_foco"
+                    {...register('em_foco')}
+                    className="h-4 w-4 rounded border-gray-300 text-blue-500 focus:ring-blue-500"
+                    onChange={(e) => {
+                      setValue('em_foco', e.target.checked);
+                      saveField('em_foco', e.target.checked);
+                    }}
+                  />
+                  <Label htmlFor="em_foco" className="text-sm font-normal flex items-center gap-2">
+                    <Star className="h-4 w-4 text-blue-500 fill-blue-500" />
+                    Imóvel Em Foco
+                    <span className="text-xs text-muted-foreground">(máx. 3)</span>
+                  </Label>
+                </div>
               </div>
             </CardContent>
           </Card>
