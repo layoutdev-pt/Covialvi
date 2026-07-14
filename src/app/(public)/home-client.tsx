@@ -391,7 +391,7 @@ export function HomeClient({ properties, featuredProperties, premiumHighlights =
                 </motion.div>
 
                 {/* Stats — right below search bar */}
-                <motion.div
+                {/* <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: 0.8 }}
@@ -417,7 +417,7 @@ export function HomeClient({ properties, featuredProperties, premiumHighlights =
                       <p className="text-white/50 text-xs uppercase tracking-wide">Valor</p>
                     </div>
                   </div>
-                </motion.div>
+                </motion.div> */}
               </div>
             </div>
           </div>{/* end rounded video container */}
