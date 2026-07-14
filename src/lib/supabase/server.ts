@@ -48,6 +48,15 @@ const createMockClient = () => ({
     signOut: async () => ({ error: null }),
   },
   from: () => createMockQueryBuilder(),
+  channel: () => {
+    const mockChannel = {
+      on: () => mockChannel,
+      subscribe: () => mockChannel,
+      unsubscribe: () => {},
+    };
+    return mockChannel;
+  },
+  removeChannel: () => {},
 });
 
 export function createClient(): any {

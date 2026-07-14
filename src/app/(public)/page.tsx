@@ -136,10 +136,37 @@ async function getAvailableLocations(): Promise<{ districts: string[]; municipal
   };
 }
 
+async function getPremiumHighlights(): Promise<any[]> {
+  const supabase = createClient();
+  const { data } = await supabase
+    .from('premium_highlights')
+    .select(`
+      position,
+      properties (
+        *,
+        property_images (*)
+      )
+    `)
+    .order('position', { ascending: true });
+
+  if (!data) return [];
+
+  // Filter out any highlights where the property is not published
+  const validHighlights = data
+    .filter((h: any) => h.properties && h.properties.status === 'published')
+    .map((h: any) => ({
+      ...h.properties,
+      highlight_position: h.position
+    }));
+
+  return validHighlights;
+}
+
 export default async function HomePage() {
-  const [allProperties, featuredProperties, stats, heroProperty, locations] = await Promise.all([
+  const [allProperties, featuredProperties, premiumHighlights, stats, heroProperty, locations] = await Promise.all([
     getAllPublishedProperties(),
     getFeaturedProperties(),
+    getPremiumHighlights(),
     getStats(),
     getMostViewedProperty(),
     getAvailableLocations(),
@@ -149,6 +176,7 @@ export default async function HomePage() {
     <HomeClient 
       properties={allProperties}
       featuredProperties={featuredProperties}
+      premiumHighlights={premiumHighlights}
       stats={stats} 
       heroProperty={heroProperty}
       availableLocations={locations}

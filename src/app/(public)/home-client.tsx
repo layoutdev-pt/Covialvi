@@ -48,6 +48,7 @@ const WhatsAppButton = dynamic(() => import('@/components/ui/whatsapp-button').t
 interface HomeClientProps {
   properties: any[];
   featuredProperties: any[];
+  premiumHighlights?: any[];
   stats: {
     properties: number;
     projects: number;
@@ -84,7 +85,7 @@ function AnimatedCounter({ value, suffix = '', duration = 2 }: { value: number; 
   return <span ref={ref}>{count}{suffix}</span>;
 }
 
-export function HomeClient({ properties, featuredProperties, stats, heroProperty, availableLocations }: HomeClientProps) {
+export function HomeClient({ properties, featuredProperties, premiumHighlights = [], stats, heroProperty, availableLocations }: HomeClientProps) {
   const router = useRouter();
   const [activeService, setActiveService] = useState(0);
   const { scrollYProgress } = useScroll();
@@ -423,7 +424,39 @@ export function HomeClient({ properties, featuredProperties, stats, heroProperty
           </div>{/* end max-w-7xl */}
         </div>
       </section>
-        
+
+      {/* Em Foco Section */}
+      {premiumHighlights && premiumHighlights.length > 0 && (
+        <section className="py-12 px-6 md:px-12 lg:px-20 bg-background">
+          <div className="max-w-7xl mx-auto">
+            <FadeInUp>
+              <div className="flex items-center gap-2 mb-8">
+                <Star className="h-6 w-6 text-yellow-500 fill-yellow-500" />
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">
+                  Em Foco
+                </h2>
+              </div>
+            </FadeInUp>
+            
+            <div className="grid md:grid-cols-3 gap-6">
+              {premiumHighlights.map((property: any, index: number) => (
+                <motion.div
+                  key={property.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.1 * index }}
+                >
+                  <HeroPropertyCard 
+                    property={property} 
+                    formatPrice={formatPrice}
+                    businessTypeLabels={businessTypeLabels}
+                  />
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
       {/* Featured Properties Below Hero */}
       <section ref={resultsRef} className="py-5 px-6 md:px-12 lg:px-20 bg-background">
         <motion.div

@@ -55,6 +55,15 @@ const createMockClient = () => ({
       getPublicUrl: () => ({ data: { publicUrl: '' } }),
     }),
   },
+  channel: () => {
+    const mockChannel = {
+      on: () => mockChannel,
+      subscribe: () => mockChannel,
+      unsubscribe: () => {},
+    };
+    return mockChannel;
+  },
+  removeChannel: () => {},
 });
 
 export function createClient(): any {
