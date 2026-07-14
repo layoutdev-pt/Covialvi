@@ -72,6 +72,7 @@ const propertySchema = z.object({
   video_url: z.string().optional(),
   virtual_tour_url: z.string().optional(),
   featured: z.boolean().default(false),
+  em_foco: z.boolean().default(false),
 });
 
 // Division type for rooms with areas

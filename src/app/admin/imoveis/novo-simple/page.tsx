@@ -67,6 +67,7 @@ const propertySchema = z.object({
   energy_certificate: z.string().optional(),
   video_url: z.string().optional(),
   virtual_tour_url: z.string().optional(),
+  em_foco: z.boolean().default(false),
 });
 
 // Division type for rooms with areas
