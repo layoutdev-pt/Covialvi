@@ -331,6 +331,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
           video_url: data.video_url || '',
           virtual_tour_url: data.virtual_tour_url || '',
           featured: data.featured || false,
+          em_foco: data.em_foco || false,
         });
         
         // Load divisions
@@ -668,6 +669,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
         video_url: data.video_url || null,
         virtual_tour_url: data.virtual_tour_url || null,
         featured: data.featured ?? false,
+        em_foco: data.em_foco ?? false,
         // Array fields - always save (empty arrays/objects if nothing selected)
         equipment: selectedEquipamentos.length > 0 ? selectedEquipamentos : [],
         extras: selectedExtras.length > 0 ? selectedExtras : [],

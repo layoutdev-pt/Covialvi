@@ -488,6 +488,7 @@ export default function SimpleNewPropertyPage() {
         price: data.price ? parseFloat(data.price) : null,
         price_on_request: data.price_on_request,
         featured: data.featured || false,
+        em_foco: data.em_foco || false,
         district: data.district || null,
         municipality: data.municipality || null,
         parish: data.parish || null,
