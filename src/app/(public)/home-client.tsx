@@ -440,10 +440,9 @@ export function HomeClient({ properties, featuredProperties, premiumHighlights =
             <>
               {!isSearchActive && premiumHighlights && premiumHighlights.length > 0 && (
                 <div className="flex items-center gap-2 mb-6">
-                  <Star className="h-6 w-6 text-yellow-500 fill-yellow-500" />
-                  <h2 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">
-                    Em Foco
-                  </h2>
+                  <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 tracking-tight leading-tight">
+                    OPORTUNIDADES ÚNICAS
+                  </h1>
                 </div>
               )}
               {isSearchActive && (
