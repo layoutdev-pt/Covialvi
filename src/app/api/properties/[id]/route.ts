@@ -123,6 +123,30 @@ export async function PUT(
       }
     }
 
+    // Check em_foco limit (max 3) when trying to set em_foco = true
+    if (body.em_foco === true) {
+      const { data: currentProperty } = await serviceClient
+        .from('properties')
+        .select('em_foco')
+        .eq('id', params.id)
+        .single();
+      
+      if (!currentProperty?.em_foco) {
+        const { count: emFocoCount } = await serviceClient
+          .from('properties')
+          .select('*', { count: 'exact', head: true })
+          .eq('em_foco', true)
+          .eq('status', 'published');
+        
+        if (emFocoCount && emFocoCount >= 3) {
+          return NextResponse.json(
+            { error: 'Limite máximo de 3 imóveis em foco atingido. Remova um imóvel em foco antes de adicionar outro.' },
+            { status: 400 }
+          );
+        }
+      }
+    }
+
     // CRITICAL: Sanitize payload to prevent unknown fields and null overwrites
     const sanitizedPayload = sanitizePropertyUpdate(body);
     

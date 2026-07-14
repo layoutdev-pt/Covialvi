@@ -53,6 +53,22 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Check em_foco limit (max 3)
+    if (body.em_foco === true) {
+      const { count: emFocoCount } = await supabase
+        .from('properties')
+        .select('*', { count: 'exact', head: true })
+        .eq('em_foco', true)
+        .eq('status', 'published');
+      
+      if (emFocoCount && emFocoCount >= 3) {
+        return NextResponse.json(
+          { error: 'Limite máximo de 3 imóveis em foco atingido. Remova um imóvel em foco antes de adicionar outro.' },
+          { status: 400 }
+        );
+      }
+    }
+
     // Create the property (RLS policies will verify admin role)
     const { data: property, error } = await supabase
       .from('properties')

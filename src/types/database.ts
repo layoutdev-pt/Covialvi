@@ -58,6 +58,7 @@ export interface Property {
   status: PropertyStatus;
   price_on_request: boolean;
   featured: boolean;
+  em_foco: boolean;
   views_count: number;
   created_at: string;
   updated_at: string;
@@ -176,6 +177,7 @@ export interface UpdatePropertyPayload {
   virtual_tour_url?: string | null;
   brochure_url?: string | null;
   featured?: boolean;
+  em_foco?: boolean;
 }
 
 // ============================================
@@ -219,6 +221,7 @@ export const PROPERTY_UPDATABLE_FIELDS = [
   'virtual_tour_url',
   'brochure_url',
   'featured',
+  'em_foco',
 ] as const;
 
 /**
