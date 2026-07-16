@@ -37,6 +37,7 @@ import {
 } from 'lucide-react';
 import { useAutoSave } from '@/hooks/use-auto-save';
 import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
+import { compressImage } from '@/lib/image-compression';
 
 const propertySchema = z.object({
   title: z.string().min(1, 'O título é obrigatório'),
@@ -332,9 +333,14 @@ export default function NewPropertyPage() {
     
     const files = Array.from(e.target.files || []);
     
+    if (files.length > 0) {
+      toast.info(`A preparar ${files.length} imagem(ns)...`);
+    }
+
     for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const fileExt = file.name.split('.').pop();
+      const originalFile = files[i];
+      const file = await compressImage(originalFile);
+      const fileExt = file.name.split('.').pop() || 'jpg';
       const fileName = `${draftId}/${Date.now()}-${i}.${fileExt}`;
       
       // Show preview immediately

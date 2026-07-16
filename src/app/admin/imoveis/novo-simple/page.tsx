@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { compressImage } from '@/lib/image-compression';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -353,19 +354,34 @@ export default function SimpleNewPropertyPage() {
   };
 
   // Property images handlers
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
-      setPropertyImages(prev => [...prev, ...files]);
       
-      // Create preview URLs
-      files.forEach(file => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setImagePreviewUrls(prev => [...prev, reader.result as string]);
-        };
-        reader.readAsDataURL(file);
-      });
+      try {
+        const toastId = toast.loading('A preparar e otimizar as imagens...', { duration: 10000 });
+        
+        const compressedFiles = await Promise.all(
+          files.map(file => compressImage(file))
+        );
+        
+        toast.dismiss(toastId);
+        toast.success(`${compressedFiles.length} imagens preparadas com sucesso.`);
+
+        setPropertyImages(prev => [...prev, ...compressedFiles]);
+        
+        // Create preview URLs
+        compressedFiles.forEach(file => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            setImagePreviewUrls(prev => [...prev, reader.result as string]);
+          };
+          reader.readAsDataURL(file);
+        });
+      } catch (error) {
+        console.error('Error compressing images:', error);
+        toast.error('Erro ao processar as imagens.');
+      }
     }
   };
 

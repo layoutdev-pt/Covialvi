@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAutoSave } from '@/hooks/use-auto-save';
 import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
+import { compressImage } from '@/lib/image-compression';
 import {
   Select,
   SelectContent,
@@ -461,19 +462,36 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
   };
 
   // Property images handlers
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
-      setPropertyImages(prev => [...prev, ...files]);
       
-      // Create preview URLs
-      files.forEach(file => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setImagePreviewUrls(prev => [...prev, reader.result as string]);
-        };
-        reader.readAsDataURL(file);
-      });
+      try {
+        // Show a toast that compression is happening
+        const toastId = toast.loading('A preparar e otimizar as imagens...', { duration: 10000 });
+        
+        // Compress files before setting them
+        const compressedFiles = await Promise.all(
+          files.map(file => compressImage(file))
+        );
+        
+        toast.dismiss(toastId);
+        toast.success(`${compressedFiles.length} imagens preparadas com sucesso.`);
+
+        setPropertyImages(prev => [...prev, ...compressedFiles]);
+        
+        // Create preview URLs
+        compressedFiles.forEach(file => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            setImagePreviewUrls(prev => [...prev, reader.result as string]);
+          };
+          reader.readAsDataURL(file);
+        });
+      } catch (error) {
+        console.error('Error handling images:', error);
+        toast.error('Erro ao processar as imagens.');
+      }
     }
   };
 
