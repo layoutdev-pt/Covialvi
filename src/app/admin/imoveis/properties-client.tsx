@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   Plus,
   Search,
@@ -280,12 +281,14 @@ export function PropertiesClient({ properties: initialProperties }: PropertiesCl
                   >
                     <div className="flex items-start gap-4">
                       {/* Thumbnail */}
-                      <div className="w-16 h-16 rounded-xl overflow-hidden bg-secondary flex-shrink-0">
+                      <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-secondary flex-shrink-0">
                         {coverImage && coverImage.url ? (
-                          <img
+                          <Image
                             src={coverImage.url}
                             alt={property.title}
-                            className="w-full h-full object-cover"
+                            fill
+                            sizes="64px"
+                            className="object-cover"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
@@ -412,10 +415,12 @@ export function PropertiesClient({ properties: initialProperties }: PropertiesCl
                   {/* Cover Image */}
                   <div className="relative aspect-[16/9] bg-secondary">
                     {coverImage && coverImage.url ? (
-                      <img
+                      <Image
                         src={coverImage.url}
                         alt={selectedProperty.title}
-                        className="w-full h-full object-cover"
+                        fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className="object-cover"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">

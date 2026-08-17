@@ -7,6 +7,7 @@ import { MapPin, ChevronDown, Building2, FileDown, FileText, LayoutGrid, Clipboa
 import { PropertyActions } from './property-actions';
 import { PropertyGallery } from './property-gallery';
 import { PropertyContactForm } from './property-contact-form';
+import { PropertyWarningBanner } from './property-warning-banner';
 
 export const dynamic = 'force-dynamic';
 
@@ -223,6 +224,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
       />
       
     <main className="min-h-screen bg-background pt-20">
+      <PropertyWarningBanner slug={property.slug} />
       {/* Image Gallery with Vertical Carousel */}
       <section className="max-w-7xl mx-auto px-4 md:px-8 py-8">
         <PropertyGallery
