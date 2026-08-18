@@ -22,9 +22,13 @@ export function PropertyWarningBanner({ slug }: PropertyWarningBannerProps) {
         <div className="flex items-start gap-3">
           <AlertTriangle className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
           <p className="text-yellow-700 font-medium">
-            Devido a período de férias, as respostas por e-mail (geral@covialvi.pt) podem demorar. Para obter informações rapidamente, por favor ligue para o{' '}
+            Devido a período de férias qualquer informação referente às moradias, agradecemos que nos enviem email ou mensagem para{' '}
+            <a href="tel:+351967138082" className="font-bold underline inline-flex items-center gap-1 hover:text-yellow-800 transition-colors">
+              <Phone className="h-4 w-4" />967 138 082
+            </a>
+            {' '}ou{' '}
             <a href="tel:+351967138116" className="font-bold underline inline-flex items-center gap-1 hover:text-yellow-800 transition-colors">
-              <Phone className="h-4 w-4" />+351 967 138 116
+              <Phone className="h-4 w-4" />967 138 116
             </a>
           </p>
         </div>
