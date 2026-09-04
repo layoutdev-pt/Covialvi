@@ -40,6 +40,7 @@ import {
 } from '@/components/ui/motion';
 import dynamic from 'next/dynamic';
 import { motion, useScroll, useTransform, useInView, useSpring } from 'framer-motion';
+import { OtpDialog } from '@/components/ui/otp-dialog';
 
 const WhatsAppButton = dynamic(() => import('@/components/ui/whatsapp-button').then(mod => mod.WhatsAppButton), {
   ssr: false,
@@ -108,11 +109,12 @@ export function HomeClient({ properties, featuredProperties, premiumHighlights =
   const [contactLoading, setContactLoading] = useState(false);
   const [contactSuccess, setContactSuccess] = useState(false);
   const [contactError, setContactError] = useState('');
+  const [showContactOtp, setShowContactOtp] = useState(false);
 
+  /** Step 1: Validate email then send OTP */
   const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Client-side stricter email validation
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(contactForm.email.trim())) {
       setContactError('Por favor, introduza um e-mail válido.');
@@ -121,8 +123,28 @@ export function HomeClient({ properties, featuredProperties, premiumHighlights =
 
     setContactLoading(true);
     setContactError('');
-    setContactSuccess(false);
 
+    try {
+      const response = await fetch('/api/otp/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: contactForm.email.trim(), formType: 'contact' }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Não foi possível enviar o código de verificação.');
+      setShowContactOtp(true);
+    } catch (err: any) {
+      setContactError(err.message || 'Erro ao enviar código. Tente novamente.');
+    } finally {
+      setContactLoading(false);
+    }
+  };
+
+  /** Step 2: OTP verified — submit the actual contact */
+  const handleContactOtpVerified = async (verifiedToken: string) => {
+    setShowContactOtp(false);
+    setContactLoading(true);
+    setContactError('');
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
@@ -133,21 +155,29 @@ export function HomeClient({ properties, featuredProperties, premiumHighlights =
           phone: contactForm.phone,
           message: contactForm.message,
           website: contactForm.website,
+          otpToken: verifiedToken,
         }),
       });
-
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Erro ao enviar mensagem');
-      }
-
+      if (!response.ok) throw new Error(data.error || 'Erro ao enviar mensagem');
       setContactSuccess(true);
       setContactForm({ firstName: '', lastName: '', email: '', phone: '', message: '', website: '' });
     } catch (err: any) {
       setContactError(err.message || 'Erro ao enviar mensagem. Tente novamente.');
     } finally {
       setContactLoading(false);
+    }
+  };
+
+  const handleResendContactOtp = async () => {
+    const response = await fetch('/api/otp/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: contactForm.email.trim(), formType: 'contact' }),
+    });
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.error || 'Erro ao reenviar.');
     }
   };
   
@@ -797,6 +827,14 @@ export function HomeClient({ properties, featuredProperties, premiumHighlights =
                 whileHover={{ y: -5 }}
                 className="bg-white rounded-3xl p-8 md:p-10 shadow-2xl"
               >
+                <OtpDialog
+                  email={contactForm.email.trim()}
+                  formType="contact"
+                  isOpen={showContactOtp}
+                  onVerified={handleContactOtpVerified}
+                  onClose={() => setShowContactOtp(false)}
+                  onResend={handleResendContactOtp}
+                />
                 {contactSuccess ? (
                   <div className="text-center py-8">
                     <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
