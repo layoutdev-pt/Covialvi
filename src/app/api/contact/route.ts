@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
 import { notifyNewLead } from '@/lib/email';
+import { verifyRealEmail } from '@/lib/email-validator';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,11 +26,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate email format with stricter regex
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(email)) {
+    // Validate email format with strict regex, blacklist, and MX records
+    const isRealEmail = await verifyRealEmail(email);
+    if (!isRealEmail) {
       return NextResponse.json(
-        { error: 'Email inválido' },
+        { error: 'Endereço de email inválido ou temporário' },
         { status: 400 }
       );
     }

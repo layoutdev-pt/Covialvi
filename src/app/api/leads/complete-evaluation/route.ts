@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
 import { getDistrictLabel, getMunicipalityLabel } from '@/lib/portugal-locations';
 import { sendEmail } from '@/lib/email';
+import { verifyRealEmail } from '@/lib/email-validator';
 
 /**
  * API Route: POST /api/leads/complete-evaluation
@@ -62,13 +63,6 @@ function validatePhone(phone: string): boolean {
   const mobileRegex = /^(\+351|00351)?[9][0-9]{8}$/;
   const landlineRegex = /^(\+351|00351)?[2][0-9]{8}$/;
   return mobileRegex.test(cleanPhone) || landlineRegex.test(cleanPhone);
-}
-
-/**
- * Validate email format (strict validation)
- */
-function validateEmail(email: string): boolean {
-  return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
 }
 
 /**
@@ -134,8 +128,11 @@ export async function POST(request: NextRequest) {
       errors.phone = 'Número de telefone inválido';
     }
 
-    if (body.email && body.email.trim() && !validateEmail(body.email)) {
-      errors.email = 'Endereço de email inválido';
+    if (body.email && body.email.trim()) {
+      const isRealEmail = await verifyRealEmail(body.email);
+      if (!isRealEmail) {
+        errors.email = 'Endereço de email inválido ou temporário';
+      }
     }
 
     if (Object.keys(errors).length > 0) {

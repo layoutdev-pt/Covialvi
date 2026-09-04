@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { sendEmail } from '@/lib/email';
+import { verifyRealEmail } from '@/lib/email-validator';
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,9 +24,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Name, email and phone are required for guest visits' }, { status: 400 });
     }
 
-    // Strict email validation
-    if (visitorEmail && !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(visitorEmail)) {
-      return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
+    // Strict email validation and DNS verification
+    if (visitorEmail) {
+      const isRealEmail = await verifyRealEmail(visitorEmail);
+      if (!isRealEmail) {
+        return NextResponse.json({ error: 'Endereço de email inválido ou temporário' }, { status: 400 });
+      }
     }
 
     const { error } = await supabase.from('visits').insert({
