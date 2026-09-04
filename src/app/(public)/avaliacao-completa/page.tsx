@@ -212,6 +212,7 @@ interface FormData {
   phone: string;
   preferredContact: string;
   additionalNotes: string;
+  website: string; // Honeypot
 }
 
 interface ValidationErrors {
@@ -245,6 +246,7 @@ const INITIAL_FORM_DATA: FormData = {
   phone: '',
   preferredContact: '',
   additionalNotes: '',
+  website: '',
 };
 
 // =============================================================================
@@ -312,10 +314,12 @@ export default function AvaliacaoCompletaPage() {
           newErrors.phone = 'Por favor, indique um número de telefone válido.';
         }
         if (!formData.name) {
-          newErrors.name = 'Por favor, indique o seu nome.';
+          newErrors.name = 'Por favor, insira o seu nome.';
         }
-        if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-          newErrors.email = 'Por favor, indique um email válido.';
+        if (!formData.email) {
+          newErrors.email = 'Por favor, insira o seu email.';
+        } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(formData.email)) {
+          newErrors.email = 'Por favor, insira um email válido.';
         }
         if (!consent) {
           newErrors.consent = 'Deve aceitar os termos para continuar.';
@@ -932,6 +936,20 @@ export default function AvaliacaoCompletaPage() {
         return (
           <div className="space-y-6">
             <div className="space-y-4">
+              {/* Honeypot field - visually hidden */}
+              <div className="hidden" aria-hidden="true">
+                <Label htmlFor="website">Website (Não preencher)</Label>
+                <Input
+                  id="website"
+                  type="text"
+                  name="website"
+                  value={formData.website}
+                  onChange={(e) => updateFormField('website', e.target.value)}
+                  tabIndex={-1}
+                  autoComplete="off"
+                />
+              </div>
+
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
                   <User className="h-4 w-4" />

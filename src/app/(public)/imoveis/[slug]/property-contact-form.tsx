@@ -15,6 +15,7 @@ export function PropertyContactForm({ propertyId, propertyTitle, propertyRef }: 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
+  const [website, setWebsite] = useState(''); // Honeypot field
   const [message, setMessage] = useState('Desejo ser contactado a fim de obter mais informações sobre o referido imóvel.');
   const [consent, setConsent] = useState(false);
   const [consentError, setConsentError] = useState(false);
@@ -26,6 +27,14 @@ export function PropertyContactForm({ propertyId, propertyTitle, propertyRef }: 
       toast.error('Nome e email são obrigatórios.');
       return;
     }
+    
+    // Client-side stricter email validation
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email.trim())) {
+      toast.error('Por favor, introduza um e-mail válido.');
+      return;
+    }
+    
     if (!consent) {
       setConsentError(true);
       return;
@@ -46,6 +55,7 @@ export function PropertyContactForm({ propertyId, propertyTitle, propertyRef }: 
           propertyTitle,
           propertyRef,
           source: 'property',
+          website: website, // Honeypot payload
         }),
       });
 
@@ -59,6 +69,7 @@ export function PropertyContactForm({ propertyId, propertyTitle, propertyRef }: 
       setName('');
       setPhone('');
       setEmail('');
+      setWebsite('');
       setMessage('Desejo ser contactado a fim de obter mais informações sobre o referido imóvel.');
       setConsent(false);
       setConsentError(false);
@@ -72,6 +83,19 @@ export function PropertyContactForm({ propertyId, propertyTitle, propertyRef }: 
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Honeypot field - invisible to users */}
+      <div className="hidden" aria-hidden="true">
+        <label htmlFor="property-website">Website</label>
+        <input
+          id="property-website"
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+          value={website}
+          onChange={(e) => setWebsite(e.target.value)}
+        />
+      </div>
+
       <div>
         <label className="block text-sm font-medium text-foreground mb-2">Nome *</label>
         <input

@@ -11,10 +11,11 @@ import { toast } from 'sonner';
 const contactSchema = z.object({
   firstName: z.string().min(1, 'O nome é obrigatório.'),
   lastName: z.string().min(1, 'O apelido é obrigatório.'),
-  email: z.string().email('Por favor, introduza um e-mail válido.'),
+  email: z.string().email('Por favor, introduza um e-mail válido.').regex(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Formato de e-mail inválido.'),
   phone: z.string().min(9, 'O telefone é obrigatório.'),
   subject: z.string().min(1, 'O assunto é obrigatório.'),
   message: z.string().min(10, 'A mensagem deve ter pelo menos 10 caracteres.'),
+  website: z.string().optional(),
   consent: z.literal(true, { errorMap: () => ({ message: 'Deve aceitar os termos para continuar.' }) }),
 });
 
@@ -50,6 +51,7 @@ export function ContactForm() {
           subject: data.subject,
           message: data.message,
           source: 'contact',
+          website: data.website,
         }),
       });
 
@@ -114,6 +116,18 @@ export function ContactForm() {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        {/* Honeypot field - invisible to users */}
+        <div className="hidden" aria-hidden="true">
+          <label htmlFor="website">Website</label>
+          <input
+            id="website"
+            type="text"
+            tabIndex={-1}
+            autoComplete="off"
+            {...register('website')}
+          />
+        </div>
+
         {/* Nome + Apelido */}
         <div className="grid sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">

@@ -7,14 +7,25 @@ export async function POST(request: NextRequest) {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    const { propertyId, scheduledAt, notes, visitorName, visitorEmail, visitorPhone } = await request.json();
+    const { propertyId, scheduledAt, notes, visitorName, visitorEmail, visitorPhone, website } = await request.json();
     
+    // Honeypot validation
+    if (website) {
+      console.log('Honeypot triggered in visit schedule API. Aborting silently.');
+      return NextResponse.json({ success: true });
+    }
+
     if (!propertyId || !scheduledAt) {
       return NextResponse.json({ error: 'Property ID and scheduled time required' }, { status: 400 });
     }
 
     if (!user && (!visitorName || !visitorEmail || !visitorPhone)) {
       return NextResponse.json({ error: 'Name, email and phone are required for guest visits' }, { status: 400 });
+    }
+
+    // Strict email validation
+    if (visitorEmail && !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(visitorEmail)) {
+      return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
     }
 
     const { error } = await supabase.from('visits').insert({

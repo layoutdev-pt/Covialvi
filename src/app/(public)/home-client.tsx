@@ -103,6 +103,7 @@ export function HomeClient({ properties, featuredProperties, premiumHighlights =
     email: '',
     phone: '',
     message: '',
+    website: '',
   });
   const [contactLoading, setContactLoading] = useState(false);
   const [contactSuccess, setContactSuccess] = useState(false);
@@ -110,6 +111,14 @@ export function HomeClient({ properties, featuredProperties, premiumHighlights =
 
   const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Client-side stricter email validation
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(contactForm.email.trim())) {
+      setContactError('Por favor, introduza um e-mail válido.');
+      return;
+    }
+
     setContactLoading(true);
     setContactError('');
     setContactSuccess(false);
@@ -123,6 +132,7 @@ export function HomeClient({ properties, featuredProperties, premiumHighlights =
           email: contactForm.email,
           phone: contactForm.phone,
           message: contactForm.message,
+          website: contactForm.website,
         }),
       });
 
@@ -133,7 +143,7 @@ export function HomeClient({ properties, featuredProperties, premiumHighlights =
       }
 
       setContactSuccess(true);
-      setContactForm({ firstName: '', lastName: '', email: '', phone: '', message: '' });
+      setContactForm({ firstName: '', lastName: '', email: '', phone: '', message: '', website: '' });
     } catch (err: any) {
       setContactError(err.message || 'Erro ao enviar mensagem. Tente novamente.');
     } finally {
@@ -805,6 +815,19 @@ export function HomeClient({ properties, featuredProperties, premiumHighlights =
                   </div>
                 ) : (
                   <form className="space-y-5" onSubmit={handleContactSubmit}>
+                    {/* Honeypot field - invisible to users */}
+                    <div className="hidden" aria-hidden="true">
+                      <label htmlFor="home-website">Website</label>
+                      <input
+                        id="home-website"
+                        type="text"
+                        tabIndex={-1}
+                        autoComplete="off"
+                        value={contactForm.website}
+                        onChange={(e) => setContactForm({ ...contactForm, website: e.target.value })}
+                      />
+                    </div>
+
                     <div className="grid md:grid-cols-2 gap-5">
                       <input
                         type="text"

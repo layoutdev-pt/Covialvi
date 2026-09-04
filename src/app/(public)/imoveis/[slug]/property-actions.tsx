@@ -30,6 +30,7 @@ export function PropertyActions({
   const [visitorPhone, setVisitorPhone] = useState('');
   const [visitConsent, setVisitConsent] = useState(false);
   const [visitConsentError, setVisitConsentError] = useState(false);
+  const [website, setWebsite] = useState(''); // Honeypot
 
   // Check if property is already favorited when user is available
   useEffect(() => {
@@ -98,6 +99,12 @@ export function PropertyActions({
       toast.error('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
+    
+    // Strict email validation
+    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(visitorEmail)) {
+      toast.error('Por favor, introduza um email válido.');
+      return;
+    }
     if (!visitConsent) {
       setVisitConsentError(true);
       return;
@@ -118,6 +125,7 @@ export function PropertyActions({
           visitorName,
           visitorEmail,
           visitorPhone,
+          website, // Honeypot field
         }),
       });
 
@@ -199,6 +207,20 @@ export function PropertyActions({
             {/* Scrollable body */}
             <div className="overflow-y-auto flex-1 px-6 pb-6">
             <form onSubmit={handleScheduleVisit} className="space-y-4">
+              {/* Honeypot field - visually hidden */}
+              <div className="hidden" aria-hidden="true">
+                <label htmlFor="website">Website (Não preencher)</label>
+                <input
+                  id="website"
+                  type="text"
+                  name="website"
+                  value={website}
+                  onChange={(e) => setWebsite(e.target.value)}
+                  tabIndex={-1}
+                  autoComplete="off"
+                />
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Nome *

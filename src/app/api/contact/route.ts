@@ -7,7 +7,15 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, email, phone, subject, message, propertyId, propertyTitle, propertyRef, source } = body;
+    const { name, email, phone, subject, message, propertyId, propertyTitle, propertyRef, source, website } = body;
+
+    // Honeypot check for spam prevention
+    if (website) {
+      return NextResponse.json({
+        success: true,
+        message: 'Mensagem enviada com sucesso! Entraremos em contacto brevemente.',
+      });
+    }
 
     // Validate required fields
     if (!name || !email) {
@@ -17,8 +25,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // Validate email format with stricter regex
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(email)) {
       return NextResponse.json(
         { error: 'Email inválido' },

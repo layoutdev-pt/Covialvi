@@ -49,6 +49,9 @@ interface CompleteEvaluationRequest {
   phone: string;
   preferredContact?: string;
   additionalNotes?: string;
+  
+  // Honeypot field (hidden from humans, filled by bots)
+  website?: string;
 }
 
 /**
@@ -62,10 +65,10 @@ function validatePhone(phone: string): boolean {
 }
 
 /**
- * Validate email format
+ * Validate email format (strict validation)
  */
 function validateEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
 }
 
 /**
@@ -104,8 +107,18 @@ export async function POST(request: NextRequest) {
     const body: CompleteEvaluationRequest = await request.json();
 
     // -------------------------------------------------------------------------
-    // VALIDATION
+    // HONEYPOT CHECK & VALIDATION
     // -------------------------------------------------------------------------
+
+    // Honeypot validation: if the hidden 'website' field is filled, it's a bot.
+    // Return early with success to trick the bot.
+    if (body.website) {
+      console.log('Honeypot triggered in complete evaluation API. Aborting silently.');
+      return NextResponse.json(
+        { success: true, message: 'Pedido de avaliação recebido com sucesso' },
+        { status: 200 }
+      );
+    }
 
     const errors: Record<string, string> = {};
 
