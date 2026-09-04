@@ -1,46 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
-import { createHmac } from 'crypto';
+import { generateVerifiedToken } from '@/lib/otp-token';
 
 export const dynamic = 'force-dynamic';
 
-const OTP_SECRET = process.env.OTP_SECRET || 'covialvi-otp-secret-change-in-production';
 const MAX_ATTEMPTS = 5;
-
-/** Generate a short-lived HMAC token after successful verification */
-function generateVerifiedToken(email: string, formType: string): string {
-  const payload = `${email}:${formType}:${Date.now()}`;
-  const hmac = createHmac('sha256', OTP_SECRET);
-  hmac.update(payload);
-  return `${Buffer.from(payload).toString('base64')}.${hmac.digest('hex')}`;
-}
-
-/** Verify a previously issued token (used by form submission APIs) */
-export function verifyOtpToken(token: string, email: string, formType: string, maxAgeMs = 15 * 60 * 1000): boolean {
-  try {
-    const [payloadB64, signature] = token.split('.');
-    if (!payloadB64 || !signature) return false;
-
-    const payload = Buffer.from(payloadB64, 'base64').toString('utf-8');
-    const [tokenEmail, tokenFormType, timestampStr] = payload.split(':');
-
-    // Validate email and formType
-    if (tokenEmail !== email.toLowerCase() || tokenFormType !== formType) return false;
-
-    // Validate timestamp (token must be fresh)
-    const timestamp = parseInt(timestampStr, 10);
-    if (isNaN(timestamp) || Date.now() - timestamp > maxAgeMs) return false;
-
-    // Validate HMAC signature
-    const hmac = createHmac('sha256', OTP_SECRET);
-    hmac.update(payload);
-    const expectedSignature = hmac.digest('hex');
-
-    return signature === expectedSignature;
-  } catch {
-    return false;
-  }
-}
 
 export async function POST(request: NextRequest) {
   try {
@@ -71,7 +35,6 @@ export async function POST(request: NextRequest) {
 
     // Check attempts
     if (otpRecord.attempts >= MAX_ATTEMPTS) {
-      // Mark as used to prevent brute-force
       await supabase.from('email_otps').update({ used: true }).eq('id', otpRecord.id);
       return NextResponse.json({ error: 'Demasiadas tentativas. Por favor, solicite um novo código.' }, { status: 429 });
     }
