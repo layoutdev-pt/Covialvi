@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { OtpDialog } from '@/components/ui/otp-dialog';
 import { 
   Building2, 
   Home, 
@@ -260,6 +261,7 @@ export default function AvaliacaoCompletaPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [consent, setConsent] = useState(false);
   const [consentError, setConsentError] = useState(false);
+  const [showOtp, setShowOtp] = useState(false);
 
   const progressPercentage = Math.round((currentStep / TOTAL_STEPS) * 100);
   const isLastStep = currentStep === WizardStep.CONTACT_INFO;
@@ -368,6 +370,7 @@ export default function AvaliacaoCompletaPage() {
     setCurrentStep(prev => Math.max(prev - 1, WizardStep.PROPERTY_TYPE) as WizardStep);
   }, []);
 
+  /** Step 1: Validate the last step, then send OTP */
   const handleSubmit = async () => {
     const stepErrors = validateStep(currentStep);
     if (Object.keys(stepErrors).length > 0) {
@@ -376,14 +379,58 @@ export default function AvaliacaoCompletaPage() {
       return;
     }
 
+    // Only send OTP if email is provided (it's optional in this form)
+    if (!formData.email) {
+      // No email = skip OTP, submit directly
+      await submitEvaluation();
+      return;
+    }
+
     setIsSubmitting(true);
     setErrors({});
+    try {
+      const response = await fetch('/api/otp/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: formData.email, formType: 'evaluation' }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result?.error || 'Não foi possível enviar o código de verificação.');
+      setShowOtp(true);
+    } catch (error: any) {
+      setErrors({ submit: error?.message || 'Erro ao enviar código. Tente novamente.' });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
+  /** Step 2: OTP verified — call the evaluation API */
+  const handleEvalOtpVerified = async (verifiedToken: string) => {
+    setShowOtp(false);
+    await submitEvaluation(verifiedToken);
+  };
+
+  const handleResendEvalOtp = async () => {
+    const response = await fetch('/api/otp/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: formData.email, formType: 'evaluation' }),
+    });
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.error || 'Erro ao reenviar.');
+    }
+  };
+
+  /** Actual API submission (called after OTP or directly if no email) */
+  const submitEvaluation = async (verifiedToken?: string) => {
+    setIsSubmitting(true);
+    setErrors({});
     try {
       const response = await fetch('/api/leads/complete-evaluation', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, otpToken: verifiedToken }),
       });
 
       const result = await response.json().catch(() => ({}));
@@ -1140,8 +1187,18 @@ export default function AvaliacaoCompletaPage() {
   // ---------------------------------------------------------------------------
 
   return (
-    <div className="min-h-screen bg-background py-12 px-6 md:px-12 lg:px-20">
-      <div className="max-w-3xl mx-auto">
+    <>
+      <OtpDialog
+        email={formData.email}
+        formType="evaluation"
+        isOpen={showOtp}
+        onVerified={handleEvalOtpVerified}
+        onClose={() => setShowOtp(false)}
+        onResend={handleResendEvalOtp}
+      />
+
+      <div className="min-h-screen bg-background py-12 px-6 md:px-12 lg:px-20">
+        <div className="max-w-3xl mx-auto">
         {/* Page Header */}
         <div className="text-center mb-12">
           <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -1204,7 +1261,8 @@ export default function AvaliacaoCompletaPage() {
             </AnimatePresence>
           </CardContent>
         </Card>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

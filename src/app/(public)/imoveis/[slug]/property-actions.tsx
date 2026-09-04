@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Heart, Calendar, Loader2 } from 'lucide-react';
 import { useAuth } from '@/components/providers/auth-provider';
 import { toast } from 'sonner';
+import { OtpDialog } from '@/components/ui/otp-dialog';
 
 interface PropertyActionsProps {
   propertyId: string;
@@ -31,6 +32,7 @@ export function PropertyActions({
   const [visitConsent, setVisitConsent] = useState(false);
   const [visitConsentError, setVisitConsentError] = useState(false);
   const [website, setWebsite] = useState(''); // Honeypot
+  const [showOtp, setShowOtp] = useState(false);
 
   // Check if property is already favorited when user is available
   useEffect(() => {
@@ -92,6 +94,7 @@ export function PropertyActions({
     setShowVisitModal(true);
   };
 
+  /** Step 1: Validate form and send OTP */
   const handleScheduleVisit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -99,8 +102,6 @@ export function PropertyActions({
       toast.error('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
-    
-    // Strict email validation
     if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(visitorEmail)) {
       toast.error('Por favor, introduza um email válido.');
       return;
@@ -113,8 +114,27 @@ export function PropertyActions({
 
     setIsSchedulingVisit(true);
     try {
+      const response = await fetch('/api/otp/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: visitorEmail, formType: 'visit' }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Não foi possível enviar o código de verificação.');
+      setShowOtp(true);
+    } catch (error: any) {
+      toast.error(error?.message || 'Erro ao enviar código. Tente novamente.');
+    } finally {
+      setIsSchedulingVisit(false);
+    }
+  };
+
+  /** Step 2: OTP verified — do the actual scheduling */
+  const handleVisitOtpVerified = async (verifiedToken: string) => {
+    setShowOtp(false);
+    setIsSchedulingVisit(true);
+    try {
       const scheduledAt = new Date(`${visitDate}T${visitTime}`).toISOString();
-      
       const response = await fetch('/api/visits/schedule', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -125,19 +145,14 @@ export function PropertyActions({
           visitorName,
           visitorEmail,
           visitorPhone,
-          website, // Honeypot field
+          website,
+          otpToken: verifiedToken,
         }),
       });
-
       const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Failed to schedule visit');
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to schedule visit');
-      }
-
-      toast.success('Visita agendada com sucesso! Entraremos em contacto para confirmar.', {
-        duration: 500,
-      });
+      toast.success('Visita agendada com sucesso! Entraremos em contacto para confirmar.');
       setShowVisitModal(false);
       setVisitDate('');
       setVisitTime('');
@@ -148,10 +163,21 @@ export function PropertyActions({
       setVisitConsent(false);
       setVisitConsentError(false);
     } catch (error: any) {
-      console.error('Error scheduling visit:', error);
       toast.error(error?.message || 'Não foi possível agendar a visita. Tente novamente.');
     } finally {
       setIsSchedulingVisit(false);
+    }
+  };
+
+  const handleResendVisitOtp = async () => {
+    const response = await fetch('/api/otp/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: visitorEmail, formType: 'visit' }),
+    });
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.error || 'Erro ao reenviar.');
     }
   };
 
@@ -159,6 +185,15 @@ export function PropertyActions({
 
   return (
     <>
+      <OtpDialog
+        email={visitorEmail}
+        formType="visit"
+        isOpen={showOtp}
+        onVerified={handleVisitOtpVerified}
+        onClose={() => setShowOtp(false)}
+        onResend={handleResendVisitOtp}
+      />
+
       {/* Action Buttons */}
       <div className="flex gap-3 mb-6">
         <button
