@@ -3,6 +3,8 @@ import { createServiceClient } from '@/lib/supabase/server';
 import { getDistrictLabel, getMunicipalityLabel } from '@/lib/portugal-locations';
 import { sendEmail } from '@/lib/email';
 import { getSellPropertyEmailTemplate } from '@/lib/sell-property-email-template';
+import { verifyRealEmail } from '@/lib/email-validator';
+import { verifyOtpToken } from '@/lib/otp-token';
 
 /**
  * API Route: POST /api/leads/sell-property
@@ -41,6 +43,8 @@ interface SellPropertyLeadRequest {
   phone: string;
   name?: string;
   email?: string;
+  otpToken?: string;
+  website?: string;
 }
 
 /**
@@ -101,6 +105,14 @@ export async function POST(request: NextRequest) {
     // VALIDATION
     // -------------------------------------------------------------------------
 
+    // Honeypot check for spam prevention
+    if (body.website) {
+      return NextResponse.json({
+        success: true,
+        message: 'Pedido recebido com sucesso',
+      });
+    }
+
     const errors: Record<string, string> = {};
 
     // Validate required fields
@@ -117,9 +129,21 @@ export async function POST(request: NextRequest) {
       errors.phone = 'Número de telefone inválido';
     }
 
-    // Validate email if provided
-    if (body.email && !validateEmail(body.email)) {
-      errors.email = 'Endereço de email inválido';
+    // Validate email format, authenticity, and OTP if provided
+    if (body.email && body.email.trim()) {
+      if (!validateEmail(body.email)) {
+        errors.email = 'Endereço de email inválido';
+      } else {
+        const isRealEmail = await verifyRealEmail(body.email);
+        if (!isRealEmail) {
+          errors.email = 'Endereço de e-mail inválido ou não existe. Por favor, utilize um e-mail real.';
+        } else if (body.otpToken) {
+          const isValidOtp = verifyOtpToken(body.otpToken, body.email, 'evaluation');
+          if (!isValidOtp) {
+            errors.email = 'Sessão de verificação de código inválida ou expirada.';
+          }
+        }
+      }
     }
 
     // Return validation errors

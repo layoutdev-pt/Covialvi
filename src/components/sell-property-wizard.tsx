@@ -20,6 +20,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { OtpDialog } from '@/components/ui/otp-dialog';
 import {
   Select,
   SelectContent,
@@ -215,6 +216,9 @@ export function SellPropertyWizard() {
   
   // Success state after submission
   const [isSuccess, setIsSuccess] = useState(false);
+
+  // OTP Dialog state
+  const [showOtp, setShowOtp] = useState(false);
 
   // ---------------------------------------------------------------------------
   // COMPUTED VALUES
@@ -415,15 +419,9 @@ export function SellPropertyWizard() {
   }, []);
 
   /**
-   * Submit lead to API
-   * Creates seller lead in CRM with all quiz answers
+   * Actual lead creation API call
    */
-  const handleSubmit = useCallback(async () => {
-    // Final validation before submit
-    if (!validateCurrentStep()) {
-      return;
-    }
-
+  const submitLead = useCallback(async (otpToken?: string) => {
     setIsSubmitting(true);
     setErrors({});
 
@@ -443,6 +441,7 @@ export function SellPropertyWizard() {
           phone: formData.phone,
           name: formData.name || undefined,
           email: formData.email || undefined,
+          otpToken,
         }),
       });
 
@@ -471,7 +470,79 @@ export function SellPropertyWizard() {
     } finally {
       setIsSubmitting(false);
     }
-  }, [formData, validateCurrentStep]);
+  }, [formData]);
+
+  /**
+   * Submit lead handler - sends OTP if email is provided, otherwise submits directly
+   */
+  const handleSubmit = useCallback(async () => {
+    // Final validation before submit
+    if (!validateCurrentStep()) {
+      return;
+    }
+
+    // If email is provided, trigger OTP verification
+    if (formData.email && formData.email.trim()) {
+      setIsSubmitting(true);
+      setErrors({});
+
+      try {
+        const response = await fetch('/api/otp/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: formData.email.trim(), formType: 'evaluation' }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          setErrors({
+            email: data.error || 'Não foi possível enviar o código de verificação.',
+          });
+          setIsSubmitting(false);
+          return;
+        }
+
+        setShowOtp(true);
+      } catch (error) {
+        console.error('Error sending OTP:', error);
+        setErrors({
+          email: error instanceof Error ? error.message : 'Erro ao enviar o código de verificação.',
+        });
+      } finally {
+        setIsSubmitting(false);
+      }
+      return;
+    }
+
+    // No email provided, submit directly
+    await submitLead();
+  }, [formData, validateCurrentStep, submitLead]);
+
+  /**
+   * Handler when OTP is verified
+   */
+  const handleOtpVerified = useCallback(async (verifiedToken: string) => {
+    setShowOtp(false);
+    await submitLead(verifiedToken);
+  }, [submitLead]);
+
+  /**
+   * Resend OTP code
+   */
+  const handleResendOtp = useCallback(async () => {
+    if (!formData.email) return;
+    const response = await fetch('/api/otp/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: formData.email.trim(), formType: 'evaluation' }),
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.error || 'Erro ao reenviar o código.');
+    }
+  }, [formData.email]);
 
   // ---------------------------------------------------------------------------
   // RENDER STEP CONTENT
@@ -963,7 +1034,16 @@ export function SellPropertyWizard() {
   // ---------------------------------------------------------------------------
   
   return (
-    <section className="py-20 px-6 md:px-12 lg:px-20 bg-background">
+    <>
+      <OtpDialog
+        email={formData.email || ''}
+        formType="evaluation"
+        isOpen={showOtp}
+        onVerified={handleOtpVerified}
+        onClose={() => setShowOtp(false)}
+        onResend={handleResendOtp}
+      />
+      <section className="py-20 px-6 md:px-12 lg:px-20 bg-background">
       <div className="max-w-3xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-12">
@@ -1041,7 +1121,8 @@ export function SellPropertyWizard() {
         )}
       </div>
     </section>
-  );
+  </>
+);
 }
 
 export default SellPropertyWizard;
