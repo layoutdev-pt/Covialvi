@@ -224,8 +224,8 @@ export function HomeClient({ properties, featuredProperties, premiumHighlights =
     resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  const formatPrice = (price: number | null) => {
-    if (price === null) return 'Sob Consulta';
+  const formatPrice = (price: number | null | undefined) => {
+    if (price === null || price === undefined || price === 0) return 'Sob Consulta';
     return new Intl.NumberFormat('pt-PT', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
@@ -938,7 +938,7 @@ function PropertyCard({
   businessTypeLabels 
 }: { 
   property: any; 
-  formatPrice: (price: number | null) => string;
+  formatPrice: (price: number | null | undefined) => string;
   businessTypeLabels: Record<string, string>;
 }) {
   const [isHovered, setIsHovered] = useState(false);
@@ -1096,7 +1096,7 @@ function HeroPropertyCard({
   businessTypeLabels 
 }: { 
   property: any; 
-  formatPrice: (price: number | null) => string;
+  formatPrice: (price: number | null | undefined) => string;
   businessTypeLabels: Record<string, string>;
 }) {
   const [isHovered, setIsHovered] = useState(false);

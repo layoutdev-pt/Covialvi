@@ -5,8 +5,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatPrice(price: number | null, currency = 'EUR'): string {
-  if (price === null) return 'Sob Consulta';
+export function formatPrice(price: number | null | undefined, currency = 'EUR'): string {
+  if (price === null || price === undefined || price === 0) return 'Sob Consulta';
   const formatted = new Intl.NumberFormat('pt-PT', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
