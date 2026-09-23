@@ -13,6 +13,7 @@ import {
   MapPin,
   Filter,
   Eye,
+  EyeOff,
   Trash2,
   Archive,
 } from 'lucide-react';
@@ -155,25 +156,28 @@ export function PropertiesClient({ properties: initialProperties }: PropertiesCl
     setOpenMenuId(null);
   };
 
-  const handleArchiveProperty = async (propertyId: string) => {
+  const handleToggleVisibility = async (propertyId: string, currentStatus: string) => {
+    const newStatus = currentStatus === 'published' ? 'archived' : 'published';
+    const actionText = newStatus === 'published' ? 'publicar' : 'ocultar';
+
     try {
       const response = await fetch(`/api/properties/${propertyId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'archived' }),
+        body: JSON.stringify({ status: newStatus }),
       });
 
       if (!response.ok) {
         const result = await response.json();
-        throw new Error(result.error || 'Erro ao arquivar');
+        throw new Error(result.error || `Erro ao ${actionText}`);
       }
 
       setProperties(prev => prev.map(p => 
-        p.id === propertyId ? { ...p, status: 'archived' } : p
+        p.id === propertyId ? { ...p, status: newStatus } : p
       ));
-      toast.success('Imóvel arquivado');
+      toast.success(newStatus === 'published' ? 'Imóvel publicado com sucesso' : 'Imóvel ocultado com sucesso');
     } catch (err: any) {
-      toast.error(err.message || 'Erro ao arquivar imóvel');
+      toast.error(err.message || `Erro ao ${actionText} imóvel`);
     }
     setOpenMenuId(null);
   };
@@ -358,12 +362,21 @@ export function PropertiesClient({ properties: initialProperties }: PropertiesCl
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleArchiveProperty(property.id);
+                                handleToggleVisibility(property.id, property.status);
                               }}
                               className="flex items-center gap-2 px-4 py-2 text-sm text-foreground hover:bg-secondary transition-colors w-full text-left"
                             >
-                              <Archive className="h-4 w-4" />
-                              Arquivar
+                              {property.status === 'published' ? (
+                                <>
+                                  <EyeOff className="h-4 w-4" />
+                                  Ocultar
+                                </>
+                              ) : (
+                                <>
+                                  <Eye className="h-4 w-4" />
+                                  Publicar
+                                </>
+                              )}
                             </button>
                             <hr className="my-1 border-border" />
                             <button
@@ -490,8 +503,20 @@ export function PropertiesClient({ properties: initialProperties }: PropertiesCl
                         </button>
                       </Link>
                       <button 
+                        onClick={() => handleToggleVisibility(selectedProperty.id, selectedProperty.status)}
+                        className="px-4 py-3 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors"
+                        title={selectedProperty.status === 'published' ? 'Ocultar Imóvel' : 'Publicar Imóvel'}
+                      >
+                        {selectedProperty.status === 'published' ? (
+                          <EyeOff className="h-5 w-5" />
+                        ) : (
+                          <Eye className="h-5 w-5" />
+                        )}
+                      </button>
+                      <button 
                         onClick={() => handleDeleteProperty(selectedProperty.id, selectedProperty.title)}
                         className="px-4 py-3 border border-red-200 text-red-600 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                        title="Eliminar Imóvel"
                       >
                         <Trash2 className="h-5 w-5" />
                       </button>
