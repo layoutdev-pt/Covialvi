@@ -43,6 +43,8 @@ import {
   Trash2,
   Image as ImageIcon,
   Star,
+  Archive,
+  RotateCcw,
 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -242,6 +244,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isChangingPublicationStatus, setIsChangingPublicationStatus] = useState(false);
   const [property, setProperty] = useState<any>(null);
   const [existingImages, setExistingImages] = useState<any[]>([]);
   
@@ -438,6 +441,41 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
 
   const saveField = (field: string, value: any) => {
     // Auto-save not implemented for edit page - saves on submit
+  };
+
+  const handlePublicationStatusChange = async () => {
+    const isArchived = property?.status === 'archived';
+    const nextStatus = isArchived ? 'published' : 'archived';
+    const action = isArchived ? 'republicar' : 'arquivar';
+    const confirmationMessage = isArchived
+      ? 'Pretende republicar este imóvel? Ele voltará a ficar visível no site público.'
+      : 'Pretende arquivar este imóvel? Ele deixará de aparecer no site público, mas todos os seus dados serão mantidos.';
+
+    if (!window.confirm(confirmationMessage)) return;
+
+    setIsChangingPublicationStatus(true);
+    try {
+      const response = await fetch(`/api/properties/${params.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: nextStatus }),
+      });
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || `Não foi possível ${action} o imóvel.`);
+      }
+
+      setProperty((current: any) => ({ ...current, ...result }));
+      setValue('status', nextStatus);
+      toast.success(isArchived ? 'Imóvel republicado com sucesso.' : 'Imóvel arquivado com sucesso.');
+      router.refresh();
+    } catch (error: any) {
+      console.error(`Error trying to ${action} property:`, error);
+      toast.error(error.message || `Erro ao ${action} imóvel.`);
+    } finally {
+      setIsChangingPublicationStatus(false);
+    }
   };
 
   // File handlers
@@ -1627,6 +1665,29 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
                     Imóvel Em Foco
                     <span className="text-xs text-muted-foreground">(máx. 3)</span>
                   </Label>
+                </div>
+                <div className="pt-4 border-t">
+                  <Button
+                    type="button"
+                    variant={property?.status === 'archived' ? 'outline' : 'destructive'}
+                    className="w-full"
+                    onClick={handlePublicationStatusChange}
+                    disabled={isChangingPublicationStatus || !property}
+                  >
+                    {isChangingPublicationStatus ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : property?.status === 'archived' ? (
+                      <RotateCcw className="mr-2 h-4 w-4" />
+                    ) : (
+                      <Archive className="mr-2 h-4 w-4" />
+                    )}
+                    {property?.status === 'archived' ? 'Republicar imóvel' : 'Arquivar imóvel'}
+                  </Button>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {property?.status === 'archived'
+                      ? 'O imóvel está arquivado e não é visível no site público.'
+                      : 'Arquivar remove o imóvel do site público sem eliminar os seus dados.'}
+                  </p>
                 </div>
               </div>
             </CardContent>

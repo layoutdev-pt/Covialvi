@@ -166,6 +166,24 @@ export async function PUT(
       return NextResponse.json(currentProperty);
     }
 
+    let previousStatus: string | null = null;
+    if (typeof cleanPayload.status === 'string') {
+      const { data: currentProperty, error: currentPropertyError } = await serviceClient
+        .from('properties')
+        .select('status')
+        .eq('id', params.id)
+        .single();
+
+      if (currentPropertyError || !currentProperty) {
+        return NextResponse.json(
+          { error: 'Imóvel não encontrado' },
+          { status: 404 }
+        );
+      }
+
+      previousStatus = currentProperty.status;
+    }
+
     // Update property using service client with sanitized data only
     const { data: property, error } = await serviceClient
       .from('properties')
@@ -183,6 +201,26 @@ export async function PUT(
         { error: error.message },
         { status: 500 }
       );
+    }
+
+    if (previousStatus && previousStatus !== property.status) {
+      const forwardedFor = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim();
+      const { error: auditError } = await serviceClient
+        .from('audit_logs')
+        .insert({
+          user_id: user.id,
+          action: 'status_change',
+          entity_type: 'property',
+          entity_id: property.id,
+          old_values: { status: previousStatus },
+          new_values: { status: property.status },
+          ...(forwardedFor ? { ip_address: forwardedFor } : {}),
+          user_agent: request.headers.get('user-agent'),
+        });
+
+      if (auditError) {
+        console.error('Audit log error:', auditError);
+      }
     }
 
     return NextResponse.json(property);
