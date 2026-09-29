@@ -47,6 +47,7 @@ interface SearchParams {
   max_price?: string;
   sort?: string;
   page?: string;
+  all?: string;
   show_sob_consulta?: string;
 }
 
@@ -171,9 +172,10 @@ async function getProperties(searchParams: SearchParams) {
   const limit = 9;
   const offset = (page - 1) * limit;
   
-  // For "View more", calculate how many to show based on page
-  const showCount = page * limit;
-  query = query.range(0, showCount - 1);
+  // "View more" (all=1) shows every result; otherwise only the first page
+  if (searchParams.all !== '1') {
+    query = query.range(0, limit - 1);
+  }
 
   const { data, count } = await query;
   
@@ -264,7 +266,9 @@ export default async function PropertiesPage({
       <section className="max-w-7xl mx-auto px-4 md:px-8 pb-16">
         {properties.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {properties.map((property: any) => {
+            {properties.map((property: any, index: number) => {
+              // Items revealed by "Ver mais" fade/slide in, slightly staggered
+              const isNew = searchParams.all === '1' && index >= 9;
               const coverImage = property.property_images?.find((img: any) => img.is_cover) ||
                 property.property_images?.[0];
               const businessLabel = property.business_type === 'sale' ? 'Venda' : property.business_type === 'rent' ? 'Arrendamento' : 'Trespasse';
@@ -272,7 +276,8 @@ export default async function PropertiesPage({
               return (
                 <article
                   key={property.id}
-                  className="group bg-card rounded-2xl overflow-hidden border border-border hover:border-yellow-500/50 hover:shadow-xl hover:shadow-yellow-500/5 transition-all duration-300"
+                  className={`group bg-card rounded-2xl overflow-hidden border border-border hover:border-yellow-500/50 hover:shadow-xl hover:shadow-yellow-500/5 transition-all duration-300${isNew ? ' animate-in fade-in slide-in-from-bottom-4 fill-mode-both duration-500' : ''}`}
+                  style={isNew ? { animationDelay: `${Math.min(index - 9, 12) * 60}ms` } : undefined}
                 >
                   <div className="relative aspect-[4/3] overflow-hidden">
                     <Link href={`/imoveis/${property.slug}`}>
@@ -360,9 +365,10 @@ export default async function PropertiesPage({
         {properties.length < total && (
           <div className="flex justify-center mt-12">
             <Link
+              scroll={false}
               href={{
                 pathname: '/imoveis',
-                query: { ...searchParams, page: page + 1 },
+                query: { ...searchParams, page: undefined, all: '1' },
               }}
               className="inline-flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-8 py-4 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl"
             >
