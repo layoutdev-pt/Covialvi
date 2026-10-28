@@ -1,4 +1,5 @@
 'use client';
+import { ScrollRevealText } from '@/components/ui/scroll-reveal-text';
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -124,14 +125,8 @@ export default function RecrutamentoPage() {
               <Briefcase className="h-4 w-4" />
               Junte-se à Nossa Equipa
             </span>
-            <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-              Construa a sua carreira connosco
-            </h1>
-            <p className="text-xl text-muted-foreground">
-              A Covialvi está em crescimento e procura profissionais talentosos 
-              para integrar a nossa equipa. Se tem paixão pelo mercado imobiliário, 
-              queremos conhecê-lo!
-            </p>
+            <ScrollRevealText as="h1" className="text-4xl md:text-5xl font-bold text-foreground mb-6" segments={[{ text: "Construa a sua carreira connosco" }]} />
+            <ScrollRevealText as="p" className="text-xl text-muted-foreground" segments={[{ text: "A Covialvi está em crescimento e procura profissionais talentosos para integrar a nossa equipa. Se tem paixão pelo mercado imobiliário, queremos conhecê-lo!" }]} />
           </div>
         </div>
       </section>
@@ -140,13 +135,8 @@ export default function RecrutamentoPage() {
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-4">
-              Porquê Trabalhar na Covialvi?
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Oferecemos um ambiente de trabalho estimulante com todas as condições 
-              para o seu sucesso profissional.
-            </p>
+            <ScrollRevealText as="h2" className="text-3xl font-bold text-foreground mb-4" segments={[{ text: "Porquê Trabalhar na Covialvi?" }]} />
+            <ScrollRevealText as="p" className="text-muted-foreground max-w-2xl mx-auto" segments={[{ text: "Oferecemos um ambiente de trabalho estimulante com todas as condições para o seu sucesso profissional." }]} />
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -173,12 +163,8 @@ export default function RecrutamentoPage() {
       <section className="py-20 bg-secondary/30">
         <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-4">
-              Vagas Disponíveis
-            </h2>
-            <p className="text-muted-foreground">
-              Explore as oportunidades atuais na nossa empresa.
-            </p>
+            <ScrollRevealText as="h2" className="text-3xl font-bold text-foreground mb-4" segments={[{ text: "Vagas Disponíveis" }]} />
+            <ScrollRevealText as="p" className="text-muted-foreground" segments={[{ text: "Explore as oportunidades atuais na nossa empresa." }]} />
           </div>
 
           <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
@@ -291,11 +277,18 @@ export default function RecrutamentoPage() {
                     type="checkbox"
                     id="consent"
                     required
-                    className="mt-1 h-4 w-4 rounded border-input"
+                    className="mt-1 h-4 w-4 flex-shrink-0 cursor-pointer rounded border-input accent-yellow-500"
                   />
-                  <Label htmlFor="consent" className="text-sm text-muted-foreground font-normal">
-                    Autorizo o tratamento dos meus dados pessoais para efeitos de recrutamento, 
-                    de acordo com a Política de Privacidade.
+                  <Label htmlFor="consent" className="text-sm text-muted-foreground font-normal leading-relaxed">
+                    Li e aceito as{' '}
+                    <a href="/politica-de-privacidade" target="_blank" rel="noopener noreferrer" className="font-medium text-foreground underline underline-offset-2 hover:text-yellow-600">
+                      Políticas de Privacidade
+                    </a>{' '}
+                    e os{' '}
+                    <a href="/termos-e-condicoes" target="_blank" rel="noopener noreferrer" className="font-medium text-foreground underline underline-offset-2 hover:text-yellow-600">
+                      Termos e Condições
+                    </a>
+                    .
                   </Label>
                 </div>
 

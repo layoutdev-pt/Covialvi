@@ -22,7 +22,7 @@ const contactSchema = z.object({
 
 type ContactFormData = z.infer<typeof contactSchema>;
 
-export function ContactForm() {
+export function ContactForm({ bare = false }: { bare?: boolean }) {
   const [isLoading, setIsLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [showOtp, setShowOtp] = useState(false);
@@ -114,7 +114,7 @@ export function ContactForm() {
 
   if (sent) {
     return (
-      <div className="bg-white dark:bg-gray-900 rounded-3xl p-10 shadow-xl border border-gray-100 dark:border-gray-800 flex flex-col items-center justify-center text-center min-h-[400px]">
+      <div className={`flex flex-col items-center justify-center text-center min-h-[400px] ${bare ? 'p-10' : 'bg-white dark:bg-gray-900 rounded-3xl p-10 shadow-xl border border-gray-100 dark:border-gray-800'}`}>
         <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-6">
           <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400" />
         </div>
@@ -150,9 +150,9 @@ export function ContactForm() {
         onResend={handleResendOtp}
       />
 
-      <div className="bg-white dark:bg-gray-900 rounded-3xl p-8 md:p-10 shadow-xl border border-gray-100 dark:border-gray-800">
+      <div className={bare ? 'p-8 md:p-12' : 'bg-white dark:bg-gray-900 rounded-3xl p-8 md:p-10 shadow-xl border border-gray-100 dark:border-gray-800'}>
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+          <h2 className="mb-2 text-3xl font-light tracking-tight text-gray-900 dark:text-white">
             Envie-nos uma Mensagem
           </h2>
           <p className="text-gray-500 dark:text-gray-400 text-sm">
@@ -288,8 +288,8 @@ export function ContactForm() {
             />
             <label htmlFor="consent" className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed cursor-pointer">
               Concordo que a Covialvi armazene os meus dados pessoais para responder ao meu pedido de contacto, e que li e aceito a{' '}
-              <a href="/politica-privacidade" target="_blank" className="text-yellow-600 hover:text-yellow-700 underline underline-offset-2 font-medium">Política de Privacidade</a>{' '}e os{' '}
-              <a href="/termos-condicoes" target="_blank" className="text-yellow-600 hover:text-yellow-700 underline underline-offset-2 font-medium">Termos e Condições</a>.
+              <a href="/politica-de-privacidade" target="_blank" className="text-yellow-600 hover:text-yellow-700 underline underline-offset-2 font-medium">Política de Privacidade</a>{' '}e os{' '}
+              <a href="/termos-e-condicoes" target="_blank" className="text-yellow-600 hover:text-yellow-700 underline underline-offset-2 font-medium">Termos e Condições</a>.
               <span className="text-red-500 ml-1">*</span>
             </label>
           </div>

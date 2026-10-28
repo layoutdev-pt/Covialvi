@@ -3,58 +3,89 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { useState, useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { motion } from 'framer-motion';
-import { Menu, X, User, ChevronDown, Search, Sun, Moon, Calculator, ClipboardList } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { ChevronDown, User, Sun, Moon, Calculator, ClipboardList } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { useAuth } from '@/components/providers/auth-provider';
 import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
 
+// Scroll thresholds with hysteresis, so the header never flickers near the switch point
+const COMPACT_ON = 36; // switch to the floating bar below... after scrolling past this
+const COMPACT_OFF = 10; // and only go back to the full bar once back under this
+
+const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
+const DURATION = '500ms';
+
+const LOGO_URL = 'https://media.egorealestate.com/ORIGINAL/ab9a/2a120afd-2b27-49b5-8934-8237e1cbab9a.png';
+
+/** Animated hamburger: three bars that morph into a close icon */
+function MenuIcon({ open }: { open: boolean }) {
+  const bar = 'absolute left-0 h-0.5 w-6 rounded-full bg-current transition-all duration-300';
+  return (
+    <span className="relative block h-6 w-6" aria-hidden="true">
+      <span className={cn(bar, 'top-[5px]', open && 'top-[11px] rotate-45')} />
+      <span className={cn(bar, 'top-[11px]', open && 'scale-x-0 opacity-0')} />
+      <span className={cn(bar, 'top-[17px]', open && 'top-[11px] -rotate-45')} />
+    </span>
+  );
+}
 
 export function Header() {
   const t = useTranslations('nav');
-  const router = useRouter();
-  const pathname = usePathname();
-  const { user, profile, isAdmin, signOut } = useAuth();
+  const { user, isAdmin } = useAuth();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
   const [ferramentasOpen, setFerramentasOpen] = useState(false);
-  // Non-homepage always starts as pill; homepage starts transparent
-  const [scrolled, setScrolled] = useState(false);
-  
-  // Filter states
-  const [searchLocation, setSearchLocation] = useState('');
-  const [searchNature, setSearchNature] = useState('');
-  const [searchBusinessType, setSearchBusinessType] = useState('');
-
-  const isHomePage = pathname === '/';
+  const [compact, setCompact] = useState(false);
+  const [reduceMotion, setReduceMotion] = useState(false);
+  const compactRef = useRef(false);
 
   // Prevent hydration mismatch by only rendering theme-dependent content after mount
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Scroll detection
+  // Respect prefers-reduced-motion
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 80);
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
+    const query = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => setReduceMotion(query.matches);
+    update();
+    query.addEventListener('change', update);
+    return () => query.removeEventListener('change', update);
   }, []);
+
+  // Scroll detection: passive listener + requestAnimationFrame, with two different thresholds
+  useEffect(() => {
+    let frame = 0;
+    const evaluate = () => {
+      frame = 0;
+      const y = window.scrollY;
+      if (!compactRef.current && y > COMPACT_ON) {
+        compactRef.current = true;
+        setCompact(true);
+      } else if (compactRef.current && y < COMPACT_OFF) {
+        compactRef.current = false;
+        setCompact(false);
+      }
+    };
+    const onScroll = () => {
+      if (!frame) frame = window.requestAnimationFrame(evaluate);
+    };
+    evaluate();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
+  }, []);
+
+  // The Ferramentas button folds away in the compact bar, so close its menu
+  useEffect(() => {
+    if (compact) setFerramentasOpen(false);
+  }, [compact]);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -65,7 +96,7 @@ export function Header() {
         setFerramentasOpen(false);
       }
     };
-    
+
     if (userMenuOpen || ferramentasOpen) {
       document.addEventListener('mousedown', handleClickOutside);
       return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -76,342 +107,336 @@ export function Header() {
     setTheme(theme === 'dark' ? 'light' : 'dark');
   };
 
+  // Central navigation config. "priority: false" links fold away in the compact bar; all of them stay visible now.
   const navigation = [
-    { name: t('home') || 'Início', href: '/' },
-    { name: t('about') || 'Sobre Nós', href: '/sobre' },
-    { name: t('services') || 'Serviços', href: '/servicos' },
-    { name: t('properties'), href: '/imoveis' },
-    { name: t('contact') || 'Contacto', href: '/contacto' },
+    { name: t('home') || 'Início', href: '/', priority: true },
+    { name: t('about') || 'Sobre Nós', href: '/sobre', priority: true },
+    { name: t('services') || 'Serviços', href: '/servicos', priority: true },
+    { name: t('properties'), href: '/imoveis', priority: true },
+    { name: t('contact') || 'Contacto', href: '/contacto', priority: true },
   ];
 
-  const handleSearch = () => {
-    const params = new URLSearchParams();
-    if (searchLocation) params.set('location', searchLocation);
-    if (searchNature) params.set('nature', searchNature);
-    if (searchBusinessType) params.set('business_type', searchBusinessType);
-    
-    const queryString = params.toString();
-    router.push(`/imoveis${queryString ? `?${queryString}` : ''}`);
-    setShowFilters(false);
-  };
-
-  // Non-homepage: always pill (even before mount — no flash needed)
-  // Homepage: transparent at top, pill after scroll
-  const isPill = !isHomePage || (mounted && scrolled);
-  const isTransparent = isHomePage && !(mounted && scrolled);
-
-  // Theme helper
   const isDark = mounted && theme === 'dark';
 
-  // Derived color helpers — explicit, not relying on CSS variables that may not resolve
-  const pillBg = isDark ? 'rgba(15,15,15,0.96)' : 'rgba(255,255,255,0.97)';
-  const pillBorder = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
+  // With reduced motion the bar still changes state, just faster and without sliding offsets
+  const duration = reduceMotion ? '220ms' : DURATION;
+
+  // ---- Visual states (always concrete values, so every property can transition) ----
+  const shellStyle: React.CSSProperties = {
+    marginTop: compact ? 12 : 0,
+    width: compact ? 'min(780px, calc(100% - 24px))' : '100%',
+    borderRadius: compact ? 16 : 0,
+    borderWidth: 1,
+    borderStyle: 'solid',
+    borderColor: compact
+      ? isDark ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.08)'
+      : 'rgba(0,0,0,0)',
+    borderBottomColor: compact
+      ? isDark ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.08)'
+      : isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
+    backgroundColor: isDark
+      ? compact ? 'rgba(15,15,15,0.94)' : 'rgba(15,15,15,0.80)'
+      : compact ? 'rgba(255,255,255,0.94)' : 'rgba(255,255,255,0.80)',
+    boxShadow: compact
+      ? '0 12px 40px -12px rgba(0,0,0,0.28), 0 2px 8px rgba(0,0,0,0.06)'
+      : '0 0 0 0 rgba(0,0,0,0), 0 0 0 0 rgba(0,0,0,0)',
+    backdropFilter: compact ? 'blur(18px) saturate(180%)' : 'blur(12px) saturate(160%)',
+    WebkitBackdropFilter: compact ? 'blur(18px) saturate(180%)' : 'blur(12px) saturate(160%)',
+    transitionProperty: 'margin-top, width, border-radius, background-color, border-color, box-shadow, backdrop-filter, -webkit-backdrop-filter',
+    transitionDuration: duration,
+    transitionTimingFunction: EASE,
+  };
+
+  const rowStyle: React.CSSProperties = {
+    paddingTop: compact ? 6 : 16,
+    paddingBottom: compact ? 6 : 16,
+    transitionProperty: 'padding',
+    transitionDuration: duration,
+    transitionTimingFunction: EASE,
+  };
+
+  const logoStyle: React.CSSProperties = {
+    height: compact ? 28 : 40,
+    width: 'auto',
+    transitionProperty: 'height',
+    transitionDuration: duration,
+    transitionTimingFunction: EASE,
+  };
+
+  /** Width + opacity + slide, so secondary items fold away instead of just disappearing */
+  const foldStyle = (hidden: boolean, maxWidth: number, pad = 12): React.CSSProperties => ({
+    maxWidth: hidden ? 0 : maxWidth,
+    opacity: hidden ? 0 : 1,
+    transform: hidden && !reduceMotion ? 'translateX(-8px)' : 'translateX(0)',
+    paddingLeft: hidden ? 0 : pad,
+    paddingRight: hidden ? 0 : pad,
+    pointerEvents: hidden ? 'none' : 'auto',
+    transitionProperty: 'max-width, opacity, transform, padding',
+    transitionDuration: duration,
+    transitionTimingFunction: EASE,
+  });
+
+  const iconFocus = 'outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500/70';
+  const iconButton = cn(
+    iconFocus,
+    isDark ? 'text-gray-300 hover:text-white hover:bg-white/10' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+  );
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
-
-      {/* Outer centering wrapper — uses CSS flex when pill */}
-      <div
-        className={cn(
-          'pointer-events-auto transition-all duration-[450ms] ease-[cubic-bezier(0.25,0.46,0.45,0.94)]',
-          isPill ? 'flex justify-center pt-3' : 'block pt-0'
-        )}
-      >
-        {/* Width-limiting wrapper */}
-        <motion.div
-          className="w-full"
-          animate={{ maxWidth: isPill ? '780px' : '9999px' }}
-          transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
+    <header className="fixed inset-x-0 top-0 z-50 flex justify-center pointer-events-none">
+      <div className="pointer-events-auto" style={shellStyle}>
+        <nav
+          className="mx-auto flex w-full max-w-[1280px] items-center justify-between px-4 md:px-6"
+          style={rowStyle}
+          aria-label="Navegação principal"
         >
-          {/* Visual pill shell */}
-          <motion.div
-            animate={isPill ? {
-              borderRadius: '9999px',
-              backgroundColor: pillBg,
-              boxShadow: '0 4px 24px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06)',
-              borderWidth: '1px',
-              borderColor: pillBorder,
-            } : {
-              borderRadius: '0px',
-              backgroundColor: 'rgba(0,0,0,0)',
-              boxShadow: 'none',
-              borderWidth: '0px',
-              borderColor: 'rgba(0,0,0,0)',
-            }}
-            transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
-            style={{ borderStyle: 'solid', backdropFilter: isPill ? 'blur(20px) saturate(180%)' : 'none' }}
-          >
-            <nav
-              className="px-6 md:px-8 flex items-center justify-between"
-              style={{ height: isPill ? '56px' : '80px', transition: 'height 0.45s cubic-bezier(0.25,0.46,0.45,0.94)' }}
-            >
-              {/* Logo */}
-              <Link href="/" className="flex-shrink-0 flex items-center">
-                <Image
-                  src="https://media.egorealestate.com/ORIGINAL/ab9a/2a120afd-2b27-49b5-8934-8237e1cbab9a.png"
-                  alt="Covialvi"
-                  width={200}
-                  height={70}
-                  className={cn(
-                    'w-auto transition-all duration-500',
-                    isTransparent
-                      ? isDark ? 'h-11 brightness-0 invert' : 'h-11'
-                      : isDark
-                        ? 'h-9 brightness-0 invert'
-                        : 'h-9'
-                  )}
-                  priority
-                />
-              </Link>
+          {/* Logo */}
+          <Link href="/" className="flex flex-shrink-0 items-center rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500">
+            <Image
+              src={LOGO_URL}
+              alt="Covialvi"
+              width={200}
+              height={70}
+              className={cn(isDark && 'brightness-0 invert')}
+              style={logoStyle}
+              priority
+            />
+          </Link>
 
-              {/* Desktop Nav Links */}
-              <div className="hidden lg:flex items-center space-x-6">
+          {/* Desktop nav links */}
+          <ul className="hidden items-center lg:flex">
+            {navigation.map((item, index) => (
+              <li
+                key={item.name}
+                className="overflow-hidden whitespace-nowrap"
+                style={foldStyle(compact && !item.priority, 140)}
+              >
+                <Link
+                  href={item.href}
+                  tabIndex={compact && !item.priority ? -1 : 0}
+                  className={cn(
+                    'header-link-in group relative block rounded py-1 text-sm font-medium transition-colors duration-300',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500',
+                    isDark ? 'text-gray-100 hover:text-yellow-400' : 'text-gray-900 hover:text-yellow-600'
+                  )}
+                  style={{ animationDelay: `${index * 70}ms` }}
+                >
+                  {item.name}
+                  {/* Underline grows from left to right on hover / focus */}
+                  <span
+                    aria-hidden="true"
+                    className="absolute -bottom-0.5 left-0 h-px w-full origin-left scale-x-0 bg-yellow-500 transition-transform duration-300 ease-out group-hover:scale-x-100 group-focus-visible:scale-x-100"
+                  />
+                </Link>
+              </li>
+            ))}
+          </ul>
+
+          {/* Desktop actions */}
+          <div className="hidden items-center lg:flex">
+            {/* Theme toggle - secondary, folds away in the compact bar */}
+            <div className="overflow-hidden" style={foldStyle(false, 48)}>
+              <button
+                onClick={toggleTheme}
+                aria-label={isDark ? 'Modo claro' : 'Modo escuro'}
+                className={cn('rounded-full p-2 transition-colors', iconButton)}
+              >
+                <span key={isDark ? 'sun' : 'moon'} className="theme-icon-swap flex">
+                  {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                </span>
+              </button>
+            </div>
+
+            {/* Ferramentas - folds away together with the Contacto pill once the bar is compact */}
+            <div className="relative whitespace-nowrap" data-dropdown style={{ ...foldStyle(compact, 200, 4), overflow: compact ? "hidden" : "visible" }}>
+              <button
+                onClick={() => setFerramentasOpen(!ferramentasOpen)}
+                aria-expanded={ferramentasOpen}
+                className="flex items-center gap-1 rounded-full bg-yellow-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-yellow-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500 focus-visible:ring-offset-2"
+              >
+                Ferramentas
+                <ChevronDown className={cn('h-4 w-4 transition-transform', ferramentasOpen && 'rotate-180')} />
+              </button>
+              {ferramentasOpen && (
+                <div className="absolute right-0 z-50 mt-2 w-56 rounded-xl border border-border bg-card py-2 shadow-lg">
+                  <a
+                    href="https://simuladores.bancomontepio.pt/ITSCredit.External/Calculator/ITSCredit.Calculator.UI.External/calculator/HOUSINGJOURNEY"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-secondary"
+                    onClick={() => setFerramentasOpen(false)}
+                  >
+                    <Calculator className="h-4 w-4 text-yellow-500" />
+                    <div>
+                      <div className="font-medium">Simulador de Crédito</div>
+                      <div className="text-xs text-muted-foreground">Calcule a sua prestação</div>
+                    </div>
+                  </a>
+                  <Link
+                    href="/avaliacao-completa"
+                    className="flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-secondary"
+                    onClick={() => setFerramentasOpen(false)}
+                  >
+                    <ClipboardList className="h-4 w-4 text-yellow-500" />
+                    <div>
+                      <div className="font-medium">Avaliação de Imóvel</div>
+                      <div className="text-xs text-muted-foreground">Questionário completo</div>
+                    </div>
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* Contact pill - secondary (the nav already has a Contacto link), folds away when compact */}
+            <div className="overflow-hidden whitespace-nowrap" style={foldStyle(compact, 120)}>
+              <Link
+                href="/contacto"
+                tabIndex={compact ? -1 : 0}
+                className={cn(
+                  'block rounded-full border px-4 py-1.5 text-sm font-medium transition-colors',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500',
+                  isDark
+                    ? 'border-white/20 bg-white/10 text-white hover:bg-white/20'
+                    : 'border-gray-300 bg-white/60 text-gray-900 hover:bg-gray-100'
+                )}
+              >
+                Contacto
+              </Link>
+            </div>
+
+            {/* User / login - icon only */}
+            {user ? (
+              <div className="relative ml-1" data-dropdown>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setUserMenuOpen(!userMenuOpen);
+                  }}
+                  aria-label="Conta"
+                  aria-expanded={userMenuOpen}
+                  className={cn('cursor-pointer rounded-full p-2 transition-colors', iconButton)}
+                >
+                  <User className="h-4 w-4" />
+                </button>
+                {userMenuOpen && (
+                  <div className="absolute right-0 z-[70] mt-2 w-52 rounded-xl border border-border bg-card py-2 shadow-lg">
+                    <Link href="/conta" className="block px-4 py-2.5 text-sm text-foreground hover:bg-secondary" onClick={() => setUserMenuOpen(false)}>Minha Conta</Link>
+                    <Link href="/conta/favoritos" className="block px-4 py-2.5 text-sm text-foreground hover:bg-secondary" onClick={() => setUserMenuOpen(false)}>Favoritos</Link>
+                    {isAdmin && <Link href="/admin" className="block px-4 py-2.5 text-sm text-foreground hover:bg-secondary" onClick={() => setUserMenuOpen(false)}>Painel Admin</Link>}
+                    <hr className="my-2 border-border" />
+                    <button onClick={() => { setUserMenuOpen(false); window.location.href = '/auth/logout'; }} className="block w-full px-4 py-2.5 text-left text-sm text-destructive hover:bg-destructive/10">Sair</button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link
+                href="/auth/login"
+                aria-label="Entrar"
+                className={cn('ml-1 flex items-center justify-center rounded-full p-2 transition-colors', iconButton)}
+              >
+                <User className="h-4 w-4" />
+              </Link>
+            )}
+          </div>
+
+          {/* Mobile hamburger */}
+          <button
+            className={cn('rounded-lg p-2 transition-colors lg:hidden', isDark ? 'text-gray-200 hover:bg-white/10' : 'text-gray-800 hover:bg-gray-100')}
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label={mobileMenuOpen ? 'Fechar menu' : 'Abrir menu'}
+            aria-expanded={mobileMenuOpen}
+          >
+            <MenuIcon open={mobileMenuOpen} />
+          </button>
+        </nav>
+
+        {/* Mobile menu - opens below the bar, inside the same shell (grid rows 0fr -> 1fr, no fixed heights) */}
+        <div
+          className="grid lg:hidden"
+          style={{
+            gridTemplateRows: mobileMenuOpen ? '1fr' : '0fr',
+            opacity: mobileMenuOpen ? 1 : 0,
+            transitionProperty: 'grid-template-rows, opacity',
+            transitionDuration: duration,
+            transitionTimingFunction: EASE,
+          }}
+          aria-hidden={!mobileMenuOpen}
+        >
+          <div className="min-h-0 overflow-hidden">
+            <div className="max-h-[calc(100vh-110px)] space-y-4 overflow-y-auto border-t border-border/60 px-4 py-5 md:px-6">
+              <div className="grid gap-3 md:grid-cols-2">
                 {navigation.map((item) => (
                   <Link
                     key={item.name}
                     href={item.href}
-                    className={cn(
-                      'text-sm font-medium transition-colors whitespace-nowrap',
-                      isTransparent
-                        ? isDark ? 'text-white/90 hover:text-white' : 'text-gray-900 hover:text-yellow-500'
-                        : isDark
-                          ? 'text-gray-100 hover:text-yellow-400'
-                          : 'text-gray-900 hover:text-yellow-500'
-                    )}
+                    tabIndex={mobileMenuOpen ? 0 : -1}
+                    className="block rounded-xl px-1 py-2 text-base font-medium text-foreground transition-colors hover:text-yellow-500"
+                    onClick={() => setMobileMenuOpen(false)}
                   >
                     {item.name}
                   </Link>
                 ))}
               </div>
 
-              {/* Desktop Actions */}
-              <div className="hidden lg:flex items-center gap-1.5">
-                {/* Tools visible only in transparent (hero) mode */}
-                {isTransparent && (
-                  <>
-                    <button
-                      onClick={toggleTheme}
-                      className={cn('p-2 rounded-full transition-colors', isDark ? 'text-white/70 hover:text-white hover:bg-white/10' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200/50')}
-                    >
-                      {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-                    </button>
-                    <button
-                      onClick={() => setShowFilters(!showFilters)}
-                      className={cn('p-2 rounded-full transition-colors', isDark ? 'text-white/70 hover:text-white hover:bg-white/10' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200/50')}
-                    >
-                      <Search className="h-4 w-4" />
-                    </button>
-                    <div className="relative" data-dropdown>
-                      <button
-                        onClick={() => setFerramentasOpen(!ferramentasOpen)}
-                        className="flex items-center gap-1 px-4 py-2 rounded-full bg-yellow-500 text-white font-medium text-sm hover:bg-yellow-600 transition-colors"
-                      >
-                        Ferramentas
-                        <ChevronDown className={cn('h-4 w-4 transition-transform', ferramentasOpen && 'rotate-180')} />
-                      </button>
-                      {ferramentasOpen && (
-                        <div className="absolute right-0 mt-2 w-56 bg-card rounded-xl shadow-lg border border-border py-2 z-50">
-                          <a
-                            href="https://simuladores.bancomontepio.pt/ITSCredit.External/Calculator/ITSCredit.Calculator.UI.External/calculator/HOUSINGJOURNEY"
-                            target="_blank" rel="noopener noreferrer"
-                            className="flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-secondary"
-                            onClick={() => setFerramentasOpen(false)}
-                          >
-                            <Calculator className="h-4 w-4 text-yellow-500" />
-                            <div>
-                              <div className="font-medium">Simulador de Crédito</div>
-                              <div className="text-xs text-muted-foreground">Calcule a sua prestação</div>
-                            </div>
-                          </a>
-                          <Link
-                            href="/avaliacao-completa"
-                            className="flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-secondary"
-                            onClick={() => setFerramentasOpen(false)}
-                          >
-                            <ClipboardList className="h-4 w-4 text-yellow-500" />
-                            <div>
-                              <div className="font-medium">Avaliação de Imóvel</div>
-                              <div className="text-xs text-muted-foreground">Questionário completo</div>
-                            </div>
-                          </Link>
-                        </div>
-                      )}
-                    </div>
-                    <Link
-                      href="/contacto"
-                      className={cn(
-                        'px-4 py-1.5 rounded-full font-medium text-sm border transition-all',
-                        isDark
-                          ? 'bg-white/15 text-white hover:bg-white/25 border-white/20'
-                          : 'bg-gray-900/10 text-gray-900 hover:bg-gray-900/20 border-gray-900/20'
-                      )}
-                    >
-                      Contacto
-                    </Link>
-                  </>
-                )}
-
-                {/* User icon — always visible */}
-                {user ? (
-                  <div className="relative" data-dropdown>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setUserMenuOpen(!userMenuOpen); }}
-                      className={cn(
-                        'p-2 rounded-full transition-colors cursor-pointer',
-                        isDark
-                          ? 'text-white/70 hover:text-white hover:bg-white/10'
-                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                      )}
-                    >
-                      <User className="h-4 w-4" />
-                    </button>
-                    {userMenuOpen && (
-                      <div className="absolute right-0 mt-2 w-52 bg-card rounded-xl shadow-lg border border-border py-2 z-[70]">
-                        <Link href="/conta" className="block px-4 py-2.5 text-sm text-foreground hover:bg-secondary" onClick={() => setUserMenuOpen(false)}>Minha Conta</Link>
-                        <Link href="/conta/favoritos" className="block px-4 py-2.5 text-sm text-foreground hover:bg-secondary" onClick={() => setUserMenuOpen(false)}>Favoritos</Link>
-                        {isAdmin && <Link href="/admin" className="block px-4 py-2.5 text-sm text-foreground hover:bg-secondary" onClick={() => setUserMenuOpen(false)}>Painel Admin</Link>}
-                        <hr className="my-2 border-border" />
-                        <button onClick={() => { setUserMenuOpen(false); window.location.href = '/auth/logout'; }} className="block w-full text-left px-4 py-2.5 text-sm text-destructive hover:bg-destructive/10">Sair</button>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <Link
-                    href="/auth/login"
-                    className={cn(
-                      'p-2 rounded-full transition-colors flex items-center justify-center',
-                      isDark
-                        ? 'text-gray-300 hover:text-white hover:bg-white/10'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                    )}
-                  >
-                    <User className="h-4 w-4" />
-                  </Link>
-                )}
+              <div className="flex items-center justify-between pt-1">
+                <button onClick={toggleTheme} tabIndex={mobileMenuOpen ? 0 : -1} className="flex items-center gap-2 rounded-lg bg-secondary px-3 py-2 text-sm text-foreground">
+                  {mounted && theme === 'dark' ? <><Sun className="h-4 w-4" /><span>Modo Claro</span></> : <><Moon className="h-4 w-4" /><span>Modo Escuro</span></>}
+                </button>
               </div>
 
-              {/* Mobile hamburger */}
-              <button
-                className={cn(
-                  'lg:hidden p-2 rounded-lg transition-colors',
-                  isDark
-                    ? 'text-gray-200 hover:bg-white/10'
-                    : 'text-gray-800 hover:bg-gray-100'
-                )}
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              >
-                {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-              </button>
-            </nav>
-
-            {/* Filter Bar — inside pill shell */}
-            {showFilters && (
-              <div className="border-t border-border/50 px-6 py-4">
-                <div className="flex flex-wrap md:flex-nowrap items-center gap-3">
-                  <input
-                    type="text"
-                    placeholder="Localização..."
-                    value={searchLocation}
-                    onChange={(e) => setSearchLocation(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                    className="flex-1 min-w-[180px] px-4 py-2.5 rounded-full border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20"
-                  />
-                  <Select value={searchNature} onValueChange={setSearchNature}>
-                    <SelectTrigger className="rounded-full border-border min-w-[140px]"><SelectValue placeholder="Tipo de Imóvel" /></SelectTrigger>
-                    <SelectContent className="rounded-xl">
-                      <SelectItem value="all">Todos os Tipos</SelectItem>
-                      <SelectItem value="apartment">Apartamento</SelectItem>
-                      <SelectItem value="house">Moradia</SelectItem>
-                      <SelectItem value="land">Terreno</SelectItem>
-                      <SelectItem value="commercial">Comercial</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Select value={searchBusinessType} onValueChange={setSearchBusinessType}>
-                    <SelectTrigger className="rounded-full border-border min-w-[110px]"><SelectValue placeholder="Negócio" /></SelectTrigger>
-                    <SelectContent className="rounded-xl">
-                      <SelectItem value="all">Todos</SelectItem>
-                      <SelectItem value="sale">Comprar</SelectItem>
-                      <SelectItem value="rent">Arrendar</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <button onClick={handleSearch} className="bg-foreground text-background rounded-full px-5 py-2.5 font-medium hover:opacity-90 flex items-center gap-2">
-                    <Search className="h-4 w-4" /> Pesquisar
-                  </button>
+              <div className="space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Ferramentas</p>
+                <div className="grid gap-2 md:grid-cols-2">
+                  <a
+                    href="https://simuladores.bancomontepio.pt/ITSCredit.External/Calculator/ITSCredit.Calculator.UI.External/calculator/HOUSINGJOURNEY"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    tabIndex={mobileMenuOpen ? 0 : -1}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-3 rounded-xl bg-yellow-500/10 px-4 py-3 text-foreground"
+                  >
+                    <Calculator className="h-5 w-5 text-yellow-500" />
+                    <div>
+                      <div className="text-sm font-medium">Simulador de Crédito</div>
+                      <div className="text-xs text-muted-foreground">Calcule a sua prestação</div>
+                    </div>
+                  </a>
+                  <Link
+                    href="/avaliacao-completa"
+                    tabIndex={mobileMenuOpen ? 0 : -1}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-3 rounded-xl bg-yellow-500/10 px-4 py-3 text-foreground"
+                  >
+                    <ClipboardList className="h-5 w-5 text-yellow-500" />
+                    <div>
+                      <div className="text-sm font-medium">Avaliação de Imóvel</div>
+                      <div className="text-xs text-muted-foreground">Questionário completo</div>
+                    </div>
+                  </Link>
                 </div>
               </div>
-            )}
-          </motion.div>
-        </motion.div>
-      </div>
 
-      {/* Mobile Menu — full width dropdown below navbar */}
-      <div
-        className={cn(
-          'lg:hidden fixed inset-x-0 bg-background border-b border-border shadow-lg transition-all duration-300 ease-in-out z-40 pointer-events-auto',
-          isPill ? 'top-[68px]' : 'top-[80px]',
-          mobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none invisible'
-        )}
-      >
-        <div className="px-6 py-6 space-y-4">
-          {navigation.map((item) => (
-            <Link
-              key={item.name}
-              href={item.href}
-              className="block text-base font-medium text-foreground hover:text-yellow-500 transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              {item.name}
-            </Link>
-          ))}
+              <Link href="/contacto" tabIndex={mobileMenuOpen ? 0 : -1} onClick={() => setMobileMenuOpen(false)} className="block rounded-xl bg-foreground py-3 text-center text-sm font-medium text-background">
+                Contacto
+              </Link>
 
-          <div className="flex items-center justify-between pt-2">
-            <button onClick={toggleTheme} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary text-foreground text-sm">
-              {mounted && theme === 'dark' ? <><Sun className="h-4 w-4" /><span>Modo Claro</span></> : <><Moon className="h-4 w-4" /><span>Modo Escuro</span></>}
-            </button>
-          </div>
+              <hr className="border-border" />
 
-          <div className="space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Ferramentas</p>
-            <a
-              href="https://simuladores.bancomontepio.pt/ITSCredit.External/Calculator/ITSCredit.Calculator.UI.External/calculator/HOUSINGJOURNEY"
-              target="_blank" rel="noopener noreferrer"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-3 py-3 px-4 rounded-xl bg-yellow-500/10 text-foreground"
-            >
-              <Calculator className="h-5 w-5 text-yellow-500" />
-              <div>
-                <div className="font-medium text-sm">Simulador de Crédito</div>
-                <div className="text-xs text-muted-foreground">Calcule a sua prestação</div>
-              </div>
-            </a>
-            <Link href="/avaliacao-completa" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 py-3 px-4 rounded-xl bg-yellow-500/10 text-foreground">
-              <ClipboardList className="h-5 w-5 text-yellow-500" />
-              <div>
-                <div className="font-medium text-sm">Avaliação de Imóvel</div>
-                <div className="text-xs text-muted-foreground">Questionário completo</div>
-              </div>
-            </Link>
-          </div>
-
-          <Link href="/contacto" onClick={() => setMobileMenuOpen(false)} className="block text-center py-3 rounded-xl bg-foreground text-background font-medium text-sm">
-            Contacto
-          </Link>
-
-          <hr className="border-border" />
-
-          {user ? (
-            <div className="space-y-2">
-              <Link href="/conta" className="block py-2 text-sm font-medium text-foreground" onClick={() => setMobileMenuOpen(false)}>Minha Conta</Link>
-              <Link href="/conta/favoritos" className="block py-2 text-sm font-medium text-foreground" onClick={() => setMobileMenuOpen(false)}>Favoritos</Link>
-              {isAdmin && <Link href="/admin" className="block py-2 text-sm font-medium text-foreground" onClick={() => setMobileMenuOpen(false)}>Painel Admin</Link>}
-              <button onClick={() => { setMobileMenuOpen(false); window.location.href = '/auth/logout'; }} className="block py-2 text-sm font-medium text-destructive">Sair</button>
+              {user ? (
+                <div className="space-y-2">
+                  <Link href="/conta" tabIndex={mobileMenuOpen ? 0 : -1} className="block py-2 text-sm font-medium text-foreground" onClick={() => setMobileMenuOpen(false)}>Minha Conta</Link>
+                  <Link href="/conta/favoritos" tabIndex={mobileMenuOpen ? 0 : -1} className="block py-2 text-sm font-medium text-foreground" onClick={() => setMobileMenuOpen(false)}>Favoritos</Link>
+                  {isAdmin && <Link href="/admin" tabIndex={mobileMenuOpen ? 0 : -1} className="block py-2 text-sm font-medium text-foreground" onClick={() => setMobileMenuOpen(false)}>Painel Admin</Link>}
+                  <button onClick={() => { setMobileMenuOpen(false); window.location.href = '/auth/logout'; }} tabIndex={mobileMenuOpen ? 0 : -1} className="block py-2 text-sm font-medium text-destructive">Sair</button>
+                </div>
+              ) : (
+                <div className="grid gap-3 md:grid-cols-2">
+                  <Link href="/auth/login" tabIndex={mobileMenuOpen ? 0 : -1} onClick={() => setMobileMenuOpen(false)}><Button variant="outline" className="w-full">Entrar</Button></Link>
+                  <Link href="/auth/registar" tabIndex={mobileMenuOpen ? 0 : -1} onClick={() => setMobileMenuOpen(false)}><Button className="w-full">Criar Conta</Button></Link>
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="flex flex-col gap-3">
-              <Link href="/auth/login" onClick={() => setMobileMenuOpen(false)}><Button variant="outline" className="w-full">Entrar</Button></Link>
-              <Link href="/auth/registar" onClick={() => setMobileMenuOpen(false)}><Button className="w-full">Criar Conta</Button></Link>
-            </div>
-          )}
+          </div>
         </div>
       </div>
     </header>

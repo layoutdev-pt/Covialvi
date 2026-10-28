@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Poppins } from 'next/font/google';
+import { Urbanist } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
 import { ConditionalAnalytics } from '@/components/conditional-analytics';
@@ -9,12 +9,13 @@ import { QueryProvider } from '@/components/providers/query-provider';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { StructuredData, organizationSchema, websiteSchema } from '@/components/seo/structured-data';
 import { CookieConsent } from '@/components/cookie-consent';
+import { PageTransition } from '@/components/page-transition';
 import './globals.css';
 
-const poppins = Poppins({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-poppins',
+const urbanist = Urbanist({
+  subsets: ['latin', 'latin-ext'],
+  weight: ['300', '400', '500', '600'],
+  variable: '--font-urbanist',
   display: 'swap',
   preload: true,
   fallback: ['system-ui', 'arial'],
@@ -111,7 +112,7 @@ export default async function RootLayout({
         <link rel="dns-prefetch" href="https://media.egorealestate.com" />
         <StructuredData data={[organizationSchema, websiteSchema]} />
       </head>
-      <body className={`${poppins.variable} font-sans`}>
+      <body className={`${urbanist.variable} font-sans`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
@@ -124,6 +125,7 @@ export default async function RootLayout({
                 <Toaster position="top-right" richColors />
                 <CookieConsent />
                 <ConditionalAnalytics />
+                <PageTransition />
               </AuthProvider>
             </QueryProvider>
           </NextIntlClientProvider>

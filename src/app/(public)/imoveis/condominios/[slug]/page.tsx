@@ -1,8 +1,8 @@
 import { notFound } from 'next/navigation';
-import Image from 'next/image';
+import { TrimmedImage } from '@/components/properties/trimmed-image';
 import Link from 'next/link';
 import { MapPin, Building2, Bed, Maximize, ArrowLeft } from 'lucide-react';
-import { createServiceClient } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 import { CONDOMINIOS } from '@/lib/condominios';
 
 export const dynamic = 'force-dynamic';
@@ -20,7 +20,7 @@ async function getCondominioProperties(slug: string) {
   const condo = CONDOMINIOS.find((c) => c.slug === slug);
   if (!condo) return null;
 
-  const supabase = createServiceClient();
+  const supabase = createClient();
 
   let query = supabase
     .from('properties')
@@ -57,12 +57,11 @@ export default async function CondominioPage({ params }: { params: { slug: strin
       <section className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white py-20 overflow-hidden">
         {coverImage && (
           <div className="absolute inset-0">
-            <Image
+            <TrimmedImage
               src={coverImage.url}
               alt={condo.name}
               fill
               className="object-cover opacity-25"
-              priority
             />
             <div className="absolute inset-0 bg-gradient-to-br from-gray-900/90 via-gray-800/80 to-gray-900/90" />
           </div>
@@ -107,11 +106,11 @@ export default async function CondominioPage({ params }: { params: { slug: strin
                   <article className="bg-card rounded-2xl overflow-hidden border border-border hover:border-yellow-500/50 hover:shadow-xl transition-all duration-300 h-full">
                     <div className="relative aspect-[4/3] overflow-hidden">
                       {img ? (
-                        <Image
+                        <TrimmedImage
                           src={img.url}
                           alt={property.title}
                           fill
-                          className="object-cover transition-transform duration-500 group-hover:scale-110"
+                          className={`object-cover transition-transform duration-500 group-hover:scale-110 ${isSold ? 'grayscale' : ''}`}
                           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         />
                       ) : (
@@ -120,10 +119,10 @@ export default async function CondominioPage({ params }: { params: { slug: strin
                         </div>
                       )}
                       {isSold && (
-                        <div className="absolute inset-0 z-20 overflow-hidden pointer-events-none">
-                          <div className="absolute text-center transform -rotate-45 bg-red-600 text-white text-sm font-bold py-2 shadow-lg tracking-wide" style={{ width: '320px', top: '60px', left: '-85px' }}>
+                        <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+                          <span className="rounded-2xl bg-red-600 px-6 py-2.5 text-base font-bold text-white shadow-lg tracking-wide">
                             {property.construction_status === 'sold' ? 'Vendido' : '100% Vendido'}
-                          </div>
+                          </span>
                         </div>
                       )}
                     </div>

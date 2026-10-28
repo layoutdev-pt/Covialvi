@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { FileText } from 'lucide-react';
 import { company } from '@/lib/company';
 
 export function Footer() {
@@ -115,15 +116,10 @@ export function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Livro de Reclamações Online"
-                  className="inline-block hover:opacity-80 transition-opacity"
+                  className="inline-flex items-center gap-2 rounded-lg border border-yellow-500/50 bg-yellow-500/10 px-4 py-2 text-sm font-medium text-yellow-400 transition-colors hover:bg-yellow-500/20 hover:text-yellow-300"
                 >
-                  <Image
-                    src="/images/footer/livro-reclamacoes.png"
-                    alt="Livro de Reclamações Eletrónico"
-                    width={120}
-                    height={40}
-                    className="w-auto h-8"
-                  />
+                  <FileText className="h-4 w-4" aria-hidden="true" />
+                  Livro de Reclamações
                 </a>
               </li>
             </ul>

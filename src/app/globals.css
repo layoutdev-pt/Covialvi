@@ -132,3 +132,156 @@
     display: none;
   }
 }
+
+/* Opening / page transition animation */
+@keyframes intro-logo-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes intro-bar-fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.intro-logo {
+  animation: intro-logo-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.intro-bar {
+  animation: intro-bar-fill 1.3s cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+
+/* Header navigation entrance (runs once on load) */
+@keyframes header-link-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.header-link-in {
+  animation: header-link-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header-link-in {
+    animation: none;
+  }
+}
+
+/* Portugal map: endless waves. Each ring grows from Covilhã to the far edge of the country, then starts again. */
+@keyframes pt-wave {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.pt-wave {
+  animation: pt-wave 13s cubic-bezier(0.25, 0.3, 0.5, 1) infinite;
+}
+
+/* The glow behind the map breathes with the waves */
+@keyframes pt-glow {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+.pt-glow {
+  animation: pt-glow 7s ease-in-out infinite;
+}
+
+/* Sun / moon icon: a short turn when the theme changes */
+@keyframes theme-icon-swap {
+  from {
+    opacity: 0;
+    transform: rotate(-70deg) scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(0) scale(1);
+  }
+}
+
+.theme-icon-swap {
+  animation: theme-icon-swap 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-icon-swap {
+    animation: none;
+  }
+}
+
+/*
+ * Dark mode for pieces that were written with fixed light colours.
+ * :where() keeps these rules weak, so any component that already has its own dark: colour still wins.
+ */
+.dark :where(.bg-white) {
+  background-color: hsl(var(--card));
+}
+.dark :where(.bg-\[\#f5f5f3\]),
+.dark :where(.bg-gray-50) {
+  background-color: hsl(var(--background));
+}
+.dark :where(.bg-gray-100),
+.dark :where(.bg-gray-200) {
+  background-color: hsl(var(--secondary));
+}
+.dark :where(.text-gray-900),
+.dark :where(.text-gray-800),
+.dark :where(.text-gray-700),
+.dark :where(.text-black) {
+  color: hsl(var(--foreground));
+}
+.dark :where(.text-gray-600),
+.dark :where(.text-gray-500) {
+  color: hsl(var(--muted-foreground));
+}
+.dark :where(.border-gray-100),
+.dark :where(.border-gray-200),
+.dark :where(.border-gray-300) {
+  border-color: hsl(var(--border));
+}
+.dark :where(.hover\:bg-gray-50:hover),
+.dark :where(.hover\:bg-gray-100:hover) {
+  background-color: hsl(var(--secondary));
+}
+.dark :where(.hover\:text-gray-900:hover) {
+  color: hsl(var(--foreground));
+}
+.dark :where(.border-gray-900) {
+  border-color: hsl(var(--foreground));
+}
+.dark :where(.bg-white\/90),
+.dark :where(.bg-white\/95) {
+  background-color: hsl(var(--card) / 0.92);
+}
+.dark :where(.hover\:bg-white:hover) {
+  background-color: hsl(var(--card));
+}
+.dark :where(.bg-white\/85) {
+  background-color: hsl(var(--card) / 0.88);
+}

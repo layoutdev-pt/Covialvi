@@ -220,6 +220,9 @@ export function SellPropertyWizard() {
   // OTP Dialog state
   const [showOtp, setShowOtp] = useState(false);
 
+  // Privacy policy / terms acceptance (required on the last step)
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+
   // ---------------------------------------------------------------------------
   // COMPUTED VALUES
   // ---------------------------------------------------------------------------
@@ -333,11 +336,11 @@ export function SellPropertyWizard() {
         const cleanPhone = formData.phone.replace(/\s+/g, '').replace(/[^\d+]/g, '');
         const phoneRegex = /^(\+351|00351)?[9][0-9]{8}$/;
         const landlineRegex = /^(\+351|00351)?[2][0-9]{8}$/;
-        return phoneRegex.test(cleanPhone) || landlineRegex.test(cleanPhone);
+        return (phoneRegex.test(cleanPhone) || landlineRegex.test(cleanPhone)) && acceptedTerms;
       default:
         return false;
     }
-  }, [currentStep, formData]);
+  }, [currentStep, formData, acceptedTerms]);
 
   // ---------------------------------------------------------------------------
   // NAVIGATION HANDLERS
@@ -909,6 +912,29 @@ export function SellPropertyWizard() {
                 )}
               </div>
             </div>
+
+            {/* Privacy policy and terms acceptance */}
+            <label htmlFor="wizard-terms" className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+              <input
+                id="wizard-terms"
+                type="checkbox"
+                checked={acceptedTerms}
+                onChange={(e) => setAcceptedTerms(e.target.checked)}
+                required
+                className="mt-1 h-4 w-4 flex-shrink-0 cursor-pointer rounded border-gray-300 accent-yellow-500"
+              />
+              <span>
+                Li e aceito as{' '}
+                <a href="/politica-de-privacidade" target="_blank" rel="noopener noreferrer" className="font-medium text-gray-900 underline underline-offset-2 hover:text-yellow-600 dark:text-gray-200">
+                  Políticas de Privacidade
+                </a>{' '}
+                e os{' '}
+                <a href="/termos-e-condicoes" target="_blank" rel="noopener noreferrer" className="font-medium text-gray-900 underline underline-offset-2 hover:text-yellow-600 dark:text-gray-200">
+                  Termos e Condições
+                </a>
+                .
+              </span>
+            </label>
 
             {/* Trust Microcopy */}
             <div className="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 border border-gray-200 dark:border-gray-800">

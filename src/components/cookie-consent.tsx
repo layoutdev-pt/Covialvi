@@ -95,7 +95,7 @@ export function CookieConsent() {
                   </p>
                   <p className="text-sm text-muted-foreground mb-4">
                     Para mais informações, consulte a nossa{' '}
-                    <Link href="/politica-privacidade" className="text-yellow-600 hover:underline">
+                    <Link href="/politica-de-privacidade" className="text-yellow-600 hover:underline">
                       Política de Privacidade
                     </Link>{' '}
                     e{' '}

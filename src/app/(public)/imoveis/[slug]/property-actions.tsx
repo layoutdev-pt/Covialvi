@@ -361,8 +361,8 @@ export function PropertyActions({
                 />
                 <label htmlFor="visitConsent" className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed cursor-pointer">
                   Li e aceito a{' '}
-                  <a href="/politica-privacidade" target="_blank" className="text-yellow-600 hover:text-yellow-700 underline font-medium">Política de Privacidade</a>{' '}e os{' '}
-                  <a href="/termos-condicoes" target="_blank" className="text-yellow-600 hover:text-yellow-700 underline font-medium">Termos e Condições</a>, e autorizo o armazenamento dos meus dados para agendamento da visita.
+                  <a href="/politica-de-privacidade" target="_blank" className="text-yellow-600 hover:text-yellow-700 underline font-medium">Política de Privacidade</a>{' '}e os{' '}
+                  <a href="/termos-e-condicoes" target="_blank" className="text-yellow-600 hover:text-yellow-700 underline font-medium">Termos e Condições</a>, e autorizo o armazenamento dos meus dados para agendamento da visita.
                   <span className="text-red-500 ml-1">*</span>
                 </label>
               </div>

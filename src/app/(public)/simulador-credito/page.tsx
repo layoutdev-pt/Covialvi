@@ -1,4 +1,5 @@
 'use client';
+import { ScrollRevealText } from '@/components/ui/scroll-reveal-text';
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -213,13 +214,8 @@ export default function SimuladorCreditoPage() {
               <Calculator className="h-4 w-4" />
               Simulador de Crédito Habitação
             </span>
-            <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-              Calcule a sua prestação mensal
-            </h1>
-            <p className="text-xl text-muted-foreground">
-              Simule o seu crédito habitação e descubra quanto pode pagar por mês. 
-              Ajuste os valores e veja os resultados em tempo real.
-            </p>
+            <ScrollRevealText as="h1" className="text-4xl md:text-5xl font-bold text-foreground mb-6" segments={[{ text: "Calcule a sua prestação mensal" }]} />
+            <ScrollRevealText as="p" className="text-xl text-muted-foreground" segments={[{ text: "Simule o seu crédito habitação e descubra quanto pode pagar por mês. Ajuste os valores e veja os resultados em tempo real." }]} />
 
             {/* Disclaimer - Visible immediately */}
             <div className="mt-8 p-4 bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-xl">
@@ -798,7 +794,7 @@ export default function SimuladorCreditoPage() {
       {/* Tips Section */}
       <section className="py-16 px-6 md:px-12 lg:px-20 bg-secondary/30">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-2xl font-bold text-foreground mb-8">Dicas para o seu Crédito Habitação</h2>
+          <ScrollRevealText as="h2" className="text-2xl font-bold text-foreground mb-8" segments={[{ text: "Dicas para o seu Crédito Habitação" }]} />
           <div className="grid md:grid-cols-3 gap-6">
             <Card>
               <CardContent className="p-6">
@@ -844,12 +840,8 @@ export default function SimuladorCreditoPage() {
       {/* CTA Section */}
       <section className="py-16 px-6 md:px-12 lg:px-20">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-foreground mb-4">
-            Encontrou o valor ideal?
-          </h2>
-          <p className="text-muted-foreground mb-8">
-            Explore os nossos imóveis e encontre a casa perfeita para o seu orçamento.
-          </p>
+          <ScrollRevealText as="h2" className="text-3xl font-bold text-foreground mb-4" segments={[{ text: "Encontrou o valor ideal?" }]} />
+          <ScrollRevealText as="p" className="text-muted-foreground mb-8" segments={[{ text: "Explore os nossos imóveis e encontre a casa perfeita para o seu orçamento." }]} />
           <div className="flex flex-wrap justify-center gap-4">
             <Button asChild size="lg" className="bg-foreground text-background hover:opacity-90">
               <a href={`/imoveis?max_price=${propertyValue}`}>

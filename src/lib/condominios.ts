@@ -5,6 +5,8 @@ export interface Condominio {
   description: string;
   filterType: 'address' | 'title';
   filterValue: string;
+  /** Whole development sold - shows a "100% Vendido" label on its card */
+  soldOut?: boolean;
 }
 
 export const CONDOMINIOS: Condominio[] = [
@@ -15,6 +17,7 @@ export const CONDOMINIOS: Condominio[] = [
     description: 'Condomínio moderno no coração da Covilhã com apartamentos de tipologias variadas e acabamentos de alta qualidade.',
     filterType: 'address',
     filterValue: 'QUINTA DO PINHEIRO LOTE 26',
+    soldOut: true,
   },
   {
     slug: 'faculdade-medicina',

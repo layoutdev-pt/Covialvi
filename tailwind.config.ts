@@ -65,8 +65,16 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ['var(--font-poppins)', 'system-ui', 'sans-serif'],
-        display: ['var(--font-poppins)', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-urbanist)', 'system-ui', 'sans-serif'],
+        display: ['var(--font-urbanist)', 'system-ui', 'sans-serif'],
+      },
+      // Lighter, more elegant weights across the whole site
+      fontWeight: {
+        normal: '400',
+        medium: '400',
+        semibold: '500',
+        bold: '500',
+        extrabold: '600',
       },
       fontSize: {
         'display-2xl': ['4.5rem', { lineHeight: '1.1', letterSpacing: '-0.02em' }],

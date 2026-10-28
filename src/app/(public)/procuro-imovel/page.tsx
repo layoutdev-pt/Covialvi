@@ -1,4 +1,5 @@
 'use client';
+import { ScrollRevealText } from '@/components/ui/scroll-reveal-text';
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -86,13 +87,8 @@ export default function ProcuroImovelPage() {
               <Search className="h-4 w-4" />
               Encontre o Imóvel Ideal
             </span>
-            <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-              Procura um imóvel?
-            </h1>
-            <p className="text-xl text-muted-foreground">
-              Não encontrou o que procura? Deixe-nos ajudá-lo! Preencha o formulário 
-              com as suas preferências e a nossa equipa irá procurar o imóvel ideal para si.
-            </p>
+            <ScrollRevealText as="h1" className="text-4xl md:text-5xl font-bold text-foreground mb-6" segments={[{ text: "Procura um imóvel?" }]} />
+            <ScrollRevealText as="p" className="text-xl text-muted-foreground" segments={[{ text: "Não encontrou o que procura? Deixe-nos ajudá-lo! Preencha o formulário com as suas preferências e a nossa equipa irá procurar o imóvel ideal para si." }]} />
           </div>
         </div>
       </section>
@@ -315,11 +311,18 @@ export default function ProcuroImovelPage() {
                     type="checkbox"
                     id="consent"
                     required
-                    className="mt-1 h-4 w-4 rounded border-input"
+                    className="mt-1 h-4 w-4 flex-shrink-0 cursor-pointer rounded border-input accent-yellow-500"
                   />
-                  <Label htmlFor="consent" className="text-sm text-muted-foreground font-normal">
-                    Autorizo o tratamento dos meus dados pessoais para efeitos de pesquisa de imóveis, 
-                    de acordo com a Política de Privacidade.
+                  <Label htmlFor="consent" className="text-sm text-muted-foreground font-normal leading-relaxed">
+                    Li e aceito as{' '}
+                    <a href="/politica-de-privacidade" target="_blank" rel="noopener noreferrer" className="font-medium text-foreground underline underline-offset-2 hover:text-yellow-600">
+                      Políticas de Privacidade
+                    </a>{' '}
+                    e os{' '}
+                    <a href="/termos-e-condicoes" target="_blank" rel="noopener noreferrer" className="font-medium text-foreground underline underline-offset-2 hover:text-yellow-600">
+                      Termos e Condições
+                    </a>
+                    .
                   </Label>
                 </div>
 

@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import Image from 'next/image';
-import { Building2, Play, ImageIcon, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Building2, Play, ImageIcon, ChevronLeft, ChevronRight, Expand, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { TrimmedImage } from '@/components/properties/trimmed-image';
 
 interface PropertyImage {
   id: string;
@@ -27,272 +27,365 @@ const businessTypeLabels: Record<string, string> = {
 
 export function PropertyGallery({ images, videoUrl, title, businessType }: PropertyGalleryProps) {
   const [showVideo, setShowVideo] = useState(false);
-  const [thumbnailStart, setThumbnailStart] = useState(0);
-  
-  const visibleThumbnails = 4;
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const stripRef = useRef<HTMLDivElement>(null);
+  const touchStartX = useRef<number | null>(null);
+
   // Sort by order ascending, but put cover image first
   const sortedImages = [...images].sort((a, b) => {
     if (a.is_cover) return -1;
     if (b.is_cover) return 1;
     return a.order - b.order;
   });
-  
+
   // Start with cover image (which is now first after sorting)
   const [selectedIndex, setSelectedIndex] = useState(0);
   const selectedImage = sortedImages[selectedIndex];
 
-  const scrollThumbnails = (direction: 'up' | 'down') => {
-    if (direction === 'up' && thumbnailStart > 0) {
-      setThumbnailStart(thumbnailStart - 1);
-    } else if (direction === 'down' && thumbnailStart + visibleThumbnails < sortedImages.length) {
-      setThumbnailStart(thumbnailStart + 1);
-    }
-  };
+  // Direction of the last change, so the photo number rolls up when going forward and down when going back
+  const previousIndex = useRef(0);
+  const direction: 1 | -1 = selectedIndex >= previousIndex.current ? 1 : -1;
+  useEffect(() => {
+    previousIndex.current = selectedIndex;
+  }, [selectedIndex]);
+  const total = sortedImages.length;
 
-  const handleThumbnailClick = (index: number) => {
+  const goTo = (index: number) => {
+    if (index < 0 || index >= total) return;
     setSelectedIndex(index);
     setShowVideo(false);
   };
+  const goToPreviousImage = () => goTo(selectedIndex - 1);
+  const goToNextImage = () => goTo(selectedIndex + 1);
 
-  const goToPreviousImage = () => {
-    if (selectedIndex > 0) {
-      setSelectedIndex(selectedIndex - 1);
-      setShowVideo(false);
+  // Keep the selected thumbnail visible in the strip
+  useEffect(() => {
+    const strip = stripRef.current;
+    const active = strip?.querySelector<HTMLElement>('[data-active="true"]');
+    if (strip && active) {
+      strip.scrollTo({
+        left: active.offsetLeft - strip.clientWidth / 2 + active.clientWidth / 2,
+        behavior: 'smooth',
+      });
     }
+  }, [selectedIndex, showVideo]);
+
+  // Lightbox: keyboard navigation and page scroll lock
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setLightboxOpen(false);
+      if (e.key === 'ArrowLeft') setSelectedIndex((i) => Math.max(0, i - 1));
+      if (e.key === 'ArrowRight') setSelectedIndex((i) => Math.min(total - 1, i + 1));
+    };
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', onKey);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [lightboxOpen, total]);
+
+  // Swipe on touch screens
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const delta = e.changedTouches[0].clientX - touchStartX.current;
+    touchStartX.current = null;
+    if (Math.abs(delta) < 50) return;
+    if (delta < 0) goToNextImage();
+    else goToPreviousImage();
   };
 
-  const goToNextImage = () => {
-    if (selectedIndex < sortedImages.length - 1) {
-      setSelectedIndex(selectedIndex + 1);
-      setShowVideo(false);
-    }
-  };
+  const glassButton =
+    'flex h-11 w-11 items-center justify-center rounded-full bg-white/85 text-gray-900 shadow-lg backdrop-blur-md transition-all hover:scale-105 hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500 disabled:pointer-events-none disabled:opacity-0';
 
   return (
-    <div 
-      className="grid grid-cols-1 lg:grid-cols-12 gap-4"
-      role="region"
-      aria-label={`Galeria de imagens: ${title}`}
-    >
-      {/* Vertical Thumbnail Carousel */}
-      <div className="lg:col-span-1 order-2 lg:order-1">
-        <div className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0">
-          {/* Scroll Up Button */}
-          {sortedImages.length > visibleThumbnails && (
-            <button
-              onClick={() => scrollThumbnails('up')}
-              disabled={thumbnailStart === 0}
-              aria-label="Ver imagens anteriores"
-              className="hidden lg:flex w-full h-8 items-center justify-center bg-secondary rounded-lg hover:bg-secondary/80 disabled:opacity-30 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-500"
+    <div role="region" aria-label={`Galeria de imagens: ${title}`} className="space-y-3">
+      {/* Main Image/Video Display */}
+      <div
+        className="group relative aspect-[4/3] overflow-hidden rounded-3xl bg-secondary shadow-[0_20px_60px_-25px_rgba(0,0,0,0.45)] sm:aspect-[16/10] lg:aspect-[16/8]"
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+      >
+        <AnimatePresence mode="wait">
+          {showVideo && videoUrl ? (
+            <motion.div
+              key="video"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black"
             >
-              <ChevronUp className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-            </button>
-          )}
-          
-          {/* Thumbnails */}
-          <div className="flex lg:flex-col gap-2">
-            {sortedImages.slice(thumbnailStart, thumbnailStart + visibleThumbnails).map((image, idx) => {
-              const actualIndex = thumbnailStart + idx;
-              return (
-                <motion.button
-                  key={image.id}
-                  onClick={() => handleThumbnailClick(actualIndex)}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  aria-label={`Ver imagem ${actualIndex + 1} de ${sortedImages.length}`}
-                  aria-current={selectedIndex === actualIndex && !showVideo ? 'true' : undefined}
-                  className={`relative w-16 h-16 lg:w-full lg:h-20 rounded-xl overflow-hidden flex-shrink-0 border-2 transition-all focus:outline-none focus:ring-2 focus:ring-yellow-500 ${
-                    selectedIndex === actualIndex && !showVideo
-                      ? 'border-yellow-500 ring-2 ring-yellow-500/20'
-                      : 'border-transparent hover:border-yellow-500/50'
-                  }`}
-                >
-                  <Image
-                    src={image.url}
-                    alt={`${title} - ${actualIndex + 1}`}
-                    fill
-                    className="object-cover"
-                    sizes="80px"
-                  />
-                </motion.button>
-              );
-            })}
-          </div>
-          
-          {/* Scroll Down Button */}
-          {sortedImages.length > visibleThumbnails && (
-            <button
-              onClick={() => scrollThumbnails('down')}
-              disabled={thumbnailStart + visibleThumbnails >= sortedImages.length}
-              aria-label="Ver mais imagens"
-              className="hidden lg:flex w-full h-8 items-center justify-center bg-secondary rounded-lg hover:bg-secondary/80 disabled:opacity-30 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-500"
-            >
-              <ChevronDown className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-            </button>
-          )}
-          
-          {/* Video Thumbnail */}
-          {videoUrl && (
+              {videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be') ? (
+                <iframe
+                  src={getYouTubeEmbedUrl(videoUrl)}
+                  title={`${title} - Video`}
+                  className="h-full w-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              ) : videoUrl.includes('vimeo.com') ? (
+                <iframe
+                  src={getVimeoEmbedUrl(videoUrl)}
+                  title={`${title} - Video`}
+                  className="h-full w-full"
+                  allow="autoplay; fullscreen; picture-in-picture"
+                  allowFullScreen
+                />
+              ) : (
+                <video src={videoUrl} controls className="h-full w-full object-cover">
+                  O seu navegador não suporta vídeos.
+                </video>
+              )}
+            </motion.div>
+          ) : selectedImage ? (
             <motion.button
-              onClick={() => setShowVideo(true)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              aria-label="Ver vídeo do imóvel"
-              aria-current={showVideo ? 'true' : undefined}
-              className={`relative w-16 h-16 lg:w-full lg:h-20 rounded-xl overflow-hidden flex-shrink-0 border-2 transition-all bg-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-500 ${
-                showVideo
-                  ? 'border-yellow-500 ring-2 ring-yellow-500/20'
-                  : 'border-transparent hover:border-yellow-500/50'
+              key={`image-${selectedIndex}`}
+              type="button"
+              onClick={() => setLightboxOpen(true)}
+              aria-label="Ver foto em ecrã inteiro"
+              initial={{ opacity: 0, scale: 1.04 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              className="absolute inset-0 block cursor-zoom-in"
+            >
+              <TrimmedImage
+                src={selectedImage.url}
+                alt={title}
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 90vw"
+                priority
+              />
+            </motion.button>
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Building2 className="h-16 w-16 text-muted-foreground/30" />
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* Soft gradients so the controls stay readable on any photo */}
+        {!showVideo && (
+          <>
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-black/30 to-transparent" />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/45 to-transparent" />
+          </>
+        )}
+
+        {/* Business Type Badge */}
+        <div className="absolute left-5 top-5 z-10">
+          <span className="rounded-full bg-yellow-500 px-4 py-1.5 text-sm font-medium text-white shadow-lg">
+            {businessTypeLabels[businessType] || businessType}
+          </span>
+        </div>
+
+        {/* Photos / Video toggle */}
+        {videoUrl && (
+          <div className="absolute right-5 top-5 z-10 flex gap-1 rounded-full bg-white/85 p-1 shadow-lg backdrop-blur-md">
+            <button
+              onClick={() => setShowVideo(false)}
+              className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+                !showVideo ? 'bg-yellow-500 text-white' : 'text-gray-800 hover:bg-white'
               }`}
             >
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center">
-                  <Play className="h-5 w-5 text-white ml-0.5" fill="white" />
-                </div>
-              </div>
-              <span className="absolute bottom-1 left-1 right-1 text-[10px] text-white text-center font-medium">
-                Vídeo
-              </span>
-            </motion.button>
-          )}
-        </div>
-      </div>
-
-      {/* Main Image/Video Display */}
-      <div className="lg:col-span-11 order-1 lg:order-2">
-        <div className="relative aspect-[16/10] rounded-2xl overflow-hidden bg-secondary">
-          <AnimatePresence mode="wait">
-            {showVideo && videoUrl ? (
-              <motion.div
-                key="video"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0"
-              >
-                {videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be') ? (
-                  <iframe
-                    src={getYouTubeEmbedUrl(videoUrl)}
-                    title={`${title} - Video`}
-                    className="w-full h-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                ) : videoUrl.includes('vimeo.com') ? (
-                  <iframe
-                    src={getVimeoEmbedUrl(videoUrl)}
-                    title={`${title} - Video`}
-                    className="w-full h-full"
-                    allow="autoplay; fullscreen; picture-in-picture"
-                    allowFullScreen
-                  />
-                ) : (
-                  <video
-                    src={videoUrl}
-                    controls
-                    className="w-full h-full object-cover"
-                  >
-                    O seu navegador não suporta vídeos.
-                  </video>
-                )}
-              </motion.div>
-            ) : selectedImage ? (
-              <motion.div
-                key={`image-${selectedIndex}`}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0"
-              >
-                <Image
-                  src={selectedImage.url}
-                  alt={title}
-                  fill
-                  className="object-cover"
-                  priority
-                  sizes="(max-width: 768px) 100vw, 80vw"
-                />
-              </motion.div>
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Building2 className="h-16 w-16 text-muted-foreground/30" />
-              </div>
-            )}
-          </AnimatePresence>
-
-          {/* Business Type Badge */}
-          <div className="absolute top-4 left-4 z-10">
-            <span className="bg-white dark:bg-card px-4 py-2 rounded-full text-sm font-medium text-foreground shadow-lg">
-              {businessTypeLabels[businessType] || businessType}
-            </span>
+              <ImageIcon className="h-4 w-4" />
+              Fotos
+            </button>
+            <button
+              onClick={() => setShowVideo(true)}
+              className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+                showVideo ? 'bg-yellow-500 text-white' : 'text-gray-800 hover:bg-white'
+              }`}
+            >
+              <Play className="h-4 w-4" />
+              Vídeo
+            </button>
           </div>
+        )}
 
-          {/* Toggle Buttons */}
-          {videoUrl && (
-            <div className="absolute top-4 right-4 z-10 flex gap-2">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setShowVideo(false)}
-                className={`px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2 transition-all shadow-lg ${
-                  !showVideo
-                    ? 'bg-yellow-500 text-white'
-                    : 'bg-white/90 dark:bg-card/90 backdrop-blur-sm text-foreground hover:bg-white dark:hover:bg-card'
-                }`}
-              >
-                <ImageIcon className="h-4 w-4" />
-                Fotos
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setShowVideo(true)}
-                className={`px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2 transition-all shadow-lg ${
-                  showVideo
-                    ? 'bg-yellow-500 text-white'
-                    : 'bg-white/90 dark:bg-card/90 backdrop-blur-sm text-foreground hover:bg-white dark:hover:bg-card'
-                }`}
-              >
-                <Play className="h-4 w-4" />
-                Vídeo
-              </motion.button>
-            </div>
-          )}
+        {/* Navigation Arrows */}
+        {!showVideo && total > 1 && (
+          <>
+            <button
+              onClick={goToPreviousImage}
+              disabled={selectedIndex === 0}
+              aria-label="Imagem anterior"
+              className={`${glassButton} absolute left-5 top-1/2 z-10 -translate-y-1/2`}
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            <button
+              onClick={goToNextImage}
+              disabled={selectedIndex === total - 1}
+              aria-label="Próxima imagem"
+              className={`${glassButton} absolute right-5 top-1/2 z-10 -translate-y-1/2`}
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
+          </>
+        )}
 
-          {/* Navigation Arrows */}
-          {!showVideo && sortedImages.length > 1 && (
-            <>
-              <button
-                onClick={goToPreviousImage}
-                disabled={selectedIndex === 0}
-                aria-label="Imagem anterior"
-                className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white/90 dark:bg-card/90 backdrop-blur-sm flex items-center justify-center shadow-lg hover:bg-white dark:hover:bg-card transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-              >
-                <ChevronLeft className="h-6 w-6 text-foreground" />
-              </button>
-              <button
-                onClick={goToNextImage}
-                disabled={selectedIndex === sortedImages.length - 1}
-                aria-label="Próxima imagem"
-                className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white/90 dark:bg-card/90 backdrop-blur-sm flex items-center justify-center shadow-lg hover:bg-white dark:hover:bg-card transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-              >
-                <ChevronRight className="h-6 w-6 text-foreground" />
-              </button>
-            </>
-          )}
+        {/* Big photo number, bottom left: 01 /24 */}
+        {!showVideo && total > 0 && (
+          <p
+            aria-label={`Imagem ${selectedIndex + 1} de ${total}`}
+            className="pointer-events-none absolute bottom-5 left-6 z-10 select-none text-3xl font-light leading-none tracking-tight text-white [text-shadow:0_2px_16px_rgba(0,0,0,0.45)] md:bottom-6 md:left-8 md:text-5xl"
+          >
+            <span className="inline-flex items-baseline gap-[0.25em]"><RollingNumber value={selectedIndex + 1} direction={direction} /><span>/{pad(total)}</span></span>
+          </p>
+        )}
 
-          {/* Image Counter */}
-          {!showVideo && sortedImages.length > 0 && (
-            <div className="absolute bottom-4 right-4 z-10">
-              <span className="bg-black/60 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-sm font-medium">
-                {selectedIndex + 1} / {sortedImages.length}
-              </span>
-            </div>
-          )}
-        </div>
+        {/* Full screen */}
+        {!showVideo && total > 0 && (
+          <div className="absolute bottom-5 right-5 z-10 flex items-center gap-2">
+            <button
+              onClick={() => setLightboxOpen(true)}
+              className="flex items-center gap-2 rounded-full bg-white/90 px-4 py-1.5 text-sm font-medium text-gray-900 shadow-lg backdrop-blur-md transition-colors hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500"
+            >
+              <Expand className="h-4 w-4" />
+              Ver todas
+            </button>
+          </div>
+        )}
       </div>
+
+      {/* Thumbnail strip */}
+      {(total > 1 || videoUrl) && (
+        <div
+          ref={stripRef}
+          className="scrollbar-hide flex snap-x gap-3 overflow-x-auto scroll-smooth px-1 py-2"
+        >
+          {/* Video Thumbnail */}
+          {videoUrl && (
+            <button
+              onClick={() => setShowVideo(true)}
+              aria-label="Ver vídeo do imóvel"
+              aria-current={showVideo ? 'true' : undefined}
+              data-active={showVideo}
+              className={`relative h-[72px] w-24 flex-shrink-0 snap-start overflow-hidden rounded-2xl bg-gray-900 transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500 sm:h-20 sm:w-28 ${
+                showVideo ? 'ring-2 ring-yellow-500 ring-offset-2' : 'opacity-70 hover:opacity-100'
+              }`}
+            >
+              <span className="absolute inset-0 flex items-center justify-center">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-yellow-500">
+                  <Play className="ml-0.5 h-4 w-4 text-white" fill="white" />
+                </span>
+              </span>
+              <span className="absolute bottom-1 left-0 right-0 text-center text-[10px] font-medium text-white">Vídeo</span>
+            </button>
+          )}
+
+          {sortedImages.map((image, index) => {
+            const active = selectedIndex === index && !showVideo;
+            return (
+              <button
+                key={image.id}
+                onClick={() => goTo(index)}
+                aria-label={`Ver imagem ${index + 1} de ${total}`}
+                aria-current={active ? 'true' : undefined}
+                data-active={active}
+                className={`relative h-[72px] w-24 flex-shrink-0 snap-start overflow-hidden rounded-2xl transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500 sm:h-20 sm:w-28 ${
+                  active ? 'ring-2 ring-yellow-500 ring-offset-2' : 'opacity-70 hover:opacity-100'
+                }`}
+              >
+                <TrimmedImage
+                  src={image.url}
+                  alt={`${title} - ${index + 1}`}
+                  className="object-cover"
+                  sizes="112px"
+                />
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Full screen viewer */}
+      <AnimatePresence>
+        {lightboxOpen && selectedImage && (
+          <motion.div
+            key="lightbox"
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Fotografias: ${title}`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 z-[150] flex flex-col bg-black/95"
+            onClick={() => setLightboxOpen(false)}
+          >
+            <div className="flex items-center justify-between px-5 py-4 text-white" onClick={(e) => e.stopPropagation()}>
+              <span className="text-2xl font-light tracking-tight text-white">
+                <span className="inline-flex items-baseline gap-[0.25em]"><RollingNumber value={selectedIndex + 1} direction={direction} /><span>/{pad(total)}</span></span>
+              </span>
+              <button
+                onClick={() => setLightboxOpen(false)}
+                aria-label="Fechar"
+                className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="flex min-h-0 flex-1 items-center justify-center px-3 pb-4 sm:px-8" onClick={(e) => e.stopPropagation()}>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={`lightbox-${selectedIndex}`}
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                  className="relative inline-flex max-h-full max-w-full"
+                  onTouchStart={onTouchStart}
+                  onTouchEnd={onTouchEnd}
+                >
+                  {/* The photo keeps its own proportions, with rounded corners; the arrows sit on top of it */}
+                  <TrimmedImage
+                    natural
+                    src={selectedImage.url}
+                    alt={title}
+                    className="block h-auto max-h-[calc(100vh-120px)] w-auto max-w-[calc(100vw-24px)] rounded-3xl object-contain shadow-2xl sm:max-w-[calc(100vw-96px)]"
+                  />
+
+                  {total > 1 && (
+                    <>
+                      <button
+                        onClick={() => goTo(selectedIndex - 1)}
+                        disabled={selectedIndex === 0}
+                        aria-label="Imagem anterior"
+                        className={`${glassButton} absolute left-4 top-1/2 -translate-y-1/2`}
+                      >
+                        <ChevronLeft className="h-5 w-5" />
+                      </button>
+                      <button
+                        onClick={() => goTo(selectedIndex + 1)}
+                        disabled={selectedIndex === total - 1}
+                        aria-label="Próxima imagem"
+                        className={`${glassButton} absolute right-4 top-1/2 -translate-y-1/2`}
+                      >
+                        <ChevronRight className="h-5 w-5" />
+                      </button>
+                    </>
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
+}
+
+// 1 -> "01"
+function pad(value: number): string {
+  return String(value).padStart(2, '0');
 }
 
 function getYouTubeEmbedUrl(url: string): string {
@@ -307,4 +400,30 @@ function getVimeoEmbedUrl(url: string): string {
   const match = url.match(regExp);
   const videoId = match ? match[1] : null;
   return videoId ? `https://player.vimeo.com/video/${videoId}` : url;
+}
+
+/** Number that slides out upwards while the next one slides in from below */
+function RollingNumber({ value, direction }: { value: number; direction: 1 | -1 }) {
+  return (
+    <span className="relative inline-block overflow-hidden" style={{ height: '1.08em' }} aria-hidden="true">
+      <AnimatePresence initial={false} mode="popLayout" custom={direction}>
+        <motion.span
+          key={value}
+          custom={direction}
+          variants={{
+            enter: (d: number) => ({ y: d > 0 ? '105%' : '-105%' }),
+            center: { y: '0%' },
+            exit: (d: number) => ({ y: d > 0 ? '-105%' : '105%' }),
+          }}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+          className="block"
+        >
+          {pad(value)}
+        </motion.span>
+      </AnimatePresence>
+    </span>
+  );
 }

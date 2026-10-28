@@ -1,4 +1,5 @@
 'use client';
+import { ScrollRevealText } from '@/components/ui/scroll-reveal-text';
 
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -1083,8 +1084,8 @@ export default function AvaliacaoCompletaPage() {
               />
               <label htmlFor="evalConsent" className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed cursor-pointer">
                 Li e aceito a{' '}
-                <a href="/politica-privacidade" target="_blank" className="text-yellow-600 hover:text-yellow-700 underline font-medium">Política de Privacidade</a>{' '}e os{' '}
-                <a href="/termos-condicoes" target="_blank" className="text-yellow-600 hover:text-yellow-700 underline font-medium">Termos e Condições</a>, e autorizo o armazenamento dos meus dados para avaliação do imóvel.
+                <a href="/politica-de-privacidade" target="_blank" className="text-yellow-600 hover:text-yellow-700 underline font-medium">Política de Privacidade</a>{' '}e os{' '}
+                <a href="/termos-e-condicoes" target="_blank" className="text-yellow-600 hover:text-yellow-700 underline font-medium">Termos e Condições</a>, e autorizo o armazenamento dos meus dados para avaliação do imóvel.
                 <span className="text-red-500 ml-1">*</span>
               </label>
             </div>
@@ -1201,12 +1202,8 @@ export default function AvaliacaoCompletaPage() {
         <div className="max-w-3xl mx-auto">
         {/* Page Header */}
         <div className="text-center mb-12">
-          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Avaliação Completa do Imóvel
-          </h1>
-          <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-            Preencha o formulário detalhado para receber uma avaliação mais precisa e personalizada do seu imóvel.
-          </p>
+          <ScrollRevealText as="h1" className="text-3xl md:text-4xl font-bold text-foreground mb-4" segments={[{ text: "Avaliação Completa do Imóvel" }]} />
+          <ScrollRevealText as="p" className="text-lg text-muted-foreground max-w-xl mx-auto" segments={[{ text: "Preencha o formulário detalhado para receber uma avaliação mais precisa e personalizada do seu imóvel." }]} />
         </div>
 
         {/* Wizard Card */}

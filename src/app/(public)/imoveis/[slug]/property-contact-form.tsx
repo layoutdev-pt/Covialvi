@@ -201,8 +201,8 @@ export function PropertyContactForm({ propertyId, propertyTitle, propertyRef }: 
           />
           <label htmlFor="propertyConsent" className="text-xs text-muted-foreground leading-relaxed cursor-pointer">
             Li e aceito a{' '}
-            <a href="/politica-privacidade" target="_blank" className="text-yellow-600 hover:text-yellow-700 underline font-medium">Política de Privacidade</a>{' '}e os{' '}
-            <a href="/termos-condicoes" target="_blank" className="text-yellow-600 hover:text-yellow-700 underline font-medium">Termos e Condições</a>, e autorizo o armazenamento dos meus dados.
+            <a href="/politica-de-privacidade" target="_blank" className="text-yellow-600 hover:text-yellow-700 underline font-medium">Política de Privacidade</a>{' '}e os{' '}
+            <a href="/termos-e-condicoes" target="_blank" className="text-yellow-600 hover:text-yellow-700 underline font-medium">Termos e Condições</a>, e autorizo o armazenamento dos meus dados.
             <span className="text-red-500 ml-1">*</span>
           </label>
         </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import Image from 'next/image';
+import { TrimmedImage } from '@/components/properties/trimmed-image';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Heart, Bed, Bath, Maximize, MapPin, Play } from 'lucide-react';
@@ -102,7 +102,7 @@ export function PropertyCard({
           
           {/* Cover image - always present as fallback */}
           {coverImage ? (
-            <Image
+            <TrimmedImage
               src={coverImage.url}
               alt={property.title}
               fill
