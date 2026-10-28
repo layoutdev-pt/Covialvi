@@ -350,7 +350,7 @@ export function PropertyGallery({ images, videoUrl, title, businessType }: Prope
                     natural
                     src={selectedImage.url}
                     alt={title}
-                    className="block h-auto max-h-[calc(100vh-120px)] w-auto max-w-[calc(100vw-24px)] rounded-3xl object-contain shadow-2xl sm:max-w-[calc(100vw-96px)]"
+                    className="block h-auto max-h-[calc(100dvh-120px)] w-auto max-w-[calc(100vw-24px)] rounded-3xl object-contain shadow-2xl sm:max-w-[calc(100vw-96px)]"
                   />
 
                   {total > 1 && (

@@ -91,6 +91,12 @@ export function PortugalMap() {
         style={{ animationPlayState: inView ? 'running' : 'paused' }}
       />
 
+      <motion.div
+        initial={{ opacity: 0, y: 14 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.1 }}
+        transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+      >
       <svg
         viewBox="0 0 270 526"
         className="relative h-auto w-full overflow-visible"
@@ -127,12 +133,7 @@ export function PortugalMap() {
           </mask>
         </defs>
 
-        <motion.g
-          initial={{ opacity: 0, y: 14 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-        >
+        <g>
           {/* Soft body of the country under the dots */}
           <path d={OUTLINE_PATH} className="fill-[#f6f6f4] dark:fill-[#262b34]" />
 
@@ -156,8 +157,9 @@ export function PortugalMap() {
               Covilhã
             </text>
           </g>
-        </motion.g>
+        </g>
       </svg>
+      </motion.div>
     </div>
   );
 }
